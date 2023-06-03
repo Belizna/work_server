@@ -8,14 +8,17 @@ import { creditCreateValidator } from './validations/credit.js'
 import { registerValidator } from './validations/auth.js'
 import { paymentCreateValidator } from './validations/payments.js'
 import { earlyPaymentsEditValidator } from './validations/earlypayments.js'
+import { bookCreateValidator } from './validations/book.js'
 
 import CreditModel from './models/Credit.js'
 import PaymentsModel from './models/Payments.js'
 import EarlyPaymentsModel from './models/EarlyPayments.js'
+import BookModel from './models/Book.js'
 
 import { register, login, me } from './controller/authController.js'
 import { delete_payment, get_payments, update_payment } from './controller/paymentsController.js'
 import { get_early_payment, add_early_payment,edit_early_payment,delete_early_payment  } from './controller/earlyPaymentsController.js'
+import { get_heresy_books,edit_heresy_books,delete_heresy_books,add_heresy_books } from './controller/heresy_horusConstroller.js'
 
 import CheckAuth from './utils/CheckAuth.js'
 
@@ -81,7 +84,6 @@ app.post('/credit/create/', creditCreateValidator, async (req, res) => {
 
 
 app.get('/credit/early_payment/', get_early_payment)
-
 app.post('/credit/early_payment/' , earlyPaymentsEditValidator , add_early_payment)
 app.patch('/credit/early_payment/:id', earlyPaymentsEditValidator, edit_early_payment )
 app.delete('/credit/early_payment/:id', delete_early_payment)
@@ -129,6 +131,12 @@ app.get('/carts/static', async (req,res) => {
         early_sum
     })
 })
+
+app.get('/books/heresy_horus/', get_heresy_books)
+app.post('/books/heresy_horus/add', bookCreateValidator, add_heresy_books) 
+app.patch('/books/heresy_horus/edit/:id', bookCreateValidator, edit_heresy_books)
+app.delete('/books/heresy_horus/delete/:id', delete_heresy_books)
+
 
 app.get('/credit/payments', get_payments)
 app.patch('/credit/payments/:id', paymentCreateValidator, update_payment)
