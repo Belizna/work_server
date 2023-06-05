@@ -13,7 +13,7 @@ import { bookCreateValidator } from './validations/book.js'
 import CreditModel from './models/Credit.js'
 import PaymentsModel from './models/Payments.js'
 import EarlyPaymentsModel from './models/EarlyPayments.js'
-import BookModel from './models/Book.js'
+import WriteBooksModel from './models/WriteBooks.js'
 
 import { register, login, me } from './controller/authController.js'
 import { delete_payment, get_payments, update_payment } from './controller/paymentsController.js'
@@ -142,6 +142,89 @@ app.get('/credit/payments', get_payments)
 app.patch('/credit/payments/:id', paymentCreateValidator, update_payment)
 app.delete('/credit/payments/:id', delete_payment)
 
+app.get('/books/write_books/:book_name', async (req,res) => {
+    try{
+        const write_books = await WriteBooksModel.find({
+            compilation: req.params.book_name})
+
+        if(!write_books) {
+            return res.status(404).send({
+                message:'Книги не найдены'
+            })
+        }
+        
+        res.status(200).json({
+            write_books
+        })
+    }
+    catch(err) {
+        res.status(500).json({
+            err
+        })
+    }
+})
+
+app.patch('/books/write_books/edit/:id', async (req,res) => {
+    try {
+
+        const write_books_edit = await WriteBooksModel.
+        findByIdAndUpdate(req.params.id, {
+            book_name: req.body.book_name,
+            format: req.body.format,
+            collection_book: req.body.collection_book,
+            presence: req.body.presence
+        })
+
+        res.status(200).json({
+            write_books_edit
+        })
+
+    }catch(err) {
+        res.status(500).json({
+            err
+        })
+    }
+})
+
+app.post('/books/write_books/add/:book_name', async(req,res)=> {
+    try {
+        const write_books_doc = new WriteBooksModel({
+
+            book_name: req.body.book_name,
+            format: req.body.format,
+            collection_book: req.body.collection_book,
+            presence: req.body.presence,
+            compilation: req.params.book_name,
+        })
+
+        const writeBooks = await write_books_doc.save()
+
+        res.status(200).json({
+            writeBooks
+        })
+    }
+    catch(err) {
+        res.status(500).json({
+            err
+        })
+    }
+})
+
+app.delete('/books/write_books/delete/:id', async (req,res) => {
+    try {
+        const deleteWriteBooks = await WriteBooksModel.
+        findByIdAndDelete(req.params.id)
+
+        res.status(200).json({
+            deleteWriteBooks
+        })
+    }
+    catch(err) {
+        res.status(500).json({
+            err
+        })
+    }
+})
 
 app.post('/auth/register/', registerValidator, register);
 app.post('/auth/login/', registerValidator, login)
