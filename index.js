@@ -132,8 +132,8 @@ app.get('/carts/static', async (req,res) => {
     })
 })
 
-app.get('/books/heresy_horus/', get_heresy_books)
-app.post('/books/heresy_horus/add', bookCreateValidator, add_heresy_books) 
+app.get('/books/heresy_horus/:book_name', get_heresy_books)
+app.post('/books/heresy_horus/add/:book_name', bookCreateValidator, add_heresy_books) 
 app.patch('/books/heresy_horus/edit/:id', bookCreateValidator, edit_heresy_books)
 app.delete('/books/heresy_horus/delete/:id', delete_heresy_books)
 

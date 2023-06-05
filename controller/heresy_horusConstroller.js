@@ -2,7 +2,8 @@ import BookModel from "../models/Book.js"
 
 export const get_heresy_books = async (req,res) => {
     try {
-        const books = await BookModel.find()
+        
+        const books = await BookModel.find({compilation: req.params.book_name})
 
         if(!books) {
             return res.status(404).send({
@@ -64,12 +65,11 @@ export const delete_heresy_books = async (req,res) => {
 
 export const add_heresy_books = async (req,res) => {
     try{
-
         const bookDoc= new BookModel({
             book_name : req.body.book_name,
             summ_book : req.body.summ_book,
             presence : req.body.presence,
-            compilation: 'Ересь Хоруса'
+            compilation: req.params.book_name
         })
 
         const book = await bookDoc.save()
