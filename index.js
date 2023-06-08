@@ -14,6 +14,7 @@ import CreditModel from './models/Credit.js'
 import PaymentsModel from './models/Payments.js'
 import EarlyPaymentsModel from './models/EarlyPayments.js'
 import WriteBooksModel from './models/WriteBooks.js'
+import GamesModel from './models/Games.js'
 
 import { register, login, me } from './controller/authController.js'
 import { delete_payment, get_payments, update_payment } from './controller/paymentsController.js'
@@ -22,7 +23,7 @@ import { get_heresy_books,edit_heresy_books,delete_heresy_books,add_heresy_books
 
 import CheckAuth from './utils/CheckAuth.js'
 
-mongoose.connect("mongodb+srv://MuadDib:Qwerty123qwerty@cluster0.a7edzkp.mongodb.net/dshb?retryWrites=true&w=majority",
+mongoose.connect(process.env.MONGO_CONNECTION_STRING,
 {useNewUrlParser: true})
 .then(()=> console.log('db connection'))
 .catch((err) => console.log('error db connection', err))
@@ -226,11 +227,92 @@ app.delete('/books/write_books/delete/:id', async (req,res) => {
     }
 })
 
+app.get('/games/library/', async (req,res) => {
+    try {
+        const libraryGames = await GamesModel.find()
+
+        if(!libraryGames)
+        {
+            return res.status(404).send({message: 'Игр не найдено'})
+        }
+
+        res.status(200).json({
+            libraryGames
+        })
+    }
+    catch(err) {
+        res.status(500).json({
+            err
+        })
+    }
+})
+
+app.post('/games/library/add', async(req,res) => {
+    try {
+
+        const libraryGamesdoc = new GamesModel({
+            game_name : req.body.game_name,
+            summ_game: req.body.summ_game,
+            compilation:req.body.compilation,
+            date_game :req.body.date_game,
+            presence: req.body.presence
+        })
+
+        const libraryGames = await libraryGamesdoc.save()
+
+        res.status(200).json({
+            libraryGames
+        })
+
+    }catch(err) {
+        res.status(500).json({
+            err
+        })
+    }
+})
+
+app.patch('/games/library/edit/:id', async(req,res) => {
+    try {
+
+        const libraryGames = await GamesModel.findByIdAndUpdate(req.params.id, {
+            game_name : req.body.game_name,
+            summ_game: req.body.summ_game,
+            compilation:req.body.compilation,
+            date_game :req.body.date_game,
+            presence: req.body.presence
+        })
+
+        res.status(200).json({
+            libraryGames
+        })
+
+    }catch(err) {
+        res.status(500).json({
+            err
+        })
+    }
+})
+
+
+app.delete('/games/library/delete/:id', async(req,res) => {
+    try {
+        const delete_games = await GamesModel.
+        findByIdAndDelete(req.params.id)
+
+        res.status(200).json({delete_games})
+        
+    }catch(err) {
+        res.status(500).json({
+            err
+        })
+}
+})
+
 app.post('/auth/register/', registerValidator, register);
 app.post('/auth/login/', registerValidator, login)
 app.get('/auth/me/', CheckAuth, me)
 
-app.listen(8080, (err)=> {
+app.listen(process.env.PORT || 8080, (err)=> {
     if(err) {
         return console.log(err)
     }
