@@ -23,7 +23,7 @@ import { get_heresy_books,edit_heresy_books,delete_heresy_books,add_heresy_books
 
 import CheckAuth from './utils/CheckAuth.js'
 
-mongoose.connect(process.env.MONGO_CONNECTION_STRING,
+mongoose.connect("mongodb+srv://MuadDib:Qwerty123qwerty@cluster0.a7edzkp.mongodb.net/dshb?retryWrites=true&w=majority",
 {useNewUrlParser: true})
 .then(()=> console.log('db connection'))
 .catch((err) => console.log('error db connection', err))
@@ -115,7 +115,7 @@ app.get('/carts/static', async (req,res) => {
         } else remainder+=payments[i].summ_payment
     }
 
-    const procentStatic = ((paid_fix*100) /(paid_fix+remainder)).toFixed(4)
+    const procentStatic = (((paid_fix+early_sum)*100) /(paid_fix+early_sum+remainder)).toFixed(4)
     const count_month_remainder = payments.length - count_month_paid
     const saving = Number((credit[0].duty - (remainder + paid_fix + early_sum)).toFixed(2))
     const overpayment = Number((credit[0].duty - (credit[0].summ_credit + saving)).toFixed(2))
