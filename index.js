@@ -14,16 +14,17 @@ import CreditModel from './models/Credit.js'
 import PaymentsModel from './models/Payments.js'
 import EarlyPaymentsModel from './models/EarlyPayments.js'
 import WriteBooksModel from './models/WriteBooks.js'
-import GamesModel from './models/Games.js'
+import Games from './models/Games.js'
 
 import { register, login, me } from './controller/authController.js'
 import { delete_payment, get_payments, update_payment } from './controller/paymentsController.js'
 import { get_early_payment, add_early_payment,edit_early_payment,delete_early_payment  } from './controller/earlyPaymentsController.js'
 import { get_heresy_books,edit_heresy_books,delete_heresy_books,add_heresy_books } from './controller/heresy_horusConstroller.js'
+import { delete_games, edit_games,add_games,get_games } from './controller/gamesController.js'
 
 import CheckAuth from './utils/CheckAuth.js'
 
-mongoose.connect("mongodb+srv://MuadDib:Qwerty123qwerty@cluster0.a7edzkp.mongodb.net/dshb?retryWrites=true&w=majority",
+mongoose.connect(process.env.MONGO_CONNECTION_STRING,
 {useNewUrlParser: true})
 .then(()=> console.log('db connection'))
 .catch((err) => console.log('error db connection', err))
@@ -133,6 +134,47 @@ app.get('/carts/static', async (req,res) => {
     })
 })
 
+app.get('/games/static', async(req,res) => {
+
+    const games_steam = await Games.find({compilation: 'Steam'})
+    const games_ubi = await Games.find({compilation: 'Ubisoft Connect'})
+    var games_steam_not_passed = 0
+    var games_ubi_not_passed = 0
+    for(var i = 0; i < games_steam.length; i++)
+    {
+        if (games_steam[i].presence == 'Не Пройдено'){
+            games_steam_not_passed++
+        }
+    }
+    for(var i = 0; i < games_ubi.length; i++)
+    {
+        if (games_ubi[i].presence == 'Не Пройдено'){
+            games_ubi_not_passed++
+        }
+    }
+
+    const games_steam_passed = games_steam.length-games_steam_not_passed
+    const games_ubi_passed = games_ubi.length-games_ubi_not_passed
+    const games_not_all_passed = games_steam_not_passed + games_ubi_not_passed
+    const games_all_passed = games_ubi.length+ games_steam.length - games_not_all_passed
+    const games_all_steam = games_steam.length
+    const games_ubi_steam = games_ubi.length
+    const games_all_library = games_all_steam + games_ubi_steam
+    const procentStaticGames  = Number(((games_steam_passed+games_ubi_passed) * 100 / (games_ubi.length+games_steam.length)).toFixed(2))
+    res.status(200).send({
+        games_steam_not_passed,
+        games_steam_passed,
+        games_ubi_not_passed,
+        games_ubi_passed,
+        games_not_all_passed,
+        games_all_passed,
+        games_all_steam,
+        games_ubi_steam,
+        games_all_library,
+        procentStaticGames 
+    })
+})
+
 app.get('/books/heresy_horus/:book_name', get_heresy_books)
 app.post('/books/heresy_horus/add/:book_name', bookCreateValidator, add_heresy_books) 
 app.patch('/books/heresy_horus/edit/:id', bookCreateValidator, edit_heresy_books)
@@ -227,86 +269,11 @@ app.delete('/books/write_books/delete/:id', async (req,res) => {
     }
 })
 
-app.get('/games/library/', async (req,res) => {
-    try {
-        const libraryGames = await GamesModel.find()
+app.get('/games/library/:library_name',get_games)
+app.post('/games/library/add', add_games)
+app.patch('/games/library/edit/:id', edit_games)
+app.delete('/games/library/delete/:id', delete_games)
 
-        if(!libraryGames)
-        {
-            return res.status(404).send({message: 'Игр не найдено'})
-        }
-
-        res.status(200).json({
-            libraryGames
-        })
-    }
-    catch(err) {
-        res.status(500).json({
-            err
-        })
-    }
-})
-
-app.post('/games/library/add', async(req,res) => {
-    try {
-
-        const libraryGamesdoc = new GamesModel({
-            game_name : req.body.game_name,
-            summ_game: req.body.summ_game,
-            compilation:req.body.compilation,
-            date_game :req.body.date_game,
-            presence: req.body.presence
-        })
-
-        const libraryGames = await libraryGamesdoc.save()
-
-        res.status(200).json({
-            libraryGames
-        })
-
-    }catch(err) {
-        res.status(500).json({
-            err
-        })
-    }
-})
-
-app.patch('/games/library/edit/:id', async(req,res) => {
-    try {
-
-        const libraryGames = await GamesModel.findByIdAndUpdate(req.params.id, {
-            game_name : req.body.game_name,
-            summ_game: req.body.summ_game,
-            compilation:req.body.compilation,
-            date_game :req.body.date_game,
-            presence: req.body.presence
-        })
-
-        res.status(200).json({
-            libraryGames
-        })
-
-    }catch(err) {
-        res.status(500).json({
-            err
-        })
-    }
-})
-
-
-app.delete('/games/library/delete/:id', async(req,res) => {
-    try {
-        const delete_games = await GamesModel.
-        findByIdAndDelete(req.params.id)
-
-        res.status(200).json({delete_games})
-        
-    }catch(err) {
-        res.status(500).json({
-            err
-        })
-}
-})
 
 app.post('/auth/register/', registerValidator, register);
 app.post('/auth/login/', registerValidator, login)
