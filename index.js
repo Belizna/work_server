@@ -15,6 +15,7 @@ import PaymentsModel from './models/Payments.js'
 import EarlyPaymentsModel from './models/EarlyPayments.js'
 import WriteBooksModel from './models/WriteBooks.js'
 import Games from './models/Games.js'
+import Book from './models/Book.js'
 
 import { register, login, me } from './controller/authController.js'
 import { delete_payment, get_payments, update_payment } from './controller/paymentsController.js'
@@ -91,6 +92,66 @@ app.patch('/credit/early_payment/:id', earlyPaymentsEditValidator, edit_early_pa
 app.delete('/credit/early_payment/:id', delete_early_payment)
 
 
+app.get ('/books/static/:book_name', async (req,res) => {
+    const write_books_novel = await WriteBooksModel.find({compilation: req.params.book_name, format : 'роман'})
+    const write_books_story = await WriteBooksModel.find({compilation: req.params.book_name, format : 'рассказ'})
+    const write_books_big_story = await WriteBooksModel.find({compilation: req.params.book_name,format : 'повесть' })
+
+    const books = await Book.aggregate([{$match: {compilation: req.params.book_name}}, 
+        {$group: {_id: null, sum: {$sum: "$summ_book"}}}]) 
+
+    const books_summ = books[0].sum
+
+    var read_novel = 0
+    var read_story = 0
+    var read_big_story = 0
+
+    for(var i = 0; i< write_books_novel.length; i++)
+    {
+        if (write_books_novel[i].presence=='Прочитано')
+            read_novel++
+        else continue
+    }
+    for(var i = 0; i< write_books_story.length; i++)
+    {
+        if (write_books_story[i].presence=='Прочитано')
+            read_story++
+        else continue
+    }
+    for(var i = 0; i< write_books_big_story.length; i++)
+    {
+        if (write_books_big_story[i].presence=='Прочитано')
+            read_big_story++
+        else continue
+    }
+
+    const procentStaticBooks = 
+    Number(((read_novel+read_story+read_big_story)*100/
+    (write_books_novel.length+write_books_story.length+write_books_big_story.length)).toFixed(2))
+
+    const not_read_novel = write_books_novel.length - read_novel
+    const not_read_big_story = write_books_big_story.length - read_big_story
+    const not_read_story = write_books_story.length - read_story
+    const all_books = write_books_big_story.length + write_books_novel.length+ write_books_story.length
+    const read_all_books = read_big_story+read_novel+read_story
+    const not_read_all_books = not_read_big_story+not_read_novel+not_read_story
+
+    res.status(200).json({
+            procentStaticBooks,
+            not_read_novel,
+            not_read_big_story,
+            not_read_story,
+            read_novel,
+            read_story ,
+            read_big_story,
+            all_books,
+            read_all_books,
+            not_read_all_books,
+            books_summ 
+    })
+})
+
+
 app.get('/carts/static', async (req,res) => {
     //const early = await EarlyPaymentsModel.aggregate([{$group: {_id:null, sum: {$sum : "$summ_earlyPayment"}}}])
     const payments = await PaymentsModel.find()
@@ -140,6 +201,8 @@ app.get('/games/static', async(req,res) => {
     const games_ubi = await Games.find({compilation: 'Ubisoft Connect'})
     var games_steam_not_passed = 0
     var games_ubi_not_passed = 0
+    var all_games = games_steam.concat(games_ubi)
+    var summ_all_games = 0
     for(var i = 0; i < games_steam.length; i++)
     {
         if (games_steam[i].presence == 'Не Пройдено'){
@@ -153,6 +216,11 @@ app.get('/games/static', async(req,res) => {
         }
     }
 
+    for(var i = 0; i < all_games.length; i++)
+    {
+        summ_all_games+=all_games[i].summ_game
+    }
+
     const games_steam_passed = games_steam.length-games_steam_not_passed
     const games_ubi_passed = games_ubi.length-games_ubi_not_passed
     const games_not_all_passed = games_steam_not_passed + games_ubi_not_passed
@@ -161,6 +229,7 @@ app.get('/games/static', async(req,res) => {
     const games_ubi_steam = games_ubi.length
     const games_all_library = games_all_steam + games_ubi_steam
     const procentStaticGames  = Number(((games_steam_passed+games_ubi_passed) * 100 / (games_ubi.length+games_steam.length)).toFixed(2))
+    
     res.status(200).send({
         games_steam_not_passed,
         games_steam_passed,
@@ -171,7 +240,8 @@ app.get('/games/static', async(req,res) => {
         games_all_steam,
         games_ubi_steam,
         games_all_library,
-        procentStaticGames 
+        procentStaticGames,
+        summ_all_games,
     })
 })
 
