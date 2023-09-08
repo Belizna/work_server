@@ -25,7 +25,7 @@ import { get_write_books, edit_write_books, add_write_books, delete_write_books 
 
 import CheckAuth from './utils/CheckAuth.js'
 
-mongoose.connect("mongodb+srv://MuadDib:Qwerty123qwerty@cluster0.a7edzkp.mongodb.net/dshb?retryWrites=true&w=majority",
+mongoose.connect(process.env.MONGO_CONNECTION_STRING,
 {useNewUrlParser: true})
 .then(()=> console.log('db connection'))
 .catch((err) => console.log('error db connection', err))
