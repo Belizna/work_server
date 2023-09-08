@@ -116,7 +116,7 @@ app.get('/weekend/bonus/', async(req,res) => {
 
 app.post('/weekend/bonus/add', async(req,res) => {
     try{
-        const zp = 160000
+        const zp = 130000
     const norma_time = await NormaModel.find({month_norma: (req.body.date_bonus).substr(3, 7) })
 
     const bonusDoc = new BonusModel({
