@@ -12,6 +12,8 @@ import { bookCreateValidator } from './validations/book.js'
 
 import CreditModel from './models/Credit.js'
 import BonusModel from './models/Bonus.js'
+import NormaModel from './models/Norma_time.js'
+import SalaryModel from './models/Salary.js'
 
 import { register, login, me } from './controller/authController.js'
 import { delete_payment, get_payments, update_payment } from './controller/paymentsController.js'
@@ -23,7 +25,7 @@ import { get_write_books, edit_write_books, add_write_books, delete_write_books 
 
 import CheckAuth from './utils/CheckAuth.js'
 
-mongoose.connect(process.env.MONGO_CONNECTION_STRING,
+mongoose.connect("mongodb+srv://MuadDib:Qwerty123qwerty@cluster0.a7edzkp.mongodb.net/dshb?retryWrites=true&w=majority",
 {useNewUrlParser: true})
 .then(()=> console.log('db connection'))
 .catch((err) => console.log('error db connection', err))
@@ -35,6 +37,24 @@ app.use(cors())
 app.get('/', (req, res) => {
  
 });
+
+app.get('/norma_time/', async(req,res) => {
+    const norma = await NormaModel.find()
+
+    res.json(norma)
+})
+
+app.post('/norma_time/', async(req,res) => {
+    const normaDoc = new NormaModel({
+        month_norma: req.body.month_norma,
+        time_norma: req.body.time_norma
+    })
+
+    const norma = await normaDoc.save()
+
+    res.json(norma)
+})
+
 
 app.post('/credit/create/', creditCreateValidator, async (req, res) => {
 
@@ -85,53 +105,163 @@ app.post('/credit/create/', creditCreateValidator, async (req, res) => {
 
 app.get('/weekend/bonus/', async(req,res) => {
     try{
-        const bonus = await BonusModel.find()
+        const bonus = await BonusModel.find().sort({'_id' : -1})
 
-        res.status(200).json(
-            bonus
-        )
+        res.status(200).json({bonus})
     }
     catch(err){
         res.status(500).json({...err})
     }
 })
 
-app.post('/weekend/bonus/', async(req,res) => {
-
+app.post('/weekend/bonus/add', async(req,res) => {
     try{
-        const bonusDoc =  new BonusModel({
-            date_bonus : req.body.date_bonus,
-            time_bouns : req.body.time_bouns,
-            summ_bonus : req.body.summ_bonus
+        const zp = 160000
+    const norma_time = await NormaModel.find({month_norma: (req.body.date_bonus).substr(3, 7) })
+
+    const bonusDoc = new BonusModel({
+        date_bonus: req.body.date_bonus,
+        time_bonus: req.body.time_bonus,
+        summ_bonus: (zp/norma_time[0].time_norma * 2 * req.body.time_bonus).toFixed(2),
+        status_bonus: req.body.status_bonus
+    })
+
+    const bonus = await bonusDoc.save()
+
+        res.status(200).json({
+            bonus,
         })
-    
-        const bonus = await bonusDoc.save();
-
-        res.status(200).json(
-            bonus
-        )
     }
     catch(err){
         res.status(500).json({...err})
     }
-
 })
 
-app.get('/weekend/bonus/group', async(req,res) => {
+app.delete('/weekend/bonus/delete/:id', async(req,res) => {
     try{
-        const bonus = await BonusModel.aggregate([
-            {$group: {_id: {$dateToString: {format:"%Y-%m", date:"$date_bonus"},},
-            sum: {$sum: "$summ_bonus"}}}])
 
-        res.status(200).json(
-            bonus
-        )
+        const deleteBonus = await BonusModel.findByIdAndDelete(req.params.id)
+            if(!deleteBonus) {
+                return res.status(404).send({
+                    message: 'Такой выплаты нет'
+                })
+            }
+
+        res.status(200).json({deleteBonus})
     }
     catch(err){
         res.status(500).json({...err})
     }
 })
 
+app.patch('/weekend/bonus/edit/:id', async(req,res) => {
+    try{
+        const zp = 130000
+        const norma_time = await NormaModel.find({month_norma: (req.body.date_bonus).substr(3, 7) })
+
+        const bonus_edit = await BonusModel.findByIdAndUpdate(req.params.id, {
+        date_bonus: req.body.date_bonus,
+        time_bonus: req.body.time_bonus,
+        summ_bonus: (zp/norma_time[0].time_norma * 2 * req.body.time_bonus).toFixed(2),
+        status_bonus: req.body.status_bonus
+    })
+
+        res.status(200).json({
+            bonus_edit,
+        })
+    }
+    catch(err){
+        res.status(500).json({...err})
+    }
+})
+
+
+app.post('/weekend/salary/add', async(req,res) => {
+    try{
+
+        const salaryDoc = new SalaryModel({
+            date_salary: req.body.date_salary,
+            summ_salary: req.body.summ_salary,
+            company: req.body.company,
+        })
+        
+        const salary = await salaryDoc.save()
+
+        res.status(200).json({salary})
+}
+catch(err){
+    res.status(500).json({...err})
+}
+})
+app.get('/weekend/work/charts', async(req,res) => {
+    try{
+            const salary_year = await SalaryModel.aggregate([
+            {$group: {_id: { $substr : ["$date_salary",6,4]},
+            sum: {$sum: "$summ_salary"}}}])
+
+            const salary_company = await SalaryModel.aggregate([
+                {$group: {_id: "$company",
+                sum: {$sum: "$summ_salary"}}}])
+
+            const salary_month = await SalaryModel.find()
+
+            const bonus_month = await BonusModel.aggregate([
+                {$group: {_id: { $substr : ["$date_bonus",3,7]},
+                sum: {$sum: "$summ_bonus"}}}])
+
+                const bonus_year = await BonusModel.aggregate([
+                    {$group: {_id: { $substr : ["$date_bonus",6,4]},
+                    sum: {$sum: "$summ_bonus"}}}])
+
+        res.status(200).json({salary_year,salary_company,salary_month,bonus_month,bonus_year})
+    }
+    catch(err){
+        res.status(500).json({...err})
+    }
+})
+app.get('/weekend/salary', async(req,res) => {
+    try{
+
+        const salary = await SalaryModel.find().sort({'_id': -1})
+
+        res.status(200).json({salary})
+    }
+    catch(err){
+        res.status(500).json({...err})
+    }
+})
+app.patch('/weekend/salary/edit/:id', async(req,res) => {
+    try{
+
+        const salary = await SalaryModel.findByIdAndUpdate(req.params.id, 
+            {
+                date_salary: req.body.date_salary,
+                summ_salary: req.body.summ_salary,
+                company: req.body.company,
+            })
+
+        res.status(200).json({salary})
+    }
+    catch(err){
+        res.status(500).json({...err})
+    }
+})
+app.delete('/weekend/salary/delete/:id', async(req,res) => {
+    try{
+
+        const deleteSalary = await SalaryModel.findByIdAndDelete(req.params.id)
+            if(!deleteSalary) {
+                return res.status(404).send({
+                    message: 'Такого платежа нет'
+                })
+            }
+
+        res.status(200).json({deleteSalary})
+    }
+    catch(err){
+        res.status(500).json({...err})
+    }
+})
 
 app.get('/credit/early_payment/', get_early_payment)
 app.post('/credit/early_payment/' , earlyPaymentsEditValidator , add_early_payment)
