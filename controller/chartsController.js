@@ -4,6 +4,8 @@ import EarlyPaymentsModel from '../models/EarlyPayments.js'
 import CreditModel from '../models/Credit.js'
 import Games from '../models/Games.js'
 import Book from '../models/Book.js'
+import SalaryModel from '../models/Salary.js'
+import BonusModel from '../models/Bonus.js'
 
 export const book_static = async (req,res ) => {
 
@@ -166,6 +168,36 @@ export const games_static = async (req,res) => {
     }
     catch(err)
     {
+        res.status(500).json({...err})
+    }
+}
+
+export const salary_chart = async(req,res) => {
+    try{
+            const salary_year = await SalaryModel.aggregate([
+            {$group: {_id: { $substr : ["$date_salary",6,4]},
+            sum: {$sum: "$summ_salary"}}}])
+
+            const salary_company = await SalaryModel.aggregate([
+                {$group: {_id: "$company",
+                sum: {$sum: "$summ_salary"}}}])
+
+            const salary_month = await SalaryModel.find()
+
+            const bonus_month = await BonusModel.aggregate([
+                {$group: {_id: { $substr : ["$date_bonus",3,7]},
+                sum: {$sum: "$summ_bonus"}}},
+                {$sort: {_id: -1}}])
+
+                const bonus_year = await BonusModel.aggregate([
+                    {$group: {_id: { $substr : ["$date_bonus",6,4]},
+                    sum: {$sum: "$summ_bonus"}}}
+                ])
+
+        res.status(200).json({salary_year,salary_company,
+            salary_month,bonus_month,bonus_year})
+    }
+    catch(err){
         res.status(500).json({...err})
     }
 }
