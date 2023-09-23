@@ -20,8 +20,8 @@ export const miniatures_add = async(req,res) => {
             collection_miniature: req.body.collection_miniature,
             count_miniatures: req.body.count_miniatures,
             count_miniatures_color: req.body.count_miniatures_color,
-            procent_miniatures_color: (req.body.count_miniatures_color * 100 / 
-            req.body.count_miniatures),
+            procent_miniatures_color: Number((req.body.count_miniatures_color * 100 / 
+            req.body.count_miniatures).toFixed(2)),
         })
         
         const miniature = await miniatureDoc.save()
@@ -42,8 +42,8 @@ export const miniatures_edit = async(req,res) => {
             collection_miniature: req.body.collection_miniature,
             count_miniatures: req.body.count_miniatures,
             count_miniatures_color: req.body.count_miniatures_color,
-            procent_miniatures_color: (req.body.count_miniatures_color * 100 / 
-            req.body.count_miniatures),
+            procent_miniatures_color: Number((req.body.count_miniatures_color * 100 / 
+            req.body.count_miniatures).toFixed(2)),
         })
     
             res.status(200).json({

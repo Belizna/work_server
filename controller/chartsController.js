@@ -97,7 +97,7 @@ export const credit_static = async (req,res) => {
     const count_month_paid = payments[0].count_month_paid
     const saving = Number((credit[0].duty - (not_payments[0].remainder + payments[0].paid_fix + early_sum)).toFixed(2))
     const overpayment = Number((credit[0].duty - (credit[0].summ_credit + saving)).toFixed(2))
-    const paid= Number((payments[0].paid_fix).toFixed(2))
+    const paid= Number((payments[0].paid_fix+early_sum).toFixed(2))
     const remainder = not_payments[0].remainder
 
     res.status(200).send({
