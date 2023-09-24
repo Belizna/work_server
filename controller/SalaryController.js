@@ -4,7 +4,7 @@ export const salary_add = async(req,res) => {
     try{
 
         const salaryDoc = new SalaryModel({
-            date_salary: req.body.date_salary,
+            date_salary: ((req.body.date_salary).substr(0, 10)).split("-").reverse().join("-"),
             summ_salary: req.body.summ_salary,
             company: req.body.company,
         })
@@ -35,7 +35,7 @@ export const salary_edit = async(req,res) => {
 
         const salary = await SalaryModel.findByIdAndUpdate(req.params.id, 
             {
-                date_salary: req.body.date_salary,
+                date_salary: ((req.body.date_salary).substr(0, 10)).split("-").reverse().join("-"),
                 summ_salary: req.body.summ_salary,
                 company: req.body.company,
             })

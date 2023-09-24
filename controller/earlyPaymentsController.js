@@ -31,7 +31,7 @@ export const add_early_payment = async(req, res) => {
         }
 
         const EarlyPaymentsDoc = new EarlyPaymentsModel({
-            date_earlyPayment : req.body.date_earlyPayment,
+            date_earlyPayment : ((req.body.date_earlyPayment).substr(0, 10)).split("-").reverse().join("-"),
             summ_earlyPayment: req.body.summ_earlyPayment
         })
 
@@ -56,7 +56,7 @@ export const edit_early_payment = async (req,res) =>  {
         }
         const earleUpdate = await EarlyPaymentsModel.findByIdAndUpdate
         (req.params.id, {
-            date_earlyPayment : req.body.date_earlyPayment,
+            date_earlyPayment : ((req.body.date_earlyPayment).substr(0, 10)).split("-").reverse().join("-"),
             summ_earlyPayment: req.body.summ_earlyPayment
         })
         if(!earleUpdate)

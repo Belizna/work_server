@@ -15,7 +15,8 @@ export const miniatures_add = async(req,res) => {
     try{
         const miniatureDoc = new MiniatureModel({
             miniature_name: req.body.miniature_name,
-            date_buy_miniature: req.body.date_buy_miniature,
+            date_buy_miniature: ((req.body.date_buy_miniature).substr(0, 10)).split("-").reverse().join("-"),
+            //date_buy_miniature: req.body.date_buy_miniature
             price_miniature: req.body.price_miniature,
             collection_miniature: req.body.collection_miniature,
             count_miniatures: req.body.count_miniatures,
@@ -37,7 +38,7 @@ export const miniatures_edit = async(req,res) => {
     try{
         const miniature_edit = await MiniatureModel.findByIdAndUpdate(req.params.id, {
             miniature_name: req.body.miniature_name,
-            date_buy_miniature: req.body.date_buy_miniature,
+            date_buy_miniature: ((req.body.date_buy_miniature).substr(0, 10)).split("-").reverse().join("-"),
             price_miniature: req.body.price_miniature,
             collection_miniature: req.body.collection_miniature,
             count_miniatures: req.body.count_miniatures,

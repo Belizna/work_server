@@ -21,7 +21,7 @@ export const edit_games = async(req,res) => {
             game_name : req.body.game_name,
             summ_game: req.body.summ_game,
             compilation:req.body.compilation,
-            date_game :req.body.date_game,
+            date_game :((req.body.date_game).substr(0, 10)).split("-").reverse().join("-"),
             presence: req.body.presence
         })
 
@@ -43,7 +43,7 @@ export const add_games = async(req,res) => {
             game_name : req.body.game_name,
             summ_game: req.body.summ_game,
             compilation:req.body.compilation,
-            date_game :req.body.date_game,
+            date_game :((req.body.date_game).substr(0, 10)).split("-").reverse().join("-"),
             presence: req.body.presence
         })
 

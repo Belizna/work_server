@@ -32,7 +32,6 @@ export const update_payment = async (req, res) => {
             }
             const updatePayments = await PaymentsModel.
             findByIdAndUpdate(req.params.id, {
-                date_payment: req.body.date_payment,
                 summ_payment: req.body.summ_payment,
                 status_payment: req.body.status_payment  
             })
