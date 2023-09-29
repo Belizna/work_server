@@ -6,6 +6,8 @@ import Games from '../models/Games.js'
 import Book from '../models/Book.js'
 import SalaryModel from '../models/Salary.js'
 import BonusModel from '../models/Bonus.js'
+import ColorModel from "../models/Color.js"
+import MiniatureModel from "../models/Miniature.js"
 
 export const book_static = async (req,res ) => {
 
@@ -110,6 +112,47 @@ export const credit_static = async (req,res) => {
         overpayment,
         early_sum,
     })
+    }
+    catch(err)
+    {
+        res.status(500).json({...err})
+    }
+}
+
+export const hobby_static = async (req, res) => {
+    try{
+        const miniatures = await MiniatureModel.aggregate([{$group: {_id: null, sum: {$sum: "$price_miniature"}}}]) 
+        const color = await ColorModel.aggregate([{$group: {_id: null, sum: {$sum: "$summ_color"}}}]) 
+        const count_miniatures = await MiniatureModel.aggregate([{$group: {_id: null, sum: {$sum: "$count_miniatures"}}}]) 
+        const count_miniatures_color = await MiniatureModel.aggregate([{$group: {_id: null, sum: {$sum: "$count_miniatures_color"}}}]) 
+        const procent_color_all = await MiniatureModel.aggregate([
+            {$group: {_id: "$collection_miniature",
+            sum_count: {$sum: "$count_miniatures"},
+            sum_count_color: {$sum: "$count_miniatures_color"}
+        }}])
+
+        var test = []
+        var columnHobby = []
+
+        procent_color_all.map((obj) => test.push([{name : obj._id, type: 'Покрашено', value : obj.sum_count_color}, 
+        {type: 'Осталось', name : obj._id,value : obj.sum_count -obj.sum_count_color }]))
+
+        procent_color_all.map((obj) => columnHobby.push({key: obj._id, name: 'Всего', value: obj.sum_count},
+        {key: obj._id, name: 'Покрашено', value: obj.sum_count_color},
+        {key: obj._id, name: 'Осталось', value: obj.sum_count -obj.sum_count_color}))
+        const summ_hobby = miniatures[0].sum + color[0].sum
+        const summ_miniatures = miniatures[0].sum
+        const summ_color = color[0].sum
+        const procent_miniatures_colors = (count_miniatures_color[0].sum * 100 / count_miniatures[0].sum).toFixed(2)
+
+        res.status(200).json({
+            summ_hobby,
+            summ_miniatures,
+            summ_color,
+            procent_miniatures_colors,
+            test,
+            columnHobby,
+        })
     }
     catch(err)
     {
