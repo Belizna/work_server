@@ -236,9 +236,12 @@ export const salary_chart = async(req,res) => {
                     {$group: {_id: { $substr : ["$date_bonus",6,4]},
                     sum: {$sum: "$summ_bonus"}}}
                 ])
+                const bonus_not = await BonusModel.aggregate([{$match: {status_bonus: "Не Выплачено"}}, 
+                    {$group: {_id: null, sum: {$sum: "$summ_bonus"}}}]) 
 
+            const summ_bonus = bonus_not[0].sum
         res.status(200).json({salary_year,salary_company,
-            salary_month,bonus_month,bonus_year})
+            salary_month,bonus_month,bonus_year, summ_bonus})
     }
     catch(err){
         res.status(500).json({...err})
