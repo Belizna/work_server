@@ -160,6 +160,36 @@ export const hobby_static = async (req, res) => {
     }
 }
 
+export const main_static = async (req, res) => {
+    try{
+        const book_static = await WriteBooksModel.aggregate([
+            {
+                $group: {
+                    _id: {compilation: "$compilation",
+                            presence:"$presence", 
+                            format: "$format"} ,
+                            sum: {"$sum": 1}
+                        }
+            }, 
+            {
+                $sort: {compilation: -1}
+            }
+        ]) 
+
+        var test = []
+
+        book_static.map((obj) => test.push([{compilation: obj._id.compilation, format: obj._id.format,presence:obj._id.presence, sum: obj.sum}]))
+
+        res.status(200).json({
+            test,
+        })
+    }
+    catch(err)
+    {
+        res.status(500).json({...err})
+    }
+}
+
 export const games_static = async (req,res) => {
     try {
         const games_steam = await Games.find({compilation: 'Steam'})
@@ -221,27 +251,34 @@ export const salary_chart = async(req,res) => {
             {$group: {_id: { $substr : ["$date_salary",6,4]},
             sum: {$sum: "$summ_salary"}}}])
 
+           
+
             const salary_company = await SalaryModel.aggregate([
                 {$group: {_id: "$company",
                 sum: {$sum: "$summ_salary"}}}])
 
+                
             const salary_month = await SalaryModel.find()
-
+            
             const bonus_month = await BonusModel.aggregate([
                 {$group: {_id: { $substr : ["$date_bonus",3,7]},
                 sum: {$sum: "$summ_bonus"}}},
                 {$sort: {_id: -1}}])
-
+                
                 const bonus_year = await BonusModel.aggregate([
                     {$group: {_id: { $substr : ["$date_bonus",6,4]},
                     sum: {$sum: "$summ_bonus"}}}
                 ])
+                
                 const bonus_not = await BonusModel.aggregate([{$match: {status_bonus: "Не Выплачено"}}, 
                     {$group: {_id: null, sum: {$sum: "$summ_bonus"}}}]) 
 
-            const summ_bonus = bonus_not[0].sum
-        res.status(200).json({salary_year,salary_company,
-            salary_month,bonus_month,bonus_year, summ_bonus})
+                    var summ_bonus = 0
+                    bonus_not.length === 0 ? summ_bonus = 0 : summ_bonus = bonus_not[0].sum
+
+                    res.status(200).json({salary_year,salary_company,
+                    salary_month,bonus_month,bonus_year, summ_bonus})
+            
     }
     catch(err){
         res.status(500).json({...err})
