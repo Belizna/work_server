@@ -1,3 +1,5 @@
+import 'core-js'
+
 import WriteBooksModel from '../models/WriteBooks.js'
 import PaymentsModel from '../models/Payments.js'
 import EarlyPaymentsModel from '../models/EarlyPayments.js'
@@ -170,18 +172,16 @@ export const main_static = async (req, res) => {
                             format: "$format"} ,
                             sum: {"$sum": 1}
                         }
-            }, 
-            {
-                $sort: {compilation: -1}
             }
         ]) 
 
         var test = []
-
-        book_static.map((obj) => test.push([{compilation: obj._id.compilation, format: obj._id.format,presence:obj._id.presence, sum: obj.sum}]))
-
+        var test2 = [{"asd": 'asd'}]
+        book_static.map((obj) => test.push({compilation: obj._id.compilation, format: obj._id.format,presence:obj._id.presence, sum: obj.sum}))
+        
+        const result = Object.groupBy(test, ({compilation}) => compilation)
         res.status(200).json({
-            test,
+            result
         })
     }
     catch(err)
