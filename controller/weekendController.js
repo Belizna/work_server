@@ -14,7 +14,7 @@ export const bonus_get = async(req,res) => {
 export const bonus_add = async(req,res) => {
     try{
         const zp = 230550
-    const norma_time = await NormaModel.find({month_norma: (((req.body.date_bonus).substr(0, 10)).split("-").reverse().join("-")).substr(3, 7) })
+        const norma_time = await NormaModel.find({month_norma: (((req.body.date_bonus).substr(0, 10)).split("-").reverse().join("-")).substr(3, 7) })
 
     const bonusDoc = new BonusModel({
         date_bonus: ((req.body.date_bonus).substr(0, 10)).split("-").reverse().join("-"),
@@ -23,6 +23,7 @@ export const bonus_add = async(req,res) => {
         status_bonus: req.body.status_bonus
     })
     console.log(req.body)
+    console.log(zp)
     const bonus = await bonusDoc.save()
 
         res.status(200).json({
