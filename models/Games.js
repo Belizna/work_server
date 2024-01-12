@@ -21,6 +21,9 @@ const GamesSchema = new mongoose.Schema({
         type: String,
         required: true
     },
+    time_game: {
+        type: Number
+    },
 
 })
 

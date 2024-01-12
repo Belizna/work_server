@@ -1,4 +1,5 @@
 import WriteBooksModel from "../models/WriteBooks.js";
+import PulseModel from "../models/Pulse.js"
 
 export const get_write_books = async (req, res) => {
     try{
@@ -24,6 +25,19 @@ export const get_write_books = async (req, res) => {
 
 export const edit_write_books = async (req, res) => {
     try {
+
+        const book = await WriteBooksModel.findById(req.params.id)
+
+        if(book.presence === 'Не Прочитано' && req.body.presence === 'Прочитано')
+        {
+            const pulseDoc = new PulseModel({
+                date_pulse: Date.now(),
+                name_pulse: req.body.book_name,
+                category_pulse: 'books'
+            })
+            
+            await pulseDoc.save()
+        }
 
         const write_books_edit = await WriteBooksModel.
         findByIdAndUpdate(req.params.id, {

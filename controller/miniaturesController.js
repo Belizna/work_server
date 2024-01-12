@@ -1,4 +1,5 @@
 import MiniatureModel from "../models/Miniature.js"
+import PulseModel from "../models/Pulse.js"
 
 export const miniatures_get = async(req,res) => {
     try{
@@ -36,6 +37,20 @@ export const miniatures_add = async(req,res) => {
 
 export const miniatures_edit = async(req,res) => {
     try{
+
+        const miniature = await MiniatureModel.findById(req.params.id)
+
+        if(miniature.count_miniatures_color < req.body.count_miniatures_color)
+        {
+            const pulseDoc = new PulseModel({
+                date_pulse: Date.now(),
+                name_pulse: req.body.miniature_name,
+                category_pulse: 'miniature'
+            })
+            
+            await pulseDoc.save()
+        }
+
         const miniature_edit = await MiniatureModel.findByIdAndUpdate(req.params.id, {
             miniature_name: req.body.miniature_name,
             date_buy_miniature: ((req.body.date_buy_miniature).substr(0, 10)).split("-").reverse().join("-"),

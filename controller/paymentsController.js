@@ -1,5 +1,6 @@
 import {validationResult} from 'express-validator'
 import PaymentsModel from '../models/Payments.js'
+import PulseModel from '../models/Pulse.js'
 
 export const get_payments = async (req,res) => {
     try {
@@ -30,6 +31,18 @@ export const update_payment = async (req, res) => {
             if (!errors.isEmpty()) {
                 return res.status(400).json(errors.array())
             }
+            const payments = await PaymentsModel.findById(req.params.id)
+
+            if(payments.status_payment === 'Не оплачено' && req.body.status_payment === 'Оплачено')
+            {
+            const pulseDoc = new PulseModel({
+                date_pulse: Date.now(),
+                sum_pulse_credit: req.body.summ_payment,
+                category_pulse: 'payments'
+            })
+            
+            await pulseDoc.save()
+        }
             const updatePayments = await PaymentsModel.
             findByIdAndUpdate(req.params.id, {
                 summ_payment: req.body.summ_payment,

@@ -1,4 +1,5 @@
 import BookModel from "../models/Book.js"
+import PulseModel from "../models/Pulse.js"
 
 export const get_heresy_books = async (req,res) => {
     try {
@@ -24,6 +25,20 @@ export const get_heresy_books = async (req,res) => {
 
 export const edit_heresy_books = async (req,res) => {
     try{
+
+        const book = await BookModel.findById(req.params.id)
+
+        if (req.body.presence === 'Есть' && book.presence ==='Нет') {
+            const pulseDoc = new PulseModel({
+                date_pulse: Date.now(),
+                name_pulse: req.body.book_name,
+                category_pulse: 'books_price',
+                sum_pulse: req.body.summ_book
+            })
+            
+            await pulseDoc.save()
+        }
+
         const book_edit = await BookModel
         .findByIdAndUpdate(req.params.id, {
             book_name : req.body.book_name,
@@ -65,6 +80,18 @@ export const delete_heresy_books = async (req,res) => {
 
 export const add_heresy_books = async (req,res) => {
     try{
+
+        if (req.body.presence === 'Есть') {
+            const pulseDoc = new PulseModel({
+                date_pulse: Date.now(),
+                name_pulse: req.body.book_name,
+                category_pulse: 'books_price',
+                sum_pulse: req.body.summ_book
+            })
+            
+            await pulseDoc.save()
+        }
+
         const bookDoc= new BookModel({
             book_name : req.body.book_name,
             summ_book : req.body.summ_book,

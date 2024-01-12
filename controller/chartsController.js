@@ -1,5 +1,6 @@
 import 'core-js'
 
+import PulseModel from '../models/Pulse.js'
 import WriteBooksModel from '../models/WriteBooks.js'
 import PaymentsModel from '../models/Payments.js'
 import EarlyPaymentsModel from '../models/EarlyPayments.js'
@@ -164,24 +165,242 @@ export const hobby_static = async (req, res) => {
 
 export const main_static = async (req, res) => {
     try{
-        const book_static = await WriteBooksModel.aggregate([
-            {
-                $group: {
-                    _id: {compilation: "$compilation",
-                            presence:"$presence", 
-                            format: "$format"} ,
-                            sum: {"$sum": 1}
-                        }
-            }
-        ]) 
 
-        var test = []
-        var test2 = [{"asd": 'asd'}]
-        book_static.map((obj) => test.push({compilation: obj._id.compilation, format: obj._id.format,presence:obj._id.presence, sum: obj.sum}))
-        
-        const result = Object.groupBy(test, ({compilation}) => compilation)
+            const diff = ['2024-01', '2024-02','2024-03','2024-04','2024-05','2024-06',
+            '2024-07','2024-08','2024-09','2024-10','2024-11','2024-12']
+
+            let games = []
+            let games_date = []
+            let books = []
+            let books_date = []
+            let miniature = []
+            let miniature_date = []
+            let payments = []
+            let payments_date = []
+            let sum_games_nowyear = 0
+            let sum_books_nowyear = 0
+            let sum_color_nowyear = 0
+            let sum_miniatures_nowyear = 0
+            let time_games_nowyear = 0
+
+            const salary_year = await SalaryModel.aggregate([
+                {$match: { date_salary: {$regex: '2024'}
+            
+            }},
+                {
+                    $group: {_id: {date_salary: {$substr : ["$date_salary",6,4]}},
+                            sum: {$sum: "$summ_salary"},
+                            }
+            }
+            ]) 
+
+            const bonus_year = await BonusModel.aggregate([
+                {$match: { date_bonus: {$regex: '2024'}
+            
+            }},
+                {
+                    $group: {_id: {date_bonus: {$substr : ["$date_bonus",6,4]}},
+                            sum: {$sum: "$summ_bonus"},
+                            }
+            }
+            ]) 
+
+            const pulse_group_charts = await PulseModel.aggregate([
+                {
+                    $group: {_id: {
+                    category_pulse: "$category_pulse", date_pulse: {$substr : ["$date_pulse",0,7]}
+                },
+                sum: {$sum: 1},
+                time_pulse: {$sum: "$time_pulse"}}
+            }, {$sort: {_id: 1}}
+            ])  
+            
+            const pulse_group_payments = await PulseModel.aggregate([
+                {
+                    $group: {_id: {
+                    category_pulse: "$payments", date_pulse: {$substr : ["$date_pulse",0,7]}
+                },
+                count_pulse: {$sum: "$sum_pulse_credit"}}
+            }, {$sort: {_id: 1}}
+            ])
+
+            const games_static = await Games.aggregate([
+                {
+                    $group: {_id: {
+                    date_game: {$substr : ["$date_game",6,10]}
+                },
+                sum: {$sum: "$summ_game"}}
+            }, {$sort: {_id: 1}}
+            ]) 
+            
+            const miniatures_static = await MiniatureModel.aggregate([
+                {
+                    $group: {_id: {
+                        date_buy_miniature: {$substr : ["$date_buy_miniature",6,10]}
+                },
+                sum: {$sum: "$price_miniature"}}
+            }, {$sort: {_id: 1}}
+            ])  
+
+            const color_static = await ColorModel.aggregate([
+                {
+                    $group: {_id: {
+                        date_color: {$substr : ["$date_color",6,10]}
+                },
+                sum: {$sum: "$summ_color"}}
+            }, {$sort: {_id: 1}}
+            ]) 
+
+            const books_static = await PulseModel.aggregate([
+                {$match: {category_pulse: "books_price"}},
+                {
+                    $group: {_id: {date_books: {$substr : ["$date_pulse",0,4]}},
+                            sum: {$sum: "$sum_pulse"},
+                            }
+            }, {$sort: {_id: 1}}
+            ]) 
+
+            const early_payment = await EarlyPaymentsModel.aggregate([
+                {$match: { date_earlyPayment: {$regex: '2024'}
+            
+            }},
+                {
+                    $group: {_id: {date_earlyPayment: {$substr : ["$date_earlyPayment",6,10]}},
+                            sum: {$sum: "$summ_earlyPayment"},
+                            }
+            }
+            ]) 
+
+            const payment = await PaymentsModel.aggregate([
+                {$match: { date_payment: {$regex: '2024'}, status_payment : "Оплачено"
+            
+            }},
+                {
+                    $group: {_id: {date_payment: {$substr : ["$date_payment",6,10]}},
+                            sum: {$sum: "$summ_payment"},
+                            }
+            }
+            ]) 
+
+            books_static.forEach((obj) => {
+                if (obj._id.date_books === '2024') {
+                    sum_books_nowyear = obj.sum
+                }
+            })
+
+            games_static.forEach((obj) => {
+                if (obj._id.date_game === '2024') {
+                    sum_games_nowyear = obj.sum
+                }
+            })
+
+            miniatures_static.forEach((obj) => {
+                if (obj._id.date_buy_miniature === '2024') {
+                    sum_miniatures_nowyear = obj.sum
+                }
+            })
+
+            color_static.forEach((obj) => {
+                if (obj._id.date_color === '2024') {
+                    sum_color_nowyear = obj.sum
+                }
+            })
+
+            pulse_group_payments.forEach((obj) => {
+                payments.push({date_pulse: obj._id.date_pulse, count_pulse: obj.count_pulse})
+                payments_date.push(obj._id.date_pulse)
+            })
+
+            for (let i = 0; i< pulse_group_charts.length; i ++)
+            {
+                if (pulse_group_charts[i]._id.category_pulse === 'games')
+                {
+                    games.push({date_pulse: pulse_group_charts[i]._id.date_pulse,count_pulse: pulse_group_charts[i].sum})
+                    games_date.push(pulse_group_charts[i]._id.date_pulse)
+                    time_games_nowyear+=pulse_group_charts[i].time_pulse
+                }
+                else if (pulse_group_charts[i]._id.category_pulse === 'books')
+                {
+                    books.push({date_pulse: pulse_group_charts[i]._id.date_pulse,count_pulse: pulse_group_charts[i].sum})
+                    books_date.push(pulse_group_charts[i]._id.date_pulse)
+                }
+                else if (pulse_group_charts[i]._id.category_pulse === 'miniature')
+                {
+                    miniature.push({date_pulse: pulse_group_charts[i]._id.date_pulse,count_pulse: pulse_group_charts[i].sum})
+                    miniature_date.push(pulse_group_charts[i]._id.date_pulse)
+                }
+                else continue
+            }
+            
+            let diff_games = diff.filter(date => ! games_date.includes(date))
+            diff_games.map((obj) => games.push({date_pulse: obj,count_pulse: 0}))
+
+            let diff_books = diff.filter(date => ! books_date.includes(date))
+            diff_books.map((obj) => books.push({date_pulse: obj,count_pulse: 0}))
+
+            let diff_miniature = diff.filter(date => ! miniature_date.includes(date))
+            diff_miniature.map((obj) => miniature.push({date_pulse: obj,count_pulse: 0}))
+
+            let diff_payments = diff.filter(date => ! payments_date.includes(date))
+            diff_payments.map((obj) => payments.push({date_pulse: obj,count_pulse: 0}))
+
+            let sortedGames = games.sort((r1, r2) => (r1.date_pulse > r2.date_pulse) ? 1 : (r1.date_pulse < r2.date_pulse) ? -1 : 0)
+            let sortedBooks = books.sort((r1, r2) => (r1.date_pulse > r2.date_pulse) ? 1 : (r1.date_pulse < r2.date_pulse) ? -1 : 0)
+            let sortedMiniatures = miniature.sort((r1, r2) => (r1.date_pulse > r2.date_pulse) ? 1 : (r1.date_pulse < r2.date_pulse) ? -1 : 0)
+            let sortedPayments = payments.sort((r1, r2) => (r1.date_pulse > r2.date_pulse) ? 1 : (r1.date_pulse < r2.date_pulse) ? -1 : 0)
+
+            let summGames = 0
+            sortedGames.forEach(x => {summGames+=x.count_pulse})
+
+            let summBooks = 0
+            sortedBooks.forEach(x => {summBooks+=x.count_pulse})
+
+            let summMiniatures = 0
+            sortedMiniatures.forEach(x => {summMiniatures+=x.count_pulse})
+
+            let summPayments = 0
+            sortedPayments.forEach(x => summPayments+=x.count_pulse)
+
+            let summ_early_payment = 0
+            early_payment.forEach(x => {summ_early_payment+=x.sum})
+
+            let summ_payments = 0
+            payment.forEach(x => summ_payments+=x.sum)
+
+            let summ_salary_year = 0
+            salary_year.forEach(x => summ_salary_year+=x.sum)
+
+            let summ_bonus_year = 0
+            bonus_year.forEach(x => summ_bonus_year+=x.sum)
+            
+
+            if (summ_salary_year === 0 && summ_bonus_year > 0)
+                summ_salary_year += summ_bonus_year
+
+            let summ_delta
+            
+            summ_salary_year - summ_bonus_year < 0 ? summ_delta = 0 : summ_delta = summ_salary_year - summ_bonus_year
+
+
         res.status(200).json({
-            result
+            sortedGames,
+            sortedBooks,
+            sortedMiniatures,
+            sortedPayments,
+            summGames,
+            summBooks,
+            summMiniatures,
+            summPayments,
+            sum_games_nowyear,
+            sum_miniatures_nowyear,
+            sum_color_nowyear,
+            sum_books_nowyear,
+            time_games_nowyear,
+            summ_early_payment,
+            summ_payments,
+            summ_salary_year,
+            summ_bonus_year,
+            summ_delta
         })
     }
     catch(err)
@@ -198,6 +417,7 @@ export const games_static = async (req,res) => {
     var games_ubi_not_passed = 0
     var all_games = games_steam.concat(games_ubi)
     var summ_all_games = 0
+    var summ_time_games = 0
     for(var i = 0; i < games_steam.length; i++)
     {
         if (games_steam[i].presence == 'Не Пройдено'){
@@ -214,6 +434,7 @@ export const games_static = async (req,res) => {
     for(var i = 0; i < all_games.length; i++)
     {
         summ_all_games+=all_games[i].summ_game
+        summ_time_games+=all_games[i].time_game
     }
 
     const games_steam_passed = games_steam.length-games_steam_not_passed
@@ -237,6 +458,7 @@ export const games_static = async (req,res) => {
         games_all_library,
         procentStaticGames,
         summ_all_games,
+        summ_time_games,
     })
     }
     catch(err)

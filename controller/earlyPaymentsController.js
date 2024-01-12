@@ -1,4 +1,5 @@
 import EarlyPaymentsModel from "../models/EarlyPayments.js";
+import PulseModel from "../models/Pulse.js";
 import {validationResult} from 'express-validator'
 
 export const get_early_payment = async(req,res) => {
@@ -29,6 +30,14 @@ export const add_early_payment = async(req, res) => {
         if (!errors.isEmpty()) {
             return res.status(400).json(errors.array())
         }
+        
+        const pulseDoc = new PulseModel({
+            date_pulse: Date.now(),
+            sum_pulse_credit: req.body.summ_earlyPayment,
+            category_pulse: 'payments'
+        })
+        
+        await pulseDoc.save()
 
         const EarlyPaymentsDoc = new EarlyPaymentsModel({
             date_earlyPayment : ((req.body.date_earlyPayment).substr(0, 10)).split("-").reverse().join("-"),
