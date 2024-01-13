@@ -256,6 +256,7 @@ export const main_static = async (req, res) => {
                 {
                     $group: {_id: {date_books: {$substr : ["$date_pulse",0,4]}},
                             sum: {$sum: "$sum_pulse"},
+                            count: {$sum: 1}
                             }
             }, {$sort: {_id: 1}}
             ]) 
@@ -381,6 +382,8 @@ export const main_static = async (req, res) => {
             
             summ_salary_year - summ_bonus_year < 0 ? summ_delta = 0 : summ_delta = summ_salary_year - summ_bonus_year
 
+            let count_books_price = books_static[0]?.count || 0
+
 
         res.status(200).json({
             sortedGames,
@@ -400,7 +403,8 @@ export const main_static = async (req, res) => {
             summ_payments,
             summ_salary_year,
             summ_bonus_year,
-            summ_delta
+            summ_delta,
+            count_books_price
         })
     }
     catch(err)
