@@ -182,6 +182,7 @@ export const main_static = async (req, res) => {
             let sum_color_nowyear = 0
             let sum_miniatures_nowyear = 0
             let time_games_nowyear = 0
+            let count_games_price = 0
 
             const salary_year = await SalaryModel.aggregate([
                 {$match: { date_salary: {$regex: '2024'}
@@ -229,7 +230,8 @@ export const main_static = async (req, res) => {
                     $group: {_id: {
                     date_game: {$substr : ["$date_game",6,10]}
                 },
-                sum: {$sum: "$summ_game"}}
+                sum: {$sum: "$summ_game"},
+                count: {$sum: 1}},
             }, {$sort: {_id: 1}}
             ]) 
             
@@ -247,7 +249,8 @@ export const main_static = async (req, res) => {
                     $group: {_id: {
                         date_color: {$substr : ["$date_color",6,10]}
                 },
-                sum: {$sum: "$summ_color"}}
+                sum: {$sum: "$summ_color"},
+            }
             }, {$sort: {_id: 1}}
             ]) 
 
@@ -291,7 +294,8 @@ export const main_static = async (req, res) => {
 
             games_static.forEach((obj) => {
                 if (obj._id.date_game === '2024') {
-                    sum_games_nowyear = obj.sum
+                    sum_games_nowyear = obj.sum,
+                    count_games_price = obj.count
                 }
             })
 
@@ -404,7 +408,8 @@ export const main_static = async (req, res) => {
             summ_salary_year,
             summ_bonus_year,
             summ_delta,
-            count_books_price
+            count_books_price,
+            count_games_price
         })
     }
     catch(err)
