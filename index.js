@@ -26,7 +26,7 @@ import { colors_add, colors_get, colors_edit, colors_delete } from './controller
 
 import CheckAuth from './utils/CheckAuth.js'
 
-mongoose.connect(process.env.MONGO_CONNECTION_STRING,
+mongoose.connect("mongodb+srv://MuadDib:Qwerty123qwerty@cluster0.a7edzkp.mongodb.net/test?retryWrites=true&w=majority",
 {useNewUrlParser: true})
 .then(()=> console.log('db connection'))
 .catch((err) => console.log('error db connection', err))

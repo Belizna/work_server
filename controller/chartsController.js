@@ -114,6 +114,7 @@ export const credit_static = async (req,res) => {
         saving,
         overpayment,
         early_sum,
+        earlyPay
     })
     }
     catch(err)
