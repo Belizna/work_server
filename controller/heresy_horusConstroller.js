@@ -33,10 +33,22 @@ export const edit_heresy_books = async (req,res) => {
                 date_pulse: Date.now(),
                 name_pulse: req.body.book_name,
                 category_pulse: 'books_price',
-                sum_pulse: req.body.summ_book
+                sum_pulse: req.body.summ_book,
+                id_object: req.params.id
             })
             
             await pulseDoc.save()
+        }
+        else if (req.body.presence === 'Нет' && book.presence ==='Есть')
+        {
+            await PulseModel.deleteMany({id_object:req.params.id})
+        }
+        else {
+            await PulseModel.updateMany({id_object: req.params.id}, 
+                {
+                    name_pulse: req.body.book_name,
+                    sum_pulse: req.body.summ_book
+                })
         }
 
         const book_edit = await BookModel
@@ -58,8 +70,11 @@ catch(err) {
 
 export const delete_heresy_books = async (req,res) => {
     try{
+
         const deleteBooks = await BookModel.
         findByIdAndDelete(req.params.id)
+
+        await PulseModel.deleteMany({id_object: req.params.id})
 
         if(!deleteBooks) {
             return res.status(404).send({
@@ -81,17 +96,6 @@ export const delete_heresy_books = async (req,res) => {
 export const add_heresy_books = async (req,res) => {
     try{
 
-        if (req.body.presence === 'Есть') {
-            const pulseDoc = new PulseModel({
-                date_pulse: Date.now(),
-                name_pulse: req.body.book_name,
-                category_pulse: 'books_price',
-                sum_pulse: req.body.summ_book
-            })
-            
-            await pulseDoc.save()
-        }
-
         const bookDoc= new BookModel({
             book_name : req.body.book_name,
             summ_book : req.body.summ_book,
@@ -100,6 +104,18 @@ export const add_heresy_books = async (req,res) => {
         })
 
         const book = await bookDoc.save()
+
+        if (req.body.presence === 'Есть') {
+            const pulseDoc = new PulseModel({
+                date_pulse: Date.now(),
+                name_pulse: req.body.book_name,
+                category_pulse: 'books_price',
+                sum_pulse: req.body.summ_book,
+                id_object: String(book._doc._id)
+            })
+            
+            await pulseDoc.save()
+        }
 
         res.status(200).json({
             ...book._doc

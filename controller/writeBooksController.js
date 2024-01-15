@@ -33,10 +33,15 @@ export const edit_write_books = async (req, res) => {
             const pulseDoc = new PulseModel({
                 date_pulse: Date.now(),
                 name_pulse: req.body.book_name,
-                category_pulse: 'books'
+                category_pulse: 'books',
+                id_object : req.params.id
             })
             
             await pulseDoc.save()
+        }
+        else if(book.presence === 'Прочитано' && req.body.presence === 'Не Прочитано')
+        {
+            await PulseModel.deleteMany({id_object:req.params.id})
         }
 
         const write_books_edit = await WriteBooksModel.
@@ -86,6 +91,8 @@ export const delete_write_books = async (req, res) => {
     try {
         const deleteWriteBooks = await WriteBooksModel.
         findByIdAndDelete(req.params.id)
+
+        await PulseModel.deleteMany({id_object: req.params.id})
 
         res.status(200).json({
             deleteWriteBooks

@@ -24,6 +24,10 @@ const PulseSchema = new mongoose.Schema({
     sum_pulse_credit: {
         type: Number,
         required: false
+    },
+    id_object: {
+        type: String,
+        required: true
     }
 })
 

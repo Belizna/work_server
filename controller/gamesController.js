@@ -6,6 +6,8 @@ export const delete_games = async (req,res) => {
         const delete_games = await GamesModel.
         findByIdAndDelete(req.params.id)
 
+        await PulseModel.deleteMany({id_object: req.params.id})
+
         res.status(200).json({delete_games})
         
     }catch(err) {
@@ -26,11 +28,23 @@ export const edit_games = async(req,res) => {
                 date_pulse: Date.now(),
                 name_pulse: req.body.game_name,
                 category_pulse: 'games',
-                time_pulse: req.body.time_game
+                time_pulse: req.body.time_game,
+                id_object: req.params.id
 
             })
             
             await pulseDoc.save()
+        }
+        else if(games.presence === 'Пройдено' && req.body.presence === 'Не Пройдено')
+        {
+            await PulseModel.deleteMany({id_object:req.params.id})
+        }
+        else {
+            await PulseModel.updateMany({id_object: req.params.id}, 
+                {
+                    name_pulse: req.body.game_name,
+                    time_pulse: req.body.time_game,
+                })
         }
 
         const libraryGames = await GamesModel.findByIdAndUpdate(req.params.id, {

@@ -38,10 +38,21 @@ export const update_payment = async (req, res) => {
             const pulseDoc = new PulseModel({
                 date_pulse: Date.now(),
                 sum_pulse_credit: req.body.summ_payment,
-                category_pulse: 'payments'
+                category_pulse: 'payments',
+                id_object: req.params.id
             })
             
             await pulseDoc.save()
+        }
+        else if (payments.status_payment === 'Оплачено' && req.body.status_payment === 'Не оплачено')
+        {
+            await PulseModel.deleteMany({id_object: req.params.id})
+        }
+        else {
+            await PulseModel.updateMany({id_object: req.params.id}, 
+                {
+                    sum_pulse_credit: req.body.summ_payment
+                })
         }
             const updatePayments = await PaymentsModel.
             findByIdAndUpdate(req.params.id, {

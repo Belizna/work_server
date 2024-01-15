@@ -3,6 +3,7 @@ import mongoose from 'mongoose'
 import {validationResult} from 'express-validator'
 import moment from 'moment/moment.js'
 import cors from 'cors'
+import dotenv from 'dotenv'
 
 import { creditCreateValidator } from './validations/credit.js'
 import { registerValidator } from './validations/auth.js'
@@ -26,7 +27,9 @@ import { colors_add, colors_get, colors_edit, colors_delete } from './controller
 
 import CheckAuth from './utils/CheckAuth.js'
 
-mongoose.connect("mongodb+srv://MuadDib:Qwerty123qwerty@cluster0.a7edzkp.mongodb.net/test?retryWrites=true&w=majority",
+dotenv.config()
+
+mongoose.connect(process.env.MONGO_CONNECTION_STRING,
 {useNewUrlParser: true})
 .then(()=> console.log('db connection'))
 .catch((err) => console.log('error db connection', err))

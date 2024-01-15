@@ -30,14 +30,6 @@ export const add_early_payment = async(req, res) => {
         if (!errors.isEmpty()) {
             return res.status(400).json(errors.array())
         }
-        
-        const pulseDoc = new PulseModel({
-            date_pulse: Date.now(),
-            sum_pulse_credit: req.body.summ_earlyPayment,
-            category_pulse: 'payments'
-        })
-        
-        await pulseDoc.save()
 
         const EarlyPaymentsDoc = new EarlyPaymentsModel({
             date_earlyPayment : ((req.body.date_earlyPayment).substr(0, 10)).split("-").reverse().join("-"),
@@ -45,6 +37,15 @@ export const add_early_payment = async(req, res) => {
         })
 
         const earlyPayments  = await EarlyPaymentsDoc.save()
+
+        const pulseDoc = new PulseModel({
+            date_pulse: Date.now(),
+            sum_pulse_credit: req.body.summ_earlyPayment,
+            category_pulse: 'payments',
+            id_object: String(earlyPayments._doc._id)
+        })
+        
+        await pulseDoc.save()
 
         res.json({
             ...earlyPayments._doc
@@ -72,6 +73,12 @@ export const edit_early_payment = async (req,res) =>  {
         {
             return res.status(404).send({message: "Не найден платеж на обновление"})
         }
+
+        await PulseModel.updateMany({id_object: req.params.id}, 
+            {
+                sum_pulse_credit: req.body.summ_earlyPayment
+            })
+
         res.status(200).json({
             earleUpdate
         })
@@ -95,6 +102,8 @@ export const delete_early_payment =  async (req, res) => {
                 message:'Досрочный платеж не найден'
             })
         }
+
+        await PulseModel.deleteMany({id_object: req.params.id})
 
         res.json({
             deleteEarlyPay

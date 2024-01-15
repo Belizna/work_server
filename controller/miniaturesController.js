@@ -42,13 +42,30 @@ export const miniatures_edit = async(req,res) => {
 
         if(miniature.count_miniatures_color < req.body.count_miniatures_color)
         {
-            const pulseDoc = new PulseModel({
-                date_pulse: Date.now(),
-                name_pulse: req.body.miniature_name,
-                category_pulse: 'miniature'
-            })
-            
-            await pulseDoc.save()
+            for(let i = 0; i < (req.body.count_miniatures_color - miniature.count_miniatures_color); i++)
+            {
+                const pulseDoc = new PulseModel({
+                    date_pulse: Date.now(),
+                    name_pulse: req.body.miniature_name,
+                    category_pulse: 'miniature',
+                    id_object: req.params.id
+                })
+                
+                await pulseDoc.save()
+            }
+        }
+        else if (miniature.count_miniatures_color > req.body.count_miniatures_color)
+        {
+            for(let i = 0; i < (miniature.count_miniatures_color - req.body.count_miniatures_color); i++)
+            {
+                await PulseModel.deleteOne({id_object:req.params.id})   
+            }
+        }
+        else {
+            await PulseModel.updateMany({id_object: req.params.id}, 
+                {
+                    name_pulse: req.body.miniature_name,
+                })
         }
 
         const miniature_edit = await MiniatureModel.findByIdAndUpdate(req.params.id, {
@@ -80,6 +97,7 @@ export const miniatures_delete = async(req,res) => {
                 })
             }
 
+        await PulseModel.deleteMany({id_object: req.params.id})
         res.status(200).json({deleteMiniature})
     }
     catch(err){
