@@ -21,8 +21,8 @@ export const book_static = async (req,res ) => {
 
     const books = await Book.aggregate([{$match: {compilation: req.params.book_name}}, 
         {$group: {_id: null, sum: {$sum: "$summ_book"}}}]) 
-
-    const books_summ = books[0].sum
+ 
+    const books_summ = books[0]?.sum || 0
 
     var read_novel = 0
     var read_story = 0
@@ -170,6 +170,8 @@ export const main_static = async (req, res) => {
             const diff = ['2024-01', '2024-02','2024-03','2024-04','2024-05','2024-06',
             '2024-07','2024-08','2024-09','2024-10','2024-11','2024-12']
 
+            let dataPieCount = [];
+            let dataPiePrice = [];
             let games = []
             let games_date = []
             let books = []
@@ -184,6 +186,7 @@ export const main_static = async (req, res) => {
             let sum_miniatures_nowyear = 0
             let time_games_nowyear = 0
             let count_games_price = 0
+            let summ_delta
 
             const salary_year = await SalaryModel.aggregate([
                 {$match: { date_salary: {$regex: '2024'}
@@ -382,12 +385,18 @@ export const main_static = async (req, res) => {
 
             if (summ_salary_year === 0 && summ_bonus_year > 0)
                 summ_salary_year += summ_bonus_year
-
-            let summ_delta
             
             summ_salary_year - summ_bonus_year < 0 ? summ_delta = 0 : summ_delta = summ_salary_year - summ_bonus_year
 
             let count_books_price = books_static[0]?.count || 0
+
+            dataPieCount.push({type: 'Потрачено на игры', value: sum_games_nowyear},
+            {type: 'Потрачено на хобби', value: sum_miniatures_nowyear+sum_color_nowyear},
+            {type: 'Потрачено на книги', value: sum_books_nowyear})
+
+            dataPiePrice.push({type: 'Пройдено игр', value: summGames},
+            {type: 'Покрашено миниатюр', value: summMiniatures},
+            {type: 'Прочитано книг', value: summBooks})
 
 
         res.status(200).json({
@@ -410,7 +419,10 @@ export const main_static = async (req, res) => {
             summ_bonus_year,
             summ_delta,
             count_books_price,
-            count_games_price
+            count_games_price,
+            dataPieCount,
+            dataPiePrice
+
         })
     }
     catch(err)
