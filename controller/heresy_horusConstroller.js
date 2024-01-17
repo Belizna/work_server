@@ -23,6 +23,27 @@ export const get_heresy_books = async (req,res) => {
     }
 }
 
+export const get_books_list = async (req,res) => {
+    try{  
+        var books =[]
+        const books_list  = await BookModel.aggregate([
+            {$match: {presence: 'Нет'}},
+            { $group : { _id : "$compilation", children: { $push: {title: "$book_name"} } } }
+          ])
+
+        books_list.map((obj) => books.push({title : obj._id, children: obj.children}))
+        
+        res.status(200).json({
+            books
+        })
+    }
+    catch(err) {
+        res.status(500).json({
+            err
+        })
+    }
+}
+
 export const edit_heresy_books = async (req,res) => {
     try{
 
