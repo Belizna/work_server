@@ -20,9 +20,14 @@ export const book_static = async (req,res ) => {
     const write_books_big_story = await WriteBooksModel.find({compilation: req.params.book_name,format : 'повесть' })
 
     const books = await Book.aggregate([{$match: {compilation: req.params.book_name}}, 
-        {$group: {_id: null, sum: {$sum: "$summ_book"}}}]) 
+        {$group: {_id: null, count: {$sum : 1}, sum: {$sum: "$summ_book"}}}]) 
+
+    const books_count = await Book.aggregate([{$match: {compilation: req.params.book_name, presence: 'Есть'}}, 
+            {$group: {_id: null, count: {$sum: 1}}}]) 
  
     const books_summ = books[0]?.sum || 0
+    const books_there_is_count = books_count[0]?.count || 0
+    const books_all_there_is_count = books[0]?.count || 0
 
     var read_novel = 0
     var read_story = 0
@@ -69,7 +74,9 @@ export const book_static = async (req,res ) => {
             all_books,
             read_all_books,
             not_read_all_books,
-            books_summ 
+            books_summ,
+            books_there_is_count,
+            books_all_there_is_count 
     })
     }
     catch(err)
@@ -186,7 +193,27 @@ export const main_static = async (req, res) => {
             let sum_miniatures_nowyear = 0
             let time_games_nowyear = 0
             let count_games_price = 0
+            let count_miniatures_price = 0
             let summ_delta
+            var books_pulse =[]
+            var miniature_pulse =[]
+            var games_pulse =[]
+            var books_price_pulse =[]
+            var games_price_pulse = []
+            var miniatures_price_pulse = []
+
+
+        const books_list  = await PulseModel.aggregate([
+            { $group : { _id : "$category_pulse", children: { $push: {title: "$name_pulse"}}}}
+          ])
+
+        books_list.map((obj) => {obj._id === 'miniature' ? 
+                miniature_pulse.push({title : 'Миниатюры', children: obj.children}) : 
+                obj._id === 'games' ? games_pulse.push({title : 'Игры', children: obj.children}) :
+                obj._id === 'books' ? books_pulse.push({title : 'Книги', children: obj.children}) :
+                obj._id === 'books_price' ? books_price_pulse.push({title : 'Купленные книги', children: obj.children}) :
+                console.log('none')
+            })
 
             const salary_year = await SalaryModel.aggregate([
                 {$match: { date_salary: {$regex: '2024'}
@@ -232,21 +259,30 @@ export const main_static = async (req, res) => {
             const games_static = await Games.aggregate([
                 {
                     $group: {_id: {
-                    date_game: {$substr : ["$date_game",6,10]}
+                    date_game: {$substr : ["$date_game",6,10]},
                 },
+                children: { $push: {title: "$game_name"}},
                 sum: {$sum: "$summ_game"},
                 count: {$sum: 1}},
             }, {$sort: {_id: 1}}
             ]) 
-            
+
+            games_static.map((obj) => obj._id.date_game === '2024' ?
+            games_price_pulse.push({title : 'Купленные игры', children: obj.children}) : console.log('none 2024'))
+
             const miniatures_static = await MiniatureModel.aggregate([
                 {
                     $group: {_id: {
                         date_buy_miniature: {$substr : ["$date_buy_miniature",6,10]}
                 },
-                sum: {$sum: "$price_miniature"}}
+                children: { $push: {title: "$miniature_name"}},
+                sum: {$sum: "$price_miniature"},
+                count: {$sum: 1}}
             }, {$sort: {_id: 1}}
             ])  
+
+            miniatures_static.map((obj) => obj._id.date_buy_miniature === '2024' ?
+            miniatures_price_pulse.push({title : 'Купленные миниатюры', children: obj.children}) : console.log('none 2024'))
 
             const color_static = await ColorModel.aggregate([
                 {
@@ -306,6 +342,7 @@ export const main_static = async (req, res) => {
             miniatures_static.forEach((obj) => {
                 if (obj._id.date_buy_miniature === '2024') {
                     sum_miniatures_nowyear = obj.sum
+                    count_miniatures_price = obj.count
                 }
             })
 
@@ -420,9 +457,16 @@ export const main_static = async (req, res) => {
             summ_delta,
             count_books_price,
             count_games_price,
+            count_miniatures_price,
             dataPieCount,
-            dataPiePrice
-
+            dataPiePrice,
+            miniature_pulse,
+            books_pulse,
+            games_pulse,
+            games_price_pulse,
+            books_price_pulse,
+            miniatures_price_pulse,
+            count_miniatures_price
         })
     }
     catch(err)
