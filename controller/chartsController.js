@@ -1,5 +1,5 @@
 import 'core-js'
-
+import BookModel from '../models/Book.js'
 import PulseModel from '../models/Pulse.js'
 import WriteBooksModel from '../models/WriteBooks.js'
 import PaymentsModel from '../models/Payments.js'
@@ -201,8 +201,67 @@ export const main_static = async (req, res) => {
             var books_price_pulse =[]
             var games_price_pulse = []
             var miniatures_price_pulse = []
+            var books_list_count = 0
+            var books_price =[]
+            var game_over = []
+            var game_over_count = 0
+            var books_write = []
+            var books_write_count = 0
+
+            //покупка книг и количество
+        const books_list_price  = await BookModel.aggregate([
+            {$match: {presence: 'Нет'}},
+            { $group : { 
+                _id : "$compilation", children: { $push: {title: "$book_name"} }
+                        } }
+          ])
+          books_list_price.map((obj) => books_price.push({title : obj._id, children: obj.children}))
+
+          const books_list_price_count  = await BookModel.aggregate([
+            {$match: {presence: 'Нет'}},
+            { $group : { 
+                _id : null, count : {$sum: 1}
+                        } }
+          ])
+          books_list_count = books_list_price_count[0].count
+
+          //пройти игр и количество
+          const games_list  = await Games.aggregate([
+            {$match: {presence: 'Не Пройдено'}},
+            { $group : { 
+                _id : "$compilation", children: { $push: {title: "$game_name"} }
+                        } }
+          ])
+          games_list.map((obj) => game_over.push({title : obj._id, children: obj.children}))
+
+          const games_list_count  = await Games.aggregate([
+            {$match: {presence: 'Не Пройдено'}},
+            { $group : { 
+                _id : null, count : {$sum: 1}
+                        } }
+          ])
+          game_over_count = games_list_count[0].count
+
+          //прочитать книг и количество
+          const books_write_list  = await WriteBooksModel.aggregate([
+            {$match: {presence: 'Не Прочитано'}},
+            { $group : { 
+                _id : "$compilation", children: { $push: {title: "$book_name"} }
+                        } }
+          ])
+          console.log(books_write_list)
+          books_write_list.map((obj) => books_write.push({title : obj._id, children: obj.children}))
+
+          const books_writes_count  = await WriteBooksModel.aggregate([
+            {$match: {presence: 'Не Прочитано'}},
+            { $group : { 
+                _id : null, count : {$sum: 1}
+                        } }
+          ])
+          books_write_count = books_writes_count[0].count
 
 
+          //лист по движениям покрашено миниатюр, прочитано книг, пройдекно игр, приобретено игр
         const books_list  = await PulseModel.aggregate([
             { $group : { _id : "$category_pulse", children: { $push: {title: "$name_pulse"}}}}
           ])
@@ -214,7 +273,7 @@ export const main_static = async (req, res) => {
                 obj._id === 'books_price' ? books_price_pulse.push({title : 'Купленные книги', children: obj.children}) :
                 console.log('none')
             })
-
+            //заработок за год
             const salary_year = await SalaryModel.aggregate([
                 {$match: { date_salary: {$regex: '2024'}
             
@@ -225,7 +284,7 @@ export const main_static = async (req, res) => {
                             }
             }
             ]) 
-
+            //подработки за год
             const bonus_year = await BonusModel.aggregate([
                 {$match: { date_bonus: {$regex: '2024'}
             
@@ -236,7 +295,7 @@ export const main_static = async (req, res) => {
                             }
             }
             ]) 
-
+            //группировка из движений для формирования графиков по месяцам
             const pulse_group_charts = await PulseModel.aggregate([
                 {
                     $group: {_id: {
@@ -435,7 +494,6 @@ export const main_static = async (req, res) => {
             {type: 'Покрашено миниатюр', value: summMiniatures},
             {type: 'Прочитано книг', value: summBooks})
 
-
         res.status(200).json({
             sortedGames,
             sortedBooks,
@@ -466,7 +524,13 @@ export const main_static = async (req, res) => {
             games_price_pulse,
             books_price_pulse,
             miniatures_price_pulse,
-            count_miniatures_price
+            count_miniatures_price,
+            books_price,
+            books_list_count,
+            game_over,
+            game_over_count,
+            books_write,
+            books_write_count
         })
     }
     catch(err)
