@@ -118,7 +118,7 @@ app.get('/carts/static', credit_static)
 app.get('/games/static', games_static)
 app.get('/weekend/work/charts', salary_chart)
 app.get('/hobby/static/', hobby_static)
-app.get('/main/static/', main_static)
+app.get('/main/static/:year', main_static)
 
 app.get('/books/heresy_horus/:book_name', get_heresy_books)
 app.post('/books/heresy_horus/add/:book_name', bookCreateValidator, add_heresy_books) 
