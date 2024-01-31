@@ -24,7 +24,7 @@ export const book_static = async (req,res ) => {
 
     const books_count = await Book.aggregate([{$match: {compilation: req.params.book_name, presence: 'Есть'}}, 
             {$group: {_id: null, count: {$sum: 1}}}]) 
- 
+
     const books_summ = books[0]?.sum || 0
     const books_there_is_count = books_count[0]?.count || 0
     const books_all_there_is_count = books[0]?.count || 0
@@ -32,6 +32,10 @@ export const book_static = async (req,res ) => {
     var read_novel = 0
     var read_story = 0
     var read_big_story = 0
+    var data_books_novel = []
+    var data_books_story = []
+    var data_books_big_story = []
+    var dataDemoLine = []
 
     for(var i = 0; i< write_books_novel.length; i++)
     {
@@ -63,6 +67,41 @@ export const book_static = async (req,res ) => {
     const read_all_books = read_big_story+read_novel+read_story
     const not_read_all_books = not_read_big_story+not_read_novel+not_read_story
 
+    //рассказы
+    if (write_books_story.length === 0) {
+        data_books_story = null
+    }else {
+        data_books_story = [{type: 'Прочитано',value: read_story},
+            {type: 'Осталось',value: not_read_story}];
+        dataDemoLine.push({key: 'Рассказов',name: 'Всего',value: read_story + not_read_story},
+          {key: 'Рассказов',name: 'Прочитано',value: read_story},
+          {key: 'Рассказов',name: 'Осталось',value: not_read_story})    
+    }
+      //повесть
+      if (write_books_big_story.length === 0){
+            data_books_big_story = null
+        }else {
+            data_books_big_story = [{type: 'Прочитано',value: read_big_story},
+        {type: 'Осталось',value: not_read_big_story}];
+        dataDemoLine.push({key: 'Повестей',name: 'Всего',value: not_read_big_story + read_big_story},
+          {key: 'Повестей',name: 'Прочитано',value: read_big_story},
+          {key: 'Повестей',name: 'Осталось',value: not_read_big_story})
+        }
+//романы
+    if (write_books_novel.length === 0){
+        data_books_novel = null
+    }else {
+        data_books_novel = [{type: 'Прочитано',value: read_novel},
+            {type: 'Осталось',value: not_read_novel}];
+        dataDemoLine.push({key: 'Романов',name: 'Всего',value: not_read_novel + read_novel},
+          {key: 'Романов',name: 'Прочитано',value: read_novel},
+            {key: 'Романов',name: 'Осталось',value: not_read_novel})
+    }
+
+        dataDemoLine.push({key: 'Общее количество',name: 'Всего',value: read_all_books + not_read_all_books},
+          {key: 'Общее количество',name: 'Прочитано',value: read_all_books},
+          {key: 'Общее количество',name: 'Осталось',value: not_read_all_books})
+
     res.status(200).json({
             procentStaticBooks,
             not_read_novel,
@@ -76,7 +115,11 @@ export const book_static = async (req,res ) => {
             not_read_all_books,
             books_summ,
             books_there_is_count,
-            books_all_there_is_count 
+            books_all_there_is_count,
+            data_books_novel,
+            data_books_story,
+            data_books_big_story, 
+            dataDemoLine
     })
     }
     catch(err)
