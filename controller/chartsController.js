@@ -230,6 +230,8 @@ export const main_static = async (req, res) => {
             let miniature_date = []
             let payments = []
             let payments_date = []
+            let salary = []
+            let salary_date = []
             let sum_games_nowyear = 0
             let sum_books_nowyear = 0
             let sum_color_nowyear = 0
@@ -341,6 +343,10 @@ export const main_static = async (req, res) => {
                             }
             }
             ]) 
+
+            // заработок по месяцам в течение года
+            
+
             //группировка из движений для формирования графиков по месяцам
             const pulse_group_charts = await PulseModel.aggregate([
                 {$match: { date_pulse: { $gte: new Date(`${req.params.year}-01-01T00:00:00.000Z`), 
@@ -363,6 +369,18 @@ export const main_static = async (req, res) => {
                     category_pulse: "$payments", date_pulse: {$substr : ["$date_pulse",0,7]}
                 },
                 count_pulse: {$sum: "$sum_pulse_credit"}}
+            }, {$sort: {_id: 1}}
+            ])
+
+            const pulse_group_salary = await PulseModel.aggregate([
+                {$match: { date_pulse: { $gte: new Date(`${req.params.year}-01-01T00:00:00.000Z`), 
+                $lte: new Date(`${req.params.year}-12-31T23:59:59.000Z`)
+            }}},
+                {
+                    $group: {_id: {
+                    category_pulse: "$salary", date_pulse: {$substr : ["$date_pulse",0,7]}
+                },
+                count_pulse: {$sum: "$sum_pulse_salary"}}
             }, {$sort: {_id: 1}}
             ])
             
@@ -477,6 +495,12 @@ export const main_static = async (req, res) => {
                 payments.push({date_pulse: obj._id.date_pulse, count_pulse: obj.count_pulse})
                 payments_date.push(obj._id.date_pulse)
             })
+
+            pulse_group_salary.forEach((obj) => {
+                salary.push({date_pulse: obj._id.date_pulse, count_pulse: obj.count_pulse})
+                salary_date.push(obj._id.date_pulse)
+            })
+
             for (let i = 0; i< pulse_group_charts.length; i ++)
             {
                 if (pulse_group_charts[i]._id.category_pulse === 'games')
@@ -510,10 +534,14 @@ export const main_static = async (req, res) => {
             let diff_payments = diff.filter(date => ! payments_date.includes(date))
             diff_payments.map((obj) => payments.push({date_pulse: obj,count_pulse: 0}))
 
+            let diff_salary = diff.filter(date => ! salary_date.includes(date))
+            diff_salary.map((obj) => salary.push({date_pulse: obj,count_pulse: 0}))
+
             let sortedGames = games.sort((r1, r2) => (r1.date_pulse > r2.date_pulse) ? 1 : (r1.date_pulse < r2.date_pulse) ? -1 : 0)
             let sortedBooks = books.sort((r1, r2) => (r1.date_pulse > r2.date_pulse) ? 1 : (r1.date_pulse < r2.date_pulse) ? -1 : 0)
             let sortedMiniatures = miniature.sort((r1, r2) => (r1.date_pulse > r2.date_pulse) ? 1 : (r1.date_pulse < r2.date_pulse) ? -1 : 0)
             let sortedPayments = payments.sort((r1, r2) => (r1.date_pulse > r2.date_pulse) ? 1 : (r1.date_pulse < r2.date_pulse) ? -1 : 0)
+            let sortedSalary = salary.sort((r1, r2) => (r1.date_pulse > r2.date_pulse) ? 1 : (r1.date_pulse < r2.date_pulse) ? -1 : 0)
 
             let summGames = 0
             sortedGames.forEach(x => {summGames+=x.count_pulse})
@@ -558,6 +586,7 @@ export const main_static = async (req, res) => {
             sortedBooks,
             sortedMiniatures,
             sortedPayments,
+            sortedSalary,
             summGames,
             summBooks,
             summMiniatures,
@@ -669,7 +698,7 @@ export const salary_chart = async(req,res) => {
                 sum: {$sum: "$summ_salary"}}}])
 
                 
-            const salary_month = await SalaryModel.find()
+            const salary_month = await SalaryModel.find().sort({'_id': 1})
             
             const bonus_month = await BonusModel.aggregate([
                 {$group: {_id: { $substr : ["$date_bonus",3,7]},

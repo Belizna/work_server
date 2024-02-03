@@ -1,4 +1,5 @@
 import SalaryModel from "../models/Salary.js";
+import PulseModel from '../models/Pulse.js'
 
 export const salary_add = async(req,res) => {
     try{
@@ -8,8 +9,17 @@ export const salary_add = async(req,res) => {
             summ_salary: req.body.summ_salary,
             company: req.body.company,
         })
-        
+
         const salary = await salaryDoc.save()
+
+        const pulseDoc = new PulseModel({
+            date_pulse: req.body.date_salary,
+            category_pulse: 'salary',
+            sum_pulse_salary: req.body.summ_salary,
+            id_object: String(salary._doc._id)
+
+        })
+        await pulseDoc.save()
 
         res.status(200).json({salary})
 }
@@ -40,6 +50,11 @@ export const salary_edit = async(req,res) => {
                 company: req.body.company,
             })
 
+        await PulseModel.updateMany({id_object: req.params.id}, {
+            sum_pulse_salary: req.body.summ_salary,
+            date_pulse: req.body.date_salary,
+        })
+
         res.status(200).json({salary})
     }
     catch(err){
@@ -56,6 +71,8 @@ export const salary_delete = async(req,res) => {
                     message: 'Такого платежа нет'
                 })
             }
+
+        await PulseModel.deleteMany({id_object: req.params.id})
 
         res.status(200).json({deleteSalary})
     }
