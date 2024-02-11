@@ -275,7 +275,7 @@ export const main_static = async (req, res) => {
           const games_list  = await Games.aggregate([
             {$match: {presence: 'Не Пройдено'}},
             { $group : { 
-                _id : "$compilation", children: { $push: {title: "$game_name"} }
+                _id : "$compilation", children: { $push: {title: "$game_name" } }
                         } }
           ])
           games_list.map((obj) => game_over.push({title : obj._id, children: obj.children}))
@@ -703,8 +703,8 @@ export const salary_chart = async(req,res) => {
             const bonus_month = await BonusModel.aggregate([
                 {$group: {_id: { $substr : ["$date_bonus",3,7]},
                 sum: {$sum: "$summ_bonus"}}},
-                {$sort: {_id: -1}}])
-                
+                {$sort: {_id: -1}}
+            ])
                 const bonus_year = await BonusModel.aggregate([
                     {$group: {_id: { $substr : ["$date_bonus",6,4]},
                     sum: {$sum: "$summ_bonus"}}}
