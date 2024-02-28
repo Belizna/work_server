@@ -25,6 +25,7 @@ import { bonus_get , bonus_add, bonus_delete, bonus_edit } from './controller/we
 import { salary_add, salary_delete, salary_edit, salary_get } from './controller/SalaryController.js'
 import { miniatures_get,miniatures_add, miniatures_edit, miniatures_delete} from './controller/miniaturesController.js'
 import { colors_add, colors_get, colors_edit, colors_delete } from './controller/colorController.js'
+import { repair_add, repair_get, repair_edit, repair_delete } from './controller/repaircontroller.js'
 
 import CheckAuth from './utils/CheckAuth.js'
 
@@ -99,6 +100,11 @@ app.post('/hobby/colors/add', colors_add)
 app.patch('/hobby/colors/edit/:id', colors_edit)
 app.delete('/hobby/colors/delete/:id', colors_delete)
 
+app.get('/repair/outlay/',repair_get)
+app.post('/repair/outlay/add', repair_add)
+app.patch('/repair/outlay/edit/:id', repair_edit)
+app.delete('/repair/outlay/delete/:id', repair_delete)
+
 app.get('/weekend/bonus/',bonus_get)
 app.post('/weekend/bonus/add', bonus_add)
 app.patch('/weekend/bonus/edit/:id', bonus_edit)
@@ -120,6 +126,7 @@ app.get('/games/static', games_static)
 app.get('/weekend/work/charts', salary_chart)
 app.get('/hobby/static/', hobby_static)
 app.get('/main/static/:year', main_static)
+
 
 app.get('/books/heresy_horus/:book_name', get_heresy_books)
 app.post('/books/heresy_horus/add/:book_name', bookCreateValidator, add_heresy_books) 

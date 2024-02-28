@@ -4,7 +4,7 @@ import PulseModel from "../models/Pulse.js"
 export const get_write_books = async (req, res) => {
     try{
 
-        var filter = []
+        var filteredList = []
         const write_books = await WriteBooksModel.find({
             compilation: req.params.book_name})
 
@@ -14,14 +14,12 @@ export const get_write_books = async (req, res) => {
             })
         }
 
-        const book = await WriteBooksModel.aggregate([{$match: {compilation: req.params.book_name}}, 
-            {$group: {_id: "$collection_book"}}])
-        
-        book.map(arr => 
-            arr._id != "" && arr._id != null ? 
-        filter.push({text: arr._id,value: arr._id}) : 
-        console.log('null'))
+        write_books.map(arr => 
+            arr.collection_book != "" && arr.collection_book != null ?
+            filteredList.push({text: arr.collection_book, value: arr.collection_book}) : console.log('null'))
 
+        let filter = [...new Set(filteredList.map(JSON.stringify))].map(JSON.parse);   
+        
         res.status(200).json({
             write_books,filter
         })
