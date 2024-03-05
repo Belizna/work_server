@@ -11,6 +11,7 @@ import SalaryModel from '../models/Salary.js'
 import BonusModel from '../models/Bonus.js'
 import ColorModel from "../models/Color.js"
 import MiniatureModel from "../models/Miniature.js"
+import RepairModel from "../models/Repair.js";
 
 export const book_static = async (req,res ) => {
 
@@ -721,6 +722,39 @@ export const salary_chart = async(req,res) => {
             
     }
     catch(err){
+        res.status(500).json({...err})
+    }
+}
+
+export const repair_static = async (req,res ) => {
+
+    try {
+
+        var rate = 0
+        var percent = 0
+        var sumCategory = 0
+        var sumData = 0
+        const data = await RepairModel.aggregate([{$match: { category_repair: {$not : {$regex : 'Сбережение'} }}}, 
+            {$group: {_id: "$category_repair", sales: {$sum: "$sum_repair"}}}]) 
+
+        data.map(arr => sumCategory+= arr.sales)
+        
+        const repair = await RepairModel.find({"category_repair" : "Сбережение"})
+
+        rate = repair[0].sum_repair - sumCategory
+
+        percent = 1 -((sumCategory  / repair[0].sum_repair))
+        data.map(arr => sumData+=arr.sales)
+
+        res.status(200).json({
+            rate,
+            percent,
+            data,
+            sumData
+        })     
+    }
+    catch(err)
+    {
         res.status(500).json({...err})
     }
 }

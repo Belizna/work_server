@@ -19,13 +19,13 @@ import { get_early_payment, add_early_payment,edit_early_payment,delete_early_pa
 import {other_books_add,other_books_get,other_books_edit,other_books_delete} from './controller/OrherBooksController.js'
 import { get_heresy_books, edit_heresy_books,delete_heresy_books,add_heresy_books } from './controller/heresy_horusConstroller.js'
 import { delete_games, edit_games,add_games,get_games } from './controller/gamesController.js'
-import { book_static, credit_static, games_static, salary_chart, hobby_static, main_static } from './controller/chartsController.js'
+import { book_static, repair_static, credit_static, games_static, salary_chart, hobby_static, main_static } from './controller/chartsController.js'
 import { get_write_books, edit_write_books, add_write_books, delete_write_books } from './controller/writeBooksController.js'
 import { bonus_get , bonus_add, bonus_delete, bonus_edit } from './controller/weekendController.js'
 import { salary_add, salary_delete, salary_edit, salary_get } from './controller/SalaryController.js'
 import { miniatures_get,miniatures_add, miniatures_edit, miniatures_delete} from './controller/miniaturesController.js'
 import { colors_add, colors_get, colors_edit, colors_delete } from './controller/colorController.js'
-import { repair_add, repair_get, repair_edit, repair_delete } from './controller/repaircontroller.js'
+import { repair_add, repair_get, repair_edit, repair_delete, repair_sum } from './controller/repaircontroller.js'
 
 import CheckAuth from './utils/CheckAuth.js'
 
@@ -104,6 +104,7 @@ app.get('/repair/outlay/',repair_get)
 app.post('/repair/outlay/add', repair_add)
 app.patch('/repair/outlay/edit/:id', repair_edit)
 app.delete('/repair/outlay/delete/:id', repair_delete)
+app.post('/repair/outlay/edit_sum',repair_sum)
 
 app.get('/weekend/bonus/',bonus_get)
 app.post('/weekend/bonus/add', bonus_add)
@@ -126,6 +127,7 @@ app.get('/games/static', games_static)
 app.get('/weekend/work/charts', salary_chart)
 app.get('/hobby/static/', hobby_static)
 app.get('/main/static/:year', main_static)
+app.get("/repair/static", repair_static)
 
 
 app.get('/books/heresy_horus/:book_name', get_heresy_books)

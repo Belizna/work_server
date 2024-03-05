@@ -4,7 +4,7 @@ import RepairModel from "../models/Repair.js";
 export const repair_get = async (req, res) => {
     try {
         var filteredList = []
-        const repair = await RepairModel.find()
+        const repair = await RepairModel.find({"category_repair" : {$ne :"Сбережение"}})
 
         repair.map(arr => 
             filteredList.push({text: arr.category_repair, value: arr.category_repair}))
@@ -70,6 +70,39 @@ export const repair_delete = async(req,res) => {
             }
 
         res.status(200).json({deleteRepair})
+    }
+    catch(err){
+        res.status(500).json({...err})
+    }
+}
+
+export const repair_sum = async (req,res) => {
+    try{    
+            const repair = await RepairModel.find({"category_repair" : "Сбережение"})
+            console.log(repair[0].sum_repair - req.body.sum)
+            switch(req.body.option) {
+                case "-" :
+                    {
+                        const new_sum = repair[0].sum_repair - req.body.sum < 0 ? 
+                        0 : 
+                        repair[0].sum_repair - req.body.sum
+
+                        await RepairModel.updateMany({"category_repair" : "Сбережение"},{
+                            sum_repair : new_sum})
+                        break;
+                    }
+                case "+": 
+                {
+                    const new_sum = repair[0].sum_repair + req.body.sum 
+                    await RepairModel.updateMany({"category_repair" : "Сбережение"},{
+                        sum_repair : new_sum})
+                    break;
+                }
+                default:
+                    break
+            }
+
+        res.status(200).json({})
     }
     catch(err){
         res.status(500).json({...err})
