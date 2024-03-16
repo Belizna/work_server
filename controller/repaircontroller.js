@@ -4,7 +4,7 @@ import RepairModel from "../models/Repair.js";
 export const repair_get = async (req, res) => {
     try {
         var filteredList = []
-        const repair = await RepairModel.find({"category_repair" : {$ne :"Сбережение"}})
+        const repair = await RepairModel.find({"category_repair" : {$ne :"Сбережение"}}).sort({'_id' : -1})
 
         repair.map(arr => 
             filteredList.push({text: arr.category_repair, value: arr.category_repair}))
