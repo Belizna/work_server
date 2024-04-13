@@ -72,8 +72,8 @@ export const book_static = async (req,res ) => {
     if (write_books_story.length === 0) {
         data_books_story = null
     }else {
-        data_books_story = [{type: 'Прочитано',value: read_story},
-            {type: 'Осталось',value: not_read_story}];
+        data_books_story = [{name: 'Прочитано',value: read_story},
+            {name: 'Осталось',value: not_read_story}];
         dataDemoLine.push({key: 'Рассказов',name: 'Всего',value: read_story + not_read_story},
           {key: 'Рассказов',name: 'Прочитано',value: read_story},
           {key: 'Рассказов',name: 'Осталось',value: not_read_story})    
@@ -82,8 +82,8 @@ export const book_static = async (req,res ) => {
       if (write_books_big_story.length === 0){
             data_books_big_story = null
         }else {
-            data_books_big_story = [{type: 'Прочитано',value: read_big_story},
-        {type: 'Осталось',value: not_read_big_story}];
+            data_books_big_story = [{name: 'Прочитано',value: read_big_story},
+        {name: 'Осталось',value: not_read_big_story}];
         dataDemoLine.push({key: 'Повестей',name: 'Всего',value: not_read_big_story + read_big_story},
           {key: 'Повестей',name: 'Прочитано',value: read_big_story},
           {key: 'Повестей',name: 'Осталось',value: not_read_big_story})
@@ -92,8 +92,8 @@ export const book_static = async (req,res ) => {
     if (write_books_novel.length === 0){
         data_books_novel = null
     }else {
-        data_books_novel = [{type: 'Прочитано',value: read_novel},
-            {type: 'Осталось',value: not_read_novel}];
+        data_books_novel = [{name: 'Прочитано',value: read_novel},
+            {name: 'Осталось',value: not_read_novel}];
         dataDemoLine.push({key: 'Романов',name: 'Всего',value: not_read_novel + read_novel},
           {key: 'Романов',name: 'Прочитано',value: read_novel},
             {key: 'Романов',name: 'Осталось',value: not_read_novel})
@@ -189,8 +189,8 @@ export const hobby_static = async (req, res) => {
         var test = []
         var columnHobby = []
 
-        procent_color_all.map((obj) => test.push([{name : obj._id, type: 'Покрашено', value : obj.sum_count_color}, 
-        {type: 'Осталось', name : obj._id,value : obj.sum_count -obj.sum_count_color }]))
+        procent_color_all.map((obj) => test.push([{key : obj._id, name: 'Покрашено', value : obj.sum_count_color}, 
+        {name: 'Осталось', key : obj._id,value : obj.sum_count -obj.sum_count_color }]))
 
         procent_color_all.map((obj) => columnHobby.push({key: obj._id, name: 'Всего', value: obj.sum_count},
         {key: obj._id, name: 'Покрашено', value: obj.sum_count_color},
@@ -201,6 +201,7 @@ export const hobby_static = async (req, res) => {
         const procent_miniatures_colors = (count_miniatures_color[0].sum * 100 / count_miniatures[0].sum).toFixed(2)
 
         res.status(200).json({
+            procent_color_all,
             summ_hobby,
             summ_miniatures,
             summ_color,
@@ -221,6 +222,7 @@ export const main_static = async (req, res) => {
             const diff = [`${req.params.year}-01`, `${req.params.year}-02`,`${req.params.year}-03`,`${req.params.year}-04`,`${req.params.year}-05`,
             `${req.params.year}-06`,`${req.params.year}-07`,`${req.params.year}-08`,`${req.params.year}-09`,`${req.params.year}-10`,
             `${req.params.year}-11`,`${req.params.year}-12`]
+            
             let dataPieCount = [];
             let dataPiePrice = [];
             let games = []
@@ -630,54 +632,49 @@ export const main_static = async (req, res) => {
 
 export const games_static = async (req,res) => {
     try {
-        const games_steam = await Games.find({compilation: 'Steam'})
-    const games_ubi = await Games.find({compilation: 'Ubisoft Connect'})
-    var games_steam_not_passed = 0
-    var games_ubi_not_passed = 0
-    var all_games = games_steam.concat(games_ubi)
-    var summ_all_games = 0
-    var summ_time_games = 0
-    for(var i = 0; i < games_steam.length; i++)
-    {
-        if (games_steam[i].presence == 'Не Пройдено'){
-            games_steam_not_passed++
-        }
-    }
-    for(var i = 0; i < games_ubi.length; i++)
-    {
-        if (games_ubi[i].presence == 'Не Пройдено'){
-            games_ubi_not_passed++
-        }
-    }
 
-    for(var i = 0; i < all_games.length; i++)
-    {
-        summ_all_games+=all_games[i].summ_game
-        summ_time_games+=all_games[i].time_game
-    }
+        var listData4 = []
+        var listData1 = []
+        var sumTime = 0
+        var sumPriceGames = 0
+        var gamesNotPassed = 0
+        var gamesPassed = 0
+        var gamesCount = 0
 
-    const games_steam_passed = games_steam.length-games_steam_not_passed
-    const games_ubi_passed = games_ubi.length-games_ubi_not_passed
-    const games_not_all_passed = games_steam_not_passed + games_ubi_not_passed
-    const games_all_passed = games_ubi.length+ games_steam.length - games_not_all_passed
-    const games_all_steam = games_steam.length
-    const games_ubi_steam = games_ubi.length
-    const games_all_library = games_all_steam + games_ubi_steam
-    const procentStaticGames  = Number(((games_steam_passed+games_ubi_passed) * 100 / (games_ubi.length+games_steam.length)).toFixed(2))
+        const games_list  = await Games.aggregate([
+            { $group : { 
+                _id : {compilation : "$compilation", presence: "$presence"},
+                sum_price: {$sum: "$summ_game"},
+                sum_time: {$sum: "$time_game"},
+                count: {$sum: 1}
+            }}
+          ])
+
+          games_list.map(arr => {
+            listData4.push({
+                key: arr._id.compilation,name: arr._id.presence, value: arr.count
+          }), 
+          arr._id.presence === "Не Пройдено" ? gamesNotPassed+=arr.count : gamesPassed+=arr.count
+          sumPriceGames+= arr.sum_price, 
+          sumTime+= arr.sum_time,
+          gamesCount+=arr.count
+        })
+
+        listData4.push(
+            {key: 'Общее количество',name: 'Пройдено', value: gamesPassed},
+            {key: 'Общее количество',name: 'Не Пройдено', value: gamesNotPassed})
+
+        Object.entries(Object.groupBy(listData4, ({key}) => key)).map(arr => 
+            listData1.push(arr[1]))
+        
+        const procentStaticGames  = Number(((gamesPassed) * 100 / (gamesCount)).toFixed(2))
     
     res.status(200).send({
-        games_steam_not_passed,
-        games_steam_passed,
-        games_ubi_not_passed,
-        games_ubi_passed,
-        games_not_all_passed,
-        games_all_passed,
-        games_all_steam,
-        games_ubi_steam,
-        games_all_library,
-        procentStaticGames,
-        summ_all_games,
-        summ_time_games,
+        listData1,
+        listData4,
+        sumPriceGames,
+        sumTime,
+        procentStaticGames
     })
     }
     catch(err)

@@ -22,8 +22,6 @@ export const bonus_add = async(req,res) => {
         summ_bonus: (zp/norma_time[0].time_norma * 2 * req.body.time_bonus).toFixed(2),
         status_bonus: req.body.status_bonus
     })
-    console.log(req.body)
-    console.log(zp)
     const bonus = await bonusDoc.save()
 
         res.status(200).json({
