@@ -216,6 +216,415 @@ export const hobby_static = async (req, res) => {
     }
 }
 
+
+export const main_static_refactor = async (req, res) => {
+    try{
+
+            const diff = [`${req.params.year}-01`, `${req.params.year}-02`,`${req.params.year}-03`,`${req.params.year}-04`,`${req.params.year}-05`,
+            `${req.params.year}-06`,`${req.params.year}-07`,`${req.params.year}-08`,`${req.params.year}-09`,`${req.params.year}-10`,
+            `${req.params.year}-11`,`${req.params.year}-12`]
+            
+            let dataPieCount = [];
+            let dataPiePrice = [];
+            let games = []
+            let games_date = []
+            let books = []
+            let books_date = []
+            let miniature = []
+            let miniature_date = []
+            let payments = []
+            let payments_date = []
+            let salary = []
+            let salary_date = []
+            let sum_games_nowyear = 0
+            let sum_books_nowyear = 0
+            let sum_color_nowyear = 0
+            let sum_miniatures_nowyear = 0
+            let time_games_nowyear = 0
+            let count_games_price = 0
+            let count_miniatures_price = 0
+            let summ_delta
+            var books_pulse =[]
+            var miniature_pulse =[]
+            var games_pulse =[]
+            var books_price_pulse =[]
+            var games_price_pulse = []
+            var miniatures_price_pulse = []
+            var books_list_count = 0
+            var books_price =[]
+            var game_over = []
+            var game_over_count = 0
+            var books_write = []
+            var books_write_count = 0
+            let count_books_price = 0
+
+            //покупка книг и количество
+        const books_list_price  = await BookModel.aggregate([
+            {$match: {presence: 'Нет'}},
+            { $group : { 
+                _id : "$compilation", 
+                children: { $push: {title: "$book_name"} }
+                        } }
+          ])
+          books_list_price.map((obj) => books_price.push({title : obj._id, children: obj.children}))
+
+          const books_list_price_count  = await BookModel.aggregate([
+            {$match: {presence: 'Нет'}},
+            { $group : { 
+                _id : null, count : {$sum: 1}
+                        } }
+          ])
+          books_list_count = books_list_price_count[0].count
+
+          //пройти игр и количество
+          const games_list  = await Games.aggregate([
+            {$match: {presence: 'Не Пройдено'}},
+            { $group : { 
+                _id : "$compilation", children: { $push: {title: "$game_name" } }
+                        } }
+          ])
+          games_list.map((obj) => game_over.push({title : obj._id, children: obj.children}))
+
+          const games_list_count  = await Games.aggregate([
+            {$match: {presence: 'Не Пройдено'}},
+            { $group : { 
+                _id : null, count : {$sum: 1}
+                        } }
+          ])
+          game_over_count = games_list_count[0].count
+
+          //прочитать книг и количество
+          const books_write_list  = await WriteBooksModel.aggregate([
+            {$match: {presence: 'Не Прочитано'}},
+            { $group : { 
+                _id : "$compilation", children: { $push: {title: "$book_name"} }
+                        } }
+          ])
+          books_write_list.map((obj) => books_write.push({title : obj._id, children: obj.children}))
+
+          const books_writes_count  = await WriteBooksModel.aggregate([
+            {$match: {presence: 'Не Прочитано'}},
+            { $group : { 
+                _id : null, count : {$sum: 1}
+                        } }
+          ])
+          books_write_count = books_writes_count[0].count
+
+
+          //лист по движениям покрашено миниатюр, прочитано книг, пройдекно игр, приобретено игр
+        const books_list  = await PulseModel.aggregate([
+            {$match: { date_pulse: { $gte: new Date(`${req.params.year}-01-01T00:00:00.000Z`), 
+                $lte: new Date(`${req.params.year}-12-31T23:59:59.000Z`)
+            }}},
+            { $group : { _id : "$category_pulse", children: { $push: {title: "$name_pulse"}}}}
+          ])
+
+        books_list.map((obj) => {obj._id === 'miniature' ? 
+                miniature_pulse.push({title : 'Миниатюры', children: obj.children}) : 
+                obj._id === 'games' ? games_pulse.push({title : 'Игры', children: obj.children}) :
+                obj._id === 'books' ? books_pulse.push({title : 'Книги', children: obj.children}) :
+                obj._id === 'books_price' ? books_price_pulse.push({title : 'Купленные книги', children: obj.children}) :
+                console.log()
+            })
+            //заработок за год
+            const salary_year = await SalaryModel.aggregate([
+                {$match: { date_salary: {$regex: req.params.year}
+            
+            }},
+                {
+                    $group: {_id: {date_salary: {$substr : ["$date_salary",6,4]}},
+                            sum: {$sum: "$summ_salary"},
+                            }
+            }
+            ]) 
+            //подработки за год
+            const bonus_year = await BonusModel.aggregate([
+                {$match: { date_bonus: {$regex: req.params.year}
+            
+            }},
+                {
+                    $group: {_id: {date_bonus: {$substr : ["$date_bonus",6,4]}},
+                            sum: {$sum: "$summ_bonus"},
+                            }
+            }
+            ]) 
+
+            // заработок по месяцам в течение года
+            
+
+            //группировка из движений для формирования графиков по месяцам
+            const pulse_group_charts = await PulseModel.aggregate([
+                {$match: { date_pulse: { $gte: new Date(`${req.params.year}-01-01T00:00:00.000Z`), 
+                $lte: new Date(`${req.params.year}-12-31T23:59:59.000Z`)
+            }}},
+                {
+                    $group: {_id: {
+                    category_pulse: "$category_pulse", date_pulse: {$substr : ["$date_pulse",0,7]}
+                },
+                sum: {$sum: 1},
+                time_pulse: {$sum: "$time_pulse"}}
+            }, {$sort: {_id: 1}}
+            ])  
+            const pulse_group_payments = await PulseModel.aggregate([
+                {$match: { date_pulse: { $gte: new Date(`${req.params.year}-01-01T00:00:00.000Z`), 
+                $lte: new Date(`${req.params.year}-12-31T23:59:59.000Z`)
+            }}},
+                {
+                    $group: {_id: {
+                    category_pulse: "$payments", date_pulse: {$substr : ["$date_pulse",0,7]}
+                },
+                count_pulse: {$sum: "$sum_pulse_credit"}}
+            }, {$sort: {_id: 1}}
+            ])
+
+            const pulse_group_salary = await PulseModel.aggregate([
+                {$match: { date_pulse: { $gte: new Date(`${req.params.year}-01-01T00:00:00.000Z`), 
+                $lte: new Date(`${req.params.year}-12-31T23:59:59.000Z`)
+            }}},
+                {
+                    $group: {_id: {
+                    category_pulse: "$salary", date_pulse: {$substr : ["$date_pulse",0,7]}
+                },
+                count_pulse: {$sum: "$sum_pulse_salary"}}
+            }, {$sort: {_id: 1}}
+            ])
+            
+            const games_static = await Games.aggregate([
+                {$match: { date_game: {$regex: req.params.year}
+            
+            }},
+                {
+                    $group: {_id: {
+                    date_game: {$substr : ["$date_game",6,10]},
+                },
+                children: { $push: {title: "$game_name"}},
+                sum: {$sum: "$summ_game"},
+                count: {$sum: 1}},
+            }, {$sort: {_id: 1}}
+            ]) 
+
+            games_static.map((obj) => 
+            games_price_pulse.push({title : 'Купленные игры', children: obj.children}))
+
+            const miniatures_static = await MiniatureModel.aggregate([
+                {$match: { date_buy_miniature: {$regex: req.params.year}
+            
+            }},
+                {
+                    $group: {_id: {
+                        date_buy_miniature: {$substr : ["$date_buy_miniature",6,10]}
+                },
+                children: { $push: {title: "$miniature_name"}},
+                sum: {$sum: "$price_miniature"},
+                count: {$sum: 1}}
+            }, {$sort: {_id: 1}}
+            ])  
+
+            miniatures_static.map((obj) => 
+            miniatures_price_pulse.push({title : 'Купленные миниатюры', children: obj.children}))
+
+            const color_static = await ColorModel.aggregate([
+                {$match: { date_buy_miniature: {$regex: req.params.year}
+            
+            }},
+                {
+                    $group: {_id: {
+                        date_color: {$substr : ["$date_color",6,10]}
+                },
+                sum: {$sum: "$summ_color"},
+            }
+            }, {$sort: {_id: 1}}
+            ]) 
+
+            const books_static = await PulseModel.aggregate([
+                {$match: 
+                    {category_pulse: "books_price"}},
+                {
+                    $group: {_id: {date_books: {$substr : ["$date_pulse",0,4]}},
+                            sum: {$sum: "$sum_pulse"},
+                            count: {$sum: 1}
+                            }
+            }, {$sort: {_id: 1}}
+            ]) 
+
+            const early_payment = await EarlyPaymentsModel.aggregate([
+                {$match: { date_earlyPayment: {$regex: req.params.year}
+            
+            }},
+                {
+                    $group: {_id: {date_earlyPayment: {$substr : ["$date_earlyPayment",6,10]}},
+                            sum: {$sum: "$summ_earlyPayment"},
+                            }
+            }
+            ]) 
+
+            const payment = await PaymentsModel.aggregate([
+                {$match: { date_payment: {$regex: req.params.year}, status_payment : "Оплачено"
+            
+            }},
+                {
+                    $group: {_id: {date_payment: {$substr : ["$date_payment",6,10]}},
+                            sum: {$sum: "$summ_payment"},
+                            }
+            }
+            ]) 
+
+            books_static.forEach((obj) => {
+                    sum_books_nowyear = obj.sum
+                    count_books_price = obj.count
+            })
+
+            games_static.forEach((obj) => {
+                    sum_games_nowyear = obj.sum,
+                    count_games_price = obj.count
+            })
+
+            miniatures_static.forEach((obj) => {
+                    sum_miniatures_nowyear = obj.sum
+                    count_miniatures_price = obj.count
+            })
+
+            color_static.forEach((obj) => {
+                    sum_color_nowyear = obj.sum
+            })
+
+            pulse_group_payments.forEach((obj) => {
+                payments.push({date_pulse: obj._id.date_pulse, count_pulse: obj.count_pulse})
+                payments_date.push(obj._id.date_pulse)
+            })
+
+            pulse_group_salary.forEach((obj) => {
+                salary.push({date_pulse: obj._id.date_pulse, count_pulse: obj.count_pulse})
+                salary_date.push(obj._id.date_pulse)
+            })
+
+            for (let i = 0; i< pulse_group_charts.length; i ++)
+            {
+                if (pulse_group_charts[i]._id.category_pulse === 'games')
+                {
+                    games.push({date_pulse: pulse_group_charts[i]._id.date_pulse,count_pulse: pulse_group_charts[i].sum})
+                    games_date.push(pulse_group_charts[i]._id.date_pulse)
+                    time_games_nowyear+=pulse_group_charts[i].time_pulse
+                }
+                else if (pulse_group_charts[i]._id.category_pulse === 'books')
+                {
+                    books.push({date_pulse: pulse_group_charts[i]._id.date_pulse,count_pulse: pulse_group_charts[i].sum})
+                    books_date.push(pulse_group_charts[i]._id.date_pulse)
+                }
+                else if (pulse_group_charts[i]._id.category_pulse === 'miniature')
+                {
+                    miniature.push({date_pulse: pulse_group_charts[i]._id.date_pulse,count_pulse: pulse_group_charts[i].sum})
+                    miniature_date.push(pulse_group_charts[i]._id.date_pulse)
+                }
+                else continue
+            }
+            
+            let diff_games = diff.filter(date => ! games_date.includes(date))
+            diff_games.map((obj) => games.push({date_pulse: obj,count_pulse: 0}))
+
+            let diff_books = diff.filter(date => ! books_date.includes(date))
+            diff_books.map((obj) => books.push({date_pulse: obj,count_pulse: 0}))
+
+            let diff_miniature = diff.filter(date => ! miniature_date.includes(date))
+            diff_miniature.map((obj) => miniature.push({date_pulse: obj,count_pulse: 0}))
+
+            let diff_payments = diff.filter(date => ! payments_date.includes(date))
+            diff_payments.map((obj) => payments.push({date_pulse: obj,count_pulse: 0}))
+
+            let diff_salary = diff.filter(date => ! salary_date.includes(date))
+            diff_salary.map((obj) => salary.push({date_pulse: obj,count_pulse: 0}))
+
+            let sortedGames = games.sort((r1, r2) => (r1.date_pulse > r2.date_pulse) ? 1 : (r1.date_pulse < r2.date_pulse) ? -1 : 0)
+            let sortedBooks = books.sort((r1, r2) => (r1.date_pulse > r2.date_pulse) ? 1 : (r1.date_pulse < r2.date_pulse) ? -1 : 0)
+            let sortedMiniatures = miniature.sort((r1, r2) => (r1.date_pulse > r2.date_pulse) ? 1 : (r1.date_pulse < r2.date_pulse) ? -1 : 0)
+            let sortedPayments = payments.sort((r1, r2) => (r1.date_pulse > r2.date_pulse) ? 1 : (r1.date_pulse < r2.date_pulse) ? -1 : 0)
+            let sortedSalary = salary.sort((r1, r2) => (r1.date_pulse > r2.date_pulse) ? 1 : (r1.date_pulse < r2.date_pulse) ? -1 : 0)
+
+            let summGames = 0
+            sortedGames.forEach(x => {summGames+=x.count_pulse})
+
+            let summBooks = 0
+            sortedBooks.forEach(x => {summBooks+=x.count_pulse})
+
+            let summMiniatures = 0
+            sortedMiniatures.forEach(x => {summMiniatures+=x.count_pulse})
+
+            let summPayments = 0
+            sortedPayments.forEach(x => summPayments+=x.count_pulse)
+
+            let summ_early_payment = 0
+            early_payment.forEach(x => {summ_early_payment+=x.sum})
+
+            let summ_payments = 0
+            payment.forEach(x => summ_payments+=x.sum)
+
+            let summ_salary_year = 0
+            salary_year.forEach(x => summ_salary_year+=x.sum)
+
+            let summ_bonus_year = 0
+            bonus_year.forEach(x => summ_bonus_year+=x.sum)
+            
+
+            if (summ_salary_year === 0 && summ_bonus_year > 0)
+                summ_salary_year += summ_bonus_year
+            
+            summ_salary_year - summ_bonus_year < 0 ? summ_delta = 0 : summ_delta = summ_salary_year - summ_bonus_year
+
+            dataPieCount.push({type: 'Потрачено на игры', value: sum_games_nowyear},
+            {type: 'Потрачено на хобби', value: sum_miniatures_nowyear+sum_color_nowyear},
+            {type: 'Потрачено на книги', value: sum_books_nowyear})
+
+            dataPiePrice.push({type: 'Пройдено игр', value: summGames},
+            {type: 'Покрашено миниатюр', value: summMiniatures},
+            {type: 'Прочитано книг', value: summBooks})
+
+        res.status(200).json({
+            sortedGames,
+            sortedBooks,
+            sortedMiniatures,
+            sortedPayments,
+            sortedSalary,
+            summGames,
+            summBooks,
+            summMiniatures,
+            summPayments,
+            sum_games_nowyear,
+            sum_miniatures_nowyear,
+            sum_color_nowyear,
+            sum_books_nowyear,
+            time_games_nowyear,
+            summ_early_payment,
+            summ_payments,
+            summ_salary_year,
+            summ_bonus_year,
+            summ_delta,
+            count_books_price,
+            count_games_price,
+            count_miniatures_price,
+            dataPieCount,
+            dataPiePrice,
+            miniature_pulse,
+            books_pulse,
+            games_pulse,
+            games_price_pulse,
+            books_price_pulse,
+            miniatures_price_pulse,
+            count_miniatures_price,
+            books_price,
+            books_list_count,
+            game_over,
+            game_over_count,
+            books_write,
+            books_write_count
+        })
+    }
+    catch(err)
+    {
+        res.status(500).json({...err})
+    }
+}
+
+
 export const main_static = async (req, res) => {
     try{
 
@@ -666,6 +1075,7 @@ export const games_static = async (req,res) => {
 
         Object.entries(Object.groupBy(listData4, ({key}) => key)).map(arr => 
             listData1.push(arr[1]))
+        
         
         const procentStaticGames  = Number(((gamesPassed) * 100 / (gamesCount)).toFixed(2))
     
