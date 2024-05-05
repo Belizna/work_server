@@ -28,6 +28,16 @@ export const miniatures_add = async(req,res) => {
         
         const miniature = await miniatureDoc.save()
 
+        const pulseDoc = new PulseModel({
+            date_pulse: new Date((req.body.date_buy_miniature)),
+            name_pulse: req.body.miniature_name,
+            category_pulse: 'miniatures_price',
+            sum_pulse: req.body.price_miniature,
+            id_object: miniature._id.toString()
+        })
+        
+        await pulseDoc.save()
+
         res.status(200).json({miniature})
     }
     catch(err){

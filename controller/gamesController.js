@@ -81,6 +81,16 @@ export const add_games = async(req,res) => {
 
         const libraryGames = await libraryGamesdoc.save()
 
+        const pulseDoc = new PulseModel({
+            date_pulse: new Date((req.body.date_game)),
+            name_pulse: req.body.game_name,
+            category_pulse: 'games_price',
+            sum_pulse: req.body.summ_game,
+            id_object: libraryGames._id.toString()
+        })
+        
+        await pulseDoc.save()
+
         res.status(200).json({
             libraryGames
         })
