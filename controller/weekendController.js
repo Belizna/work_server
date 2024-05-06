@@ -1,5 +1,7 @@
 import BonusModel from "../models/Bonus.js";
 import NormaModel from "../models/Norma_time.js"
+import PulseModel from '../models/Pulse.js'
+
 export const bonus_get = async(req,res) => {
     try{
         const bonus = await BonusModel.find().sort({'_id' : -1})
@@ -24,6 +26,16 @@ export const bonus_add = async(req,res) => {
     })
     const bonus = await bonusDoc.save()
 
+    const pulseDoc = new PulseModel({
+        date_pulse: new Date((req.body.date_bonus)),
+        name_pulse: `Подработка за ${req.body.date_bonus}`,
+        category_pulse: 'bonus',
+        sum_pulse: (zp/norma_time[0].time_norma * 2 * req.body.time_bonus).toFixed(2),
+        id_object: bonus._id.toString()
+    })
+    
+    await pulseDoc.save()
+
         res.status(200).json({
             bonus,
         })
@@ -43,6 +55,7 @@ export const bonus_delete = async(req,res) => {
                 })
             }
 
+            await PulseModel.deleteMany({id_object: req.params.id})
         res.status(200).json({deleteBonus})
     }
     catch(err){
@@ -61,6 +74,15 @@ export const bonus_edit = async(req,res) => {
         summ_bonus: (zp/norma_time[0].time_norma * 2 * req.body.time_bonus).toFixed(2),
         status_bonus: req.body.status_bonus
     })
+
+        await PulseModel.updateMany({id_object: req.params.id}, 
+            {
+                date_pulse: new Date((req.body.date_bonus)),
+                name_pulse: `Подработка за ${req.body.date_bonus}`,
+                sum_pulse: (zp/norma_time[0].time_norma * 2 * req.body.time_bonus).toFixed(2),
+            })
+        
+            console.log(bonus_edit)
 
         res.status(200).json({
             bonus_edit,

@@ -39,13 +39,22 @@ export const add_early_payment = async(req, res) => {
         const earlyPayments  = await EarlyPaymentsDoc.save()
 
         const pulseDoc = new PulseModel({
-            date_pulse: Date.now(),
+            date_pulse: new Date(req.body.date_earlyPayment),
             sum_pulse_credit: req.body.summ_earlyPayment,
             category_pulse: 'payments',
             id_object: String(earlyPayments._doc._id)
         })
         
         await pulseDoc.save()
+
+        const pulseDocEarly = new PulseModel({
+            date_pulse: new Date(req.body.date_earlyPayment),
+            sum_pulse_credit: req.body.summ_earlyPayment,
+            category_pulse: 'payments_early',
+            id_object: String(earlyPayments._doc._id)
+        })
+        
+        await pulseDocEarly.save()
 
         res.json({
             ...earlyPayments._doc
@@ -76,7 +85,8 @@ export const edit_early_payment = async (req,res) =>  {
 
         await PulseModel.updateMany({id_object: req.params.id}, 
             {
-                sum_pulse_credit: req.body.summ_earlyPayment
+                sum_pulse_credit: req.body.summ_earlyPayment,
+                date_pulse: new Date(req.body.date_earlyPayment)
             })
 
         res.status(200).json({

@@ -263,7 +263,6 @@ export const main_static = async (req, res) => {
             var books_write_count = 0
             let count_books_price = 0
 
-            const start2 = new Date().getTime();
             //лист для покупки книг и количество
         const books_list_price  = await BookModel.aggregate([
             {$match: {presence: 'Нет'}},
@@ -323,18 +322,6 @@ export const main_static = async (req, res) => {
                 obj._id === 'miniatures_price' ? miniatures_price_pulse.push({title : 'Купленные миниатюры', children: obj.children}) :
                 obj
             })
-
-            //подработки за год
-            const bonus_year = await BonusModel.aggregate([
-                {$match: { date_bonus: {$regex: req.params.year}
-            
-            }},
-                {
-                    $group: {_id: {date_bonus: {$substr : ["$date_bonus",6,4]}},
-                            sum: {$sum: "$summ_bonus"},
-                            }
-            }
-            ]) 
           
             //группировка из движений для формирования графиков по месяцам
             const pulse_group_charts = await PulseModel.aggregate([
@@ -353,39 +340,8 @@ export const main_static = async (req, res) => {
             }, {$sort: {_id: 1}}
             ])  
 
-            //потрачено на краску
-            const color_static = await ColorModel.aggregate([
-                {$match: { date_color: {$regex: req.params.year}}},
-                {
-                    $group: {_id: {
-                        date_color: {$substr : ["$date_color",6,10]}
-                },
-                sum: {$sum: "$summ_color"},
-            }
-            }, {$sort: {_id: 1}}
-            ]) 
-
-            const early_payment = await EarlyPaymentsModel.aggregate([
-                {$match: { date_earlyPayment: {$regex: req.params.year}
-            
-            }},
-                {
-                    $group: {_id: {date_earlyPayment: {$substr : ["$date_earlyPayment",6,10]}},
-                            sum: {$sum: "$summ_earlyPayment"},
-                            }
-            }
-            ]) 
-            const end2 = new Date().getTime();
-            console.log(`SecondWayBD: ${end2 - start2}ms`);
-
-            const start = new Date().getTime();
-
-            let summ_early_payment = early_payment[0]?.sum || 0
-
-            color_static.forEach((obj) => {
-                    sum_color_nowyear = obj.sum
-            })
-
+            let summ_early_payment = 0
+            let summ_bonus_year = 0
             let summPayments = 0
             let summGames = 0
             let summMiniatures = 0
@@ -440,24 +396,36 @@ export const main_static = async (req, res) => {
                         sum_miniatures_nowyear += pulse_group_charts[i].sum_pulse
                         count_miniatures_price += pulse_group_charts[i].sum
                 }
+                else if (pulse_group_charts[i]._id.category_pulse === 'color_price')
+                {
+                    sum_color_nowyear += pulse_group_charts[i].sum_pulse
+                }
+                else if (pulse_group_charts[i]._id.category_pulse === 'bonus')
+                {
+                    summ_bonus_year += pulse_group_charts[i].sum_pulse
+                }
+                else if (pulse_group_charts[i]._id.category_pulse === 'payments_early')
+                {
+                    summ_early_payment += pulse_group_charts[i].count_pulse
+                }
                 else continue
             }
-            
 
             let summ_payments = summPayments - summ_early_payment
 
+            if (summ_salary_year === 0 && summ_bonus_year > 0)
+                summ_salary_year += summ_bonus_year
+            
+            summ_salary_year - summ_bonus_year < 0 ? summ_delta = 0 : summ_delta = summ_salary_year - summ_bonus_year
+
             let diff_games = diff.filter(date => ! games_date.includes(date))
             diff_games.map((obj) => games.push({date_pulse: obj,count_pulse: 0}))
-
             let diff_books = diff.filter(date => ! books_date.includes(date))
             diff_books.map((obj) => books.push({date_pulse: obj,count_pulse: 0}))
-
             let diff_miniature = diff.filter(date => ! miniature_date.includes(date))
             diff_miniature.map((obj) => miniature.push({date_pulse: obj,count_pulse: 0}))
-
             let diff_payments = diff.filter(date => ! payments_date.includes(date))
             diff_payments.map((obj) => payments.push({date_pulse: obj,count_pulse: 0}))
-
             let diff_salary = diff.filter(date => ! salary_date.includes(date))
             diff_salary.map((obj) => salary.push({date_pulse: obj,count_pulse: 0}))
 
@@ -466,15 +434,6 @@ export const main_static = async (req, res) => {
             let sortedMiniatures = miniature.sort((r1, r2) => (r1.date_pulse > r2.date_pulse) ? 1 : (r1.date_pulse < r2.date_pulse) ? -1 : 0)
             let sortedPayments = payments.sort((r1, r2) => (r1.date_pulse > r2.date_pulse) ? 1 : (r1.date_pulse < r2.date_pulse) ? -1 : 0)
             let sortedSalary = salary.sort((r1, r2) => (r1.date_pulse > r2.date_pulse) ? 1 : (r1.date_pulse < r2.date_pulse) ? -1 : 0)
-
-            let summ_bonus_year = 0
-            bonus_year.forEach(x => summ_bonus_year+=x.sum)
-            
-
-            if (summ_salary_year === 0 && summ_bonus_year > 0)
-                summ_salary_year += summ_bonus_year
-            
-            summ_salary_year - summ_bonus_year < 0 ? summ_delta = 0 : summ_delta = summ_salary_year - summ_bonus_year
 
             dataPieCount.push({type: 'Потрачено на игры', value: sum_games_nowyear},
             {type: 'Потрачено на хобби', value: sum_miniatures_nowyear+sum_color_nowyear},
@@ -522,8 +481,6 @@ export const main_static = async (req, res) => {
             books_write,
             books_write_count
         })
-        const end = new Date().getTime();
-            console.log(`SecondWay: ${end - start}ms`);
     }
     catch(err)
     {

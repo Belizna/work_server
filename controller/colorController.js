@@ -1,4 +1,5 @@
 import ColorModel from "../models/Color.js"
+import PulseModel from '../models/Pulse.js'
 
 export const colors_get = async(req,res) => {
     try{
@@ -21,6 +22,16 @@ export const colors_add = async(req,res) => {
         })
         
         const color = await colorDoc.save()
+
+        const pulseDoc = new PulseModel({
+            date_pulse: new Date((req.body.date_color)),
+            name_pulse: req.body.name_color,
+            category_pulse: 'color_price',
+            sum_pulse: req.body.summ_color,
+            id_object: color._id.toString()
+        })
+        
+        await pulseDoc.save()
 
         res.status(200).json({color})
     }
@@ -55,6 +66,8 @@ export const colors_delete = async(req,res) => {
                     message: 'Такой краски нет'
                 })
             }
+
+            await PulseModel.deleteMany({id_object: req.params.id})
 
         res.status(200).json({deleteColor})
     }
