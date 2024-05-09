@@ -48,7 +48,14 @@ export const colors_edit = async(req,res) => {
             collection_color: req.body.collection_color, 
             summ_color: req.body.summ_color,
         })
-    
+       
+        await PulseModel.updateMany({id_object: req.params.id}, 
+            {
+                name_pulse: req.body.name_color,
+                date_pulse: new Date((req.body.date_color)),
+                sum_pulse : req.body.summ_color
+            })
+
             res.status(200).json({
                 color_edit,
             })

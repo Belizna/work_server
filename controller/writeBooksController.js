@@ -16,7 +16,7 @@ export const get_write_books = async (req, res) => {
 
         write_books.map(arr => 
             arr.collection_book != "" && arr.collection_book != null ?
-            filteredList.push({text: arr.collection_book, value: arr.collection_book}) : console.log('null'))
+            filteredList.push({text: arr.collection_book, value: arr.collection_book}) : arr)
 
         let filter = [...new Set(filteredList.map(JSON.stringify))].map(JSON.parse);   
         

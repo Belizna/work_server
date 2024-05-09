@@ -216,7 +216,6 @@ export const hobby_static = async (req, res) => {
     }
 }
 
-
 export const main_static = async (req, res) => {
     try{
 
@@ -233,8 +232,12 @@ export const main_static = async (req, res) => {
             let dataPiePrice = [];
             let games = []
             let games_date = []
+            let gamesPrice = []
+            let games_datePrice = []
             let books = []
             let books_date = []
+            let booksPrice = []
+            let books_datePrice = []
             let miniature = []
             let miniature_date = []
             let payments = []
@@ -349,7 +352,7 @@ export const main_static = async (req, res) => {
             let summ_salary_year = 0
 
             for (let i = 0; i< pulse_group_charts.length; i ++)
-            {
+            {   
                 if (pulse_group_charts[i]._id.category_pulse === 'games')
                 {
                     games.push({date_pulse: pulse_group_charts[i]._id.date_pulse,count_pulse: pulse_group_charts[i].sum})
@@ -370,7 +373,9 @@ export const main_static = async (req, res) => {
                     summMiniatures+=pulse_group_charts[i].sum
                 }
                 else if (pulse_group_charts[i]._id.category_pulse === 'books_price')
-                {
+                {   
+                    booksPrice.push({date_pulse: pulse_group_charts[i]._id.date_pulse,count_pulse: pulse_group_charts[i].sum})
+                    books_datePrice.push(pulse_group_charts[i]._id.date_pulse)
                     sum_books_nowyear+=pulse_group_charts[i].sum_pulse
                     count_books_price+=pulse_group_charts[i].sum
                 }
@@ -387,14 +392,16 @@ export const main_static = async (req, res) => {
                     summ_salary_year+=pulse_group_charts[i].count_pulse_salary
                 }
                 else if (pulse_group_charts[i]._id.category_pulse === 'games_price')
-                {
+                {   
+                    gamesPrice.push({date_pulse: pulse_group_charts[i]._id.date_pulse,count_pulse: pulse_group_charts[i].sum})
+                    games_datePrice.push(pulse_group_charts[i]._id.date_pulse)
                     sum_games_nowyear += pulse_group_charts[i].sum_pulse,
                     count_games_price += pulse_group_charts[i].sum
                 }
                 else if (pulse_group_charts[i]._id.category_pulse === 'miniatures_price')
                 {
-                        sum_miniatures_nowyear += pulse_group_charts[i].sum_pulse
-                        count_miniatures_price += pulse_group_charts[i].sum
+                    sum_miniatures_nowyear += pulse_group_charts[i].sum_pulse
+                    count_miniatures_price += pulse_group_charts[i].sum
                 }
                 else if (pulse_group_charts[i]._id.category_pulse === 'color_price')
                 {
@@ -420,17 +427,29 @@ export const main_static = async (req, res) => {
 
             let diff_games = diff.filter(date => ! games_date.includes(date))
             diff_games.map((obj) => games.push({date_pulse: obj,count_pulse: 0}))
+
+            let diff_gamesPrice = diff.filter(date => ! games_datePrice.includes(date))
+            diff_gamesPrice.map((obj) => gamesPrice.push({date_pulse: obj,count_pulse: 0}))
+
             let diff_books = diff.filter(date => ! books_date.includes(date))
             diff_books.map((obj) => books.push({date_pulse: obj,count_pulse: 0}))
+
+            let diff_booksPrice = diff.filter(date => ! books_datePrice.includes(date))
+            diff_booksPrice.map((obj) => booksPrice.push({date_pulse: obj,count_pulse: 0}))
+
             let diff_miniature = diff.filter(date => ! miniature_date.includes(date))
             diff_miniature.map((obj) => miniature.push({date_pulse: obj,count_pulse: 0}))
+
             let diff_payments = diff.filter(date => ! payments_date.includes(date))
             diff_payments.map((obj) => payments.push({date_pulse: obj,count_pulse: 0}))
+
             let diff_salary = diff.filter(date => ! salary_date.includes(date))
             diff_salary.map((obj) => salary.push({date_pulse: obj,count_pulse: 0}))
 
             let sortedGames = games.sort((r1, r2) => (r1.date_pulse > r2.date_pulse) ? 1 : (r1.date_pulse < r2.date_pulse) ? -1 : 0)
+            let sortedGamesPrice = gamesPrice.sort((r1, r2) => (r1.date_pulse > r2.date_pulse) ? 1 : (r1.date_pulse < r2.date_pulse) ? -1 : 0)
             let sortedBooks = books.sort((r1, r2) => (r1.date_pulse > r2.date_pulse) ? 1 : (r1.date_pulse < r2.date_pulse) ? -1 : 0)
+            let sortedBooksPrice = booksPrice.sort((r1, r2) => (r1.date_pulse > r2.date_pulse) ? 1 : (r1.date_pulse < r2.date_pulse) ? -1 : 0)
             let sortedMiniatures = miniature.sort((r1, r2) => (r1.date_pulse > r2.date_pulse) ? 1 : (r1.date_pulse < r2.date_pulse) ? -1 : 0)
             let sortedPayments = payments.sort((r1, r2) => (r1.date_pulse > r2.date_pulse) ? 1 : (r1.date_pulse < r2.date_pulse) ? -1 : 0)
             let sortedSalary = salary.sort((r1, r2) => (r1.date_pulse > r2.date_pulse) ? 1 : (r1.date_pulse < r2.date_pulse) ? -1 : 0)
@@ -445,6 +464,8 @@ export const main_static = async (req, res) => {
 
         res.status(200).json({
             sortedGames,
+            sortedGamesPrice,
+            sortedBooksPrice,
             sortedBooks,
             sortedMiniatures,
             sortedPayments,

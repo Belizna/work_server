@@ -32,11 +32,11 @@ export const update_payment = async (req, res) => {
                 return res.status(400).json(errors.array())
             }
             const payments = await PaymentsModel.findById(req.params.id)
-
+            
             if(payments.status_payment === 'Не оплачено' && req.body.status_payment === 'Оплачено')
             {
             const pulseDoc = new PulseModel({
-                date_pulse: Date.now(),
+                date_pulse: new Date(((payments.date_payment).substr(0, 10).split("-").reverse().join("-"))),
                 sum_pulse_credit: req.body.summ_payment,
                 category_pulse: 'payments',
                 id_object: req.params.id
