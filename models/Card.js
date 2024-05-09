@@ -8,7 +8,6 @@ const CardSchema = new mongoose.Schema({
     name_card :{
         type: String,
         required: true,
-        unique: false
     },
     level_card: {
         type: String,
