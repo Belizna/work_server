@@ -100,7 +100,7 @@ export const add_card = async (req,res) => {
                 id_object: String(card._doc._id)
             })
             
-            await pulseDoc.save()
+           // await pulseDoc.save()
         }
         res.status(200).json({
             ...card._doc
