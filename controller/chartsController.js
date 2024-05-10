@@ -17,111 +17,104 @@ import CardModel from "../models/Card.js"
 export const book_static = async (req,res ) => {
 
     try {
-        const write_books_novel = await WriteBooksModel.find({compilation: req.params.book_name, format : 'роман'})
-    const write_books_story = await WriteBooksModel.find({compilation: req.params.book_name, format : 'рассказ'})
-    const write_books_big_story = await WriteBooksModel.find({compilation: req.params.book_name,format : 'повесть' })
+        
+        var readRomans = 0
+        var reatNotRomans = 0
 
-    const books = await Book.aggregate([{$match: {compilation: req.params.book_name}}, 
-        {$group: {_id: null, count: {$sum : 1}, sum: {$sum: "$summ_book"}}}]) 
+        var readBigStory = 0
+        var readNotBigStory = 0
 
-    const books_count = await Book.aggregate([{$match: {compilation: req.params.book_name, presence: 'Есть'}}, 
-            {$group: {_id: null, count: {$sum: 1}}}]) 
+        var readStory = 0
+        var readNotStory = 0
 
-    const books_summ = books[0]?.sum || 0
-    const books_there_is_count = books_count[0]?.count || 0
-    const books_all_there_is_count = books[0]?.count || 0
+        var booksPriceSum = 0
+        var booksPriceCount = 0
 
-    var read_novel = 0
-    var read_story = 0
-    var read_big_story = 0
-    var data_books_novel = []
-    var data_books_story = []
-    var data_books_big_story = []
-    var dataDemoLine = []
+        var booksDataRomans = []
+        var booksDataStory = []
+        var booksDataBigStory = []
+        var booksDataDemoLine = []
 
-    for(var i = 0; i< write_books_novel.length; i++)
-    {
-        if (write_books_novel[i].presence=='Прочитано')
-            read_novel++
-        else continue
-    }
-    for(var i = 0; i< write_books_story.length; i++)
-    {
-        if (write_books_story[i].presence=='Прочитано')
-            read_story++
-        else continue
-    }
-    for(var i = 0; i< write_books_big_story.length; i++)
-    {
-        if (write_books_big_story[i].presence=='Прочитано')
-            read_big_story++
-        else continue
-    }
+        const writeBooks = await WriteBooksModel.find({compilation: req.params.book_name})
+        const books2 = await Book.find({compilation: req.params.book_name})
 
-    const procentStaticBooks = 
-    Number(((read_novel+read_story+read_big_story)*100/
-    (write_books_novel.length+write_books_story.length+write_books_big_story.length)).toFixed(2))
+        writeBooks.filter(obj => obj.format === 'роман').
+        map(obj => {
+            obj.presence=='Прочитано' ? readRomans+=1 : reatNotRomans+=1 
+        })
 
-    const not_read_novel = write_books_novel.length - read_novel
-    const not_read_big_story = write_books_big_story.length - read_big_story
-    const not_read_story = write_books_story.length - read_story
-    const all_books = write_books_big_story.length + write_books_novel.length+ write_books_story.length
-    const read_all_books = read_big_story+read_novel+read_story
-    const not_read_all_books = not_read_big_story+not_read_novel+not_read_story
+        writeBooks.filter(obj => obj.format === 'повесть').
+        map(obj => {
+            obj.presence=='Прочитано' ? readBigStory+=1 : readNotBigStory+=1 
+        })
 
-    //рассказы
-    if (write_books_story.length === 0) {
-        data_books_story = null
-    }else {
-        data_books_story = [{name: 'Прочитано',value: read_story},
-            {name: 'Осталось',value: not_read_story}];
-        dataDemoLine.push({key: 'Рассказов',name: 'Всего',value: read_story + not_read_story},
-          {key: 'Рассказов',name: 'Прочитано',value: read_story},
-          {key: 'Рассказов',name: 'Осталось',value: not_read_story})    
-    }
-      //повесть
-      if (write_books_big_story.length === 0){
-            data_books_big_story = null
-        }else {
-            data_books_big_story = [{name: 'Прочитано',value: read_big_story},
-        {name: 'Осталось',value: not_read_big_story}];
-        dataDemoLine.push({key: 'Повестей',name: 'Всего',value: not_read_big_story + read_big_story},
-          {key: 'Повестей',name: 'Прочитано',value: read_big_story},
-          {key: 'Повестей',name: 'Осталось',value: not_read_big_story})
+        writeBooks.filter(obj => obj.format === 'рассказ').
+        map(obj => {
+            obj.presence=='Прочитано' ? readStory+=1 : readNotStory+=1 
+        })
+
+        books2.map(obj => {
+            booksPriceSum += obj.summ_book,
+            obj.presence = 'Есть' ? booksPriceCount+=1 : obj
+        })
+
+        const booksCount = books2.length
+
+        const booksProcentStatic = Number(((readRomans+readStory+readBigStory)*100 /writeBooks.length).toFixed(2))
+
+        if (readRomans != 0 + reatNotRomans != 0)
+        {
+            booksDataRomans.push(
+                {name : "Прочитано" , value: readRomans},
+                {name : "Осталось" , value: reatNotRomans})
+
+            booksDataDemoLine.push(
+                {key: 'Романов',name: 'Всего',value: readRomans + reatNotRomans},
+                {key: 'Романов',name: 'Прочитано',value: readRomans},
+                {key: 'Романов',name: 'Осталось',value: reatNotRomans})
         }
-//романы
-    if (write_books_novel.length === 0){
-        data_books_novel = null
-    }else {
-        data_books_novel = [{name: 'Прочитано',value: read_novel},
-            {name: 'Осталось',value: not_read_novel}];
-        dataDemoLine.push({key: 'Романов',name: 'Всего',value: not_read_novel + read_novel},
-          {key: 'Романов',name: 'Прочитано',value: read_novel},
-            {key: 'Романов',name: 'Осталось',value: not_read_novel})
-    }
+        else booksDataRomans = null
 
-        dataDemoLine.push({key: 'Общее количество',name: 'Всего',value: read_all_books + not_read_all_books},
-          {key: 'Общее количество',name: 'Прочитано',value: read_all_books},
-          {key: 'Общее количество',name: 'Осталось',value: not_read_all_books})
+        if (readBigStory + readNotBigStory != 0)
+        {
+            booksDataBigStory.push(
+                {name : "Прочитано" , value: readBigStory},
+                {name : "Осталось" , value: readNotBigStory})
+
+            booksDataDemoLine.push(
+                {key: 'Повестей',name: 'Всего',value: readBigStory + readNotBigStory},
+                {key: 'Повестей',name: 'Прочитано',value: readBigStory},
+                {key: 'Повестей',name: 'Осталось',value: readNotBigStory})
+        }
+        else booksDataBigStory = null
+
+        if (readStory != 0 + readNotStory != 0)
+        {
+            booksDataStory.push(
+                {name : "Прочитано" , value: readStory},
+                {name : "Осталось" , value: readNotStory})
+
+            booksDataDemoLine.push(
+                {key: 'Рассказов',name: 'Всего',value: readStory + readNotStory},
+                {key: 'Рассказов',name: 'Прочитано',value: readStory},
+                {key: 'Рассказов',name: 'Осталось',value: readNotStory})
+        }
+        else booksDataStory = null
+
+        booksDataDemoLine.push(
+            {key: 'Общее количество',name: 'Всего',value: writeBooks.length},
+            {key: 'Общее количество',name: 'Прочитано',value: readStory+readBigStory+readRomans},
+            {key: 'Общее количество',name: 'Осталось',value: readNotStory+readNotBigStory+reatNotRomans})
 
     res.status(200).json({
-            procentStaticBooks,
-            not_read_novel,
-            not_read_big_story,
-            not_read_story,
-            read_novel,
-            read_story ,
-            read_big_story,
-            all_books,
-            read_all_books,
-            not_read_all_books,
-            books_summ,
-            books_there_is_count,
-            books_all_there_is_count,
-            data_books_novel,
-            data_books_story,
-            data_books_big_story, 
-            dataDemoLine
+            booksPriceSum,
+            booksCount,
+            booksPriceCount,
+            booksProcentStatic,
+            booksDataRomans,
+            booksDataBigStory,
+            booksDataStory,
+            booksDataDemoLine,    
     })
     }
     catch(err)
@@ -566,37 +559,75 @@ export const games_static = async (req,res) => {
 
 export const salary_chart = async(req,res) => {
     try{
-            const salary_year = await SalaryModel.aggregate([
-            {$group: {_id: { $substr : ["$date_salary",6,4]},
-            sum: {$sum: "$summ_salary"}}}])
+        const salary = await SalaryModel.find()
+        const bonus = await BonusModel.find()
+      
+        var salaryPieGroupCompany = [];
+        var salaryPieGroupYear = [];
+        var salaryYearSum = []
+        var salaryMonth = []
 
-           
+        var bonusGroupMonth = [];
+        var bonusPieGroupYear = [];
+        var bonusYearSum = []
+        var bonusMonth = []
+        var bonusSumm = 0
 
-            const salary_company = await SalaryModel.aggregate([
-                {$group: {_id: "$company",
-                sum: {$sum: "$summ_salary"}}}])
+        salary.map(obj => {
+            salaryYearSum.push({date: obj.date_salary.slice(6), sum: obj.summ_salary})
+            salaryMonth.push({date_salary: obj.date_salary, summ_salary: obj.summ_salary, company: obj.company})
+        })
 
-                
-            const salary_month = await SalaryModel.find().sort({'_id': 1})
-            
-            const bonus_month = await BonusModel.aggregate([
-                {$group: {_id: { $substr : ["$date_bonus",3,7]},
-                sum: {$sum: "$summ_bonus"}}},
-                {$sort: {_id: -1}}
-            ])
-                const bonus_year = await BonusModel.aggregate([
-                    {$group: {_id: { $substr : ["$date_bonus",6,4]},
-                    sum: {$sum: "$summ_bonus"}}}
-                ])
-                
-                const bonus_not = await BonusModel.aggregate([{$match: {status_bonus: "Не Выплачено"}}, 
-                    {$group: {_id: null, sum: {$sum: "$summ_bonus"}}}]) 
+        bonus.map(obj => {
+            bonusYearSum.push({date: obj.date_bonus.slice(6), sum: obj.summ_bonus})
+            bonusMonth.push({date: obj.date_bonus.slice(3), sum: obj.summ_bonus})
+            obj.status_bonus === 'Не Выплачено' ? bonusSumm+= obj.summ_bonus : obj
+        })
 
-                    var summ_bonus = 0
-                    bonus_not.length === 0 ? summ_bonus = 0 : summ_bonus = bonus_not[0].sum
+        salary.reduce((res, value) => {
+            if (!res[value.company]) {
+                res[value.company] = { _id: value.company, sum: 0 };
+                salaryPieGroupCompany.push(res[value.company])
+                }
+            res[value.company].sum += value.summ_salary;
+            return res;
+        }, {});
 
-                    res.status(200).json({salary_year,salary_company,
-                    salary_month,bonus_month,bonus_year, summ_bonus})
+        salaryYearSum.reduce((res, value) => {
+            if (!res[(value.date)]) {
+                res[value.date] = { _id: value.date, sum: 0 };
+                salaryPieGroupYear.push(res[value.date])
+                }
+            res[value.date].sum += value.sum;
+            return res;
+        }, {});
+
+        bonusYearSum.reduce((res, value) => {
+            if (!res[(value.date)]) {
+                res[value.date] = { _id: value.date, sum: 0 };
+                bonusPieGroupYear.push(res[value.date])
+                }
+            res[value.date].sum += value.sum;
+            return res;
+        }, {});
+
+        bonusMonth.reduce((res, value) => {
+            if (!res[(value.date)]) {
+                res[value.date] = { _id: value.date, sum: 0 };
+                bonusGroupMonth.push(res[value.date])
+                }
+            res[value.date].sum += value.sum;
+            return res;
+        }, {});
+
+                    res.status(200).json({
+                        bonusSumm,
+                        salaryPieGroupYear,
+                        salaryPieGroupCompany,
+                        salaryMonth,
+                        bonusPieGroupYear,
+                        bonusGroupMonth
+                    })
             
     }
     catch(err){
