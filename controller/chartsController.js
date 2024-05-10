@@ -12,6 +12,7 @@ import BonusModel from '../models/Bonus.js'
 import ColorModel from "../models/Color.js"
 import MiniatureModel from "../models/Miniature.js"
 import RepairModel from "../models/Repair.js";
+import CardModel from "../models/Card.js"
 
 export const book_static = async (req,res ) => {
 
@@ -628,6 +629,99 @@ export const repair_static = async (req,res ) => {
             percent,
             data,
             sumData
+        })     
+    }
+    catch(err)
+    {
+        res.status(500).json({...err})
+    }
+}
+
+export const card_static = async (req,res ) => {
+
+    try {
+        var countNotYes = 0
+        var children = []
+        var cardPrice = []
+        var cardObYes = 0
+        var cardObNot = 0
+        var cardRYes = 0
+        var cardRNot = 0
+        var cardSRYes = 0
+        var cardSRNot = 0
+        var cardURYes = 0
+        var cardURNot = 0
+        var cardColumn = []
+        var cardPie = []
+
+        const card = await CardModel.find({collection_card: req.params.collection_card})
+
+        card.filter(obj => obj.status_card === 'Нет')
+        .map(obj => {
+            children.push({title : obj.number_card + ' ' + obj.name_card})
+            countNotYes+=1
+        })
+
+        card.filter(obj => obj.level_card === 'O').
+        map(obj => {
+            obj.status_card === 'Нет' ? cardObNot+=1 : cardObYes+=1 
+        })
+
+        card.filter(obj => obj.level_card === 'Р').
+        map(obj => {
+            obj.status_card === 'Нет' ? cardRNot+=1 : cardRYes+=1 
+        })
+
+        card.filter(obj => obj.level_card === 'СР').
+        map(obj => {
+            obj.status_card === 'Нет' ? cardSRNot+=1 : cardSRYes+=1 
+        })
+
+        card.filter(obj => obj.level_card === 'УР').
+        map(obj => {
+            obj.status_card === 'Нет' ? cardURNot+=1 : cardURYes+=1 
+        })
+
+        cardColumn.push(
+            {key: 'O', name: 'Всего', value: cardObNot + cardObYes},
+            {key: 'O', name: 'Есть', value: cardObYes},
+            {key: 'O', name: 'Нет', value: cardObNot},
+            {key: 'Р', name: 'Всего', value: cardRNot + cardRYes},
+            {key: 'Р', name: 'Есть', value: cardRYes},
+            {key: 'Р', name: 'Нет', value: cardRNot},
+            {key: 'СР', name: 'Всего', value: cardSRNot + cardSRYes},
+            {key: 'СР', name: 'Есть', value: cardSRYes},
+            {key: 'СР', name: 'Нет', value: cardSRNot},
+            {key: 'УР', name: 'Всего', value: cardURNot + cardURYes},
+            {key: 'УР', name: 'Есть', value: cardURYes},
+            {key: 'УР', name: 'Нет', value: cardURNot},
+            )
+        
+        cardPie.push(
+            [{key: 'O', name: 'Есть', value: cardObYes},
+            {key: 'O', name: 'Нет', value: cardObNot}],
+            [{key: 'Р', name: 'Есть', value: cardRYes},
+            {key: 'Р', name: 'Нет', value: cardRNot}],
+            [{key: 'СР', name: 'Есть', value: cardSRYes},
+            {key: 'СР', name: 'Нет', value: cardSRNot}],
+            [{key: 'УР', name: 'Есть', value: cardURYes},
+            {key: 'УР', name: 'Нет', value: cardURNot}],
+        )
+
+        const procentCard = (100 - countNotYes * 100 / card.length).toFixed(2)
+        const countYes = card.length - countNotYes
+        const countAllCard = card.length
+
+        cardPrice.push({title : req.params.collection_card, children: children})
+
+        res.status(200).json({
+            procentCard,
+            cardPrice,
+            countNotYes,
+            countYes,
+            countAllCard,
+            cardColumn,
+            cardPie
         })     
     }
     catch(err)
