@@ -21,6 +21,10 @@ const CardSchema = new mongoose.Schema({
         type: String,
         required: true,
     },
+    summ_card: {
+        type: Number,
+        required: false,
+    },
 })
 
 export default mongoose.model('Card', CardSchema);

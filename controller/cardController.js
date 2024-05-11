@@ -24,6 +24,7 @@ export const edit_card = async (req,res) => {
             const pulseDoc = new PulseModel({
                 date_pulse: Date.now(),
                 name_pulse: req.body.name_card,
+                sum_pulse: req.body.summ_card,
                 category_pulse: 'card_price',
                 id_object: req.params.id
             })
@@ -38,7 +39,8 @@ export const edit_card = async (req,res) => {
             await PulseModel.updateMany({id_object: req.params.id}, 
                 {
                     name_pulse: req.body.name_card,
-                    number_card: req.body.number_card
+                    number_card: req.body.number_card,
+                    sum_pulse: req.body.summ_card,
                 })
         }
 
@@ -47,7 +49,8 @@ export const edit_card = async (req,res) => {
             name_card : req.body.name_card,
             level_card : req.body.level_card,
             status_card : req.body.status_card,
-            number_card: req.body.number_card
+            number_card: req.body.number_card,
+            summ_card: req.body.summ_card,
         })
         res.status(200).json({
             card_edit
@@ -87,7 +90,8 @@ export const add_card = async (req,res) => {
             name_card : req.body.name_card,
             level_card : req.body.level_card,
             collection_card : req.params.collection_card,
-            status_card: req.body.status_card
+            status_card: req.body.status_card,
+            summ_card: req.body.summ_card,
         })
 
         const card = await cardDoc.save()
@@ -97,10 +101,11 @@ export const add_card = async (req,res) => {
                 date_pulse: Date.now(),
                 name_pulse: req.body.name_card,
                 category_pulse: 'card_price',
+                sum_pulse: req.body.summ_card,
                 id_object: String(card._doc._id)
             })
             
-           // await pulseDoc.save()
+            await pulseDoc.save()
         }
         res.status(200).json({
             ...card._doc
