@@ -32,7 +32,7 @@ import CheckAuth from './utils/CheckAuth.js'
 
 dotenv.config()
 
-mongoose.connect(process.env.MONGO_CONNECTION_STRING,
+mongoose.connect(process.env.MONGODB_URI,
 {useNewUrlParser: true})
 .then(()=> console.log('db connection'))
 .catch((err) => console.log('error db connection', err))
@@ -41,7 +41,7 @@ app.use(express.json())
 app.use(cors())
 
 app.get('/', (req, res) => {
- 
+    console.log('Server run')
 });
 
 app.post('/credit/create/', creditCreateValidator, async (req, res) => {
