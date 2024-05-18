@@ -703,13 +703,17 @@ export const card_static = async (req,res ) => {
         var cardURNot = 0
         var cardColumn = []
         var cardPie = []
+        var cardList = ''
+        var cardNumber = ''
 
         const card = await CardModel.find({collection_card: req.params.collection_card})
 
         card.filter(obj => obj.status_card === 'Нет')
         .map(obj => {
-            children.push({title : obj.number_card + ' ' + obj.name_card})
+            children.push({title : obj.number_card + ' ' + obj.name_card + ' ' + obj.level_card})
             countNotYes+=1
+            cardList+=`${obj.number_card} ${obj.name_card} ${obj.level_card} \n`
+            cardNumber+= `${obj.number_card}, `
         })
 
         card.filter(obj => obj.level_card === 'O').
@@ -771,7 +775,9 @@ export const card_static = async (req,res ) => {
             countYes,
             countAllCard,
             cardColumn,
-            cardPie
+            cardPie,
+            cardList,
+            cardNumber
         })     
     }
     catch(err)

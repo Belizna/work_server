@@ -39,7 +39,6 @@ export const edit_card = async (req,res) => {
             await PulseModel.updateMany({id_object: req.params.id}, 
                 {
                     name_pulse: req.body.name_card,
-                    number_card: req.body.number_card,
                     sum_pulse: req.body.summ_card,
                 })
         }
