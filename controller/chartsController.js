@@ -706,7 +706,7 @@ export const card_static = async (req,res ) => {
         var cardList = ''
         var cardNumber = ''
 
-        const card = await CardModel.find({collection_card: req.params.collection_card})
+        const card = await CardModel.find({collection_card: req.params.collection_card}).sort({"number_card" : 1})
 
         card.filter(obj => obj.status_card === 'Нет')
         .map(obj => {
@@ -716,6 +716,7 @@ export const card_static = async (req,res ) => {
             cardNumber+= `${obj.number_card}, `
         })
 
+        console.log(cardNumber)
         card.filter(obj => obj.level_card === 'O').
         map(obj => {
             obj.status_card === 'Нет' ? cardObNot+=1 : cardObYes+=1 
