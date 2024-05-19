@@ -705,6 +705,7 @@ export const card_static = async (req,res ) => {
         var cardPie = []
         var cardList = ''
         var cardNumber = ''
+        var cardSummCollection = 0
 
         const card = await CardModel.find({collection_card: req.params.collection_card}).sort({"number_card" : 1})
 
@@ -716,25 +717,24 @@ export const card_static = async (req,res ) => {
             cardNumber+= `${obj.number_card}, `
         })
 
-        console.log(cardNumber)
         card.filter(obj => obj.level_card === 'O').
         map(obj => {
-            obj.status_card === 'Нет' ? cardObNot+=1 : cardObYes+=1 
+            obj.status_card === 'Нет' ? cardObNot+=1 : cardObYes+=1, cardSummCollection+= obj.summ_card
         })
 
         card.filter(obj => obj.level_card === 'Р').
         map(obj => {
-            obj.status_card === 'Нет' ? cardRNot+=1 : cardRYes+=1 
+            obj.status_card === 'Нет' ? cardRNot+=1 : cardRYes+=1, cardSummCollection+= obj.summ_card 
         })
 
         card.filter(obj => obj.level_card === 'СР').
         map(obj => {
-            obj.status_card === 'Нет' ? cardSRNot+=1 : cardSRYes+=1 
+            obj.status_card === 'Нет' ? cardSRNot+=1 : cardSRYes+=1, cardSummCollection+= obj.summ_card 
         })
 
         card.filter(obj => obj.level_card === 'УР').
         map(obj => {
-            obj.status_card === 'Нет' ? cardURNot+=1 : cardURYes+=1 
+            obj.status_card === 'Нет' ? cardURNot+=1 : cardURYes+=1, cardSummCollection+= obj.summ_card 
         })
 
         cardColumn.push(
@@ -778,7 +778,8 @@ export const card_static = async (req,res ) => {
             cardColumn,
             cardPie,
             cardList,
-            cardNumber
+            cardNumber,
+            cardSummCollection
         })     
     }
     catch(err)
