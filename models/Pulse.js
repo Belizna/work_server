@@ -13,6 +13,10 @@ const PulseSchema = new mongoose.Schema({
         type: String,
         required: true
     },
+    collection_card_pulse: {
+        type: String,
+        required: true
+    },
     time_pulse: {
         type: Number,
         required: false

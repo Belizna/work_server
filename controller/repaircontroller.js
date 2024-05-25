@@ -79,7 +79,7 @@ export const repair_delete = async(req,res) => {
 export const repair_sum = async (req,res) => {
     try{    
             const repair = await RepairModel.find({"category_repair" : "Сбережение"})
-            console.log(repair[0].sum_repair - req.body.sum)
+            
             switch(req.body.option) {
                 case "-" :
                     {

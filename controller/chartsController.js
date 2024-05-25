@@ -226,13 +226,17 @@ export const main_static = async (req, res) => {
             let dataPiePrice = [];
             let games = []
             let games_date = []
+            let gamesPriceCount = []
             let gamesPrice = []
             let games_datePrice = []
-            let cardPrice = []
-            let card_datePrice = []
+            let cardPriceSpiderMan = []
+            let card_datePriceSpiderMan = []
+            let cardPriceTeenageMutantNinja = []
+            let card_datePriceTeenageMutantNinja = []
             let books = []
             let books_date = []
             let booksPrice = []
+            let booksPriceCount = []
             let books_datePrice = []
             let miniature = []
             let miniature_date = []
@@ -329,7 +333,8 @@ export const main_static = async (req, res) => {
             }}},
                 {
                     $group: {_id: {
-                    category_pulse: "$category_pulse", date_pulse: {$substr : ["$date_pulse",0,7]}
+                    category_pulse: "$category_pulse", date_pulse: {$substr : ["$date_pulse",0,7]}, 
+                    collection_card_pulse: "$collection_card_pulse"
                 },
                 sum: {$sum: 1},
                 sum_pulse: {$sum : "$sum_pulse"},
@@ -346,8 +351,10 @@ export const main_static = async (req, res) => {
             let summMiniatures = 0
             let summBooks = 0
             let summ_salary_year = 0
-            let sum_card_nowyear = 0
-            let count_card_price = 0
+            let sum_card_nowyearTeenage_Mutant_Ninja = 0
+            let count_card_priceTeenage_Mutant_Ninja = 0
+            let sum_card_nowyearSpider_Man = 0
+            let count_card_priceSpider_Man = 0
 
             for (let i = 0; i< pulse_group_charts.length; i ++)
             {   
@@ -372,7 +379,8 @@ export const main_static = async (req, res) => {
                 }
                 else if (pulse_group_charts[i]._id.category_pulse === 'books_price')
                 {   
-                    booksPrice.push({date_pulse: pulse_group_charts[i]._id.date_pulse,count_pulse: pulse_group_charts[i].sum})
+                    booksPriceCount.push({date_pulse: pulse_group_charts[i]._id.date_pulse,count_pulse: pulse_group_charts[i].sum})
+                    booksPrice.push({date_pulse: pulse_group_charts[i]._id.date_pulse,count_pulse: pulse_group_charts[i].sum_pulse})
                     books_datePrice.push(pulse_group_charts[i]._id.date_pulse)
                     sum_books_nowyear+=pulse_group_charts[i].sum_pulse
                     count_books_price+=pulse_group_charts[i].sum
@@ -391,7 +399,8 @@ export const main_static = async (req, res) => {
                 }
                 else if (pulse_group_charts[i]._id.category_pulse === 'games_price')
                 {   
-                    gamesPrice.push({date_pulse: pulse_group_charts[i]._id.date_pulse,count_pulse: pulse_group_charts[i].sum})
+                    gamesPriceCount.push({date_pulse: pulse_group_charts[i]._id.date_pulse,count_pulse: pulse_group_charts[i].sum})
+                    gamesPrice.push({date_pulse: pulse_group_charts[i]._id.date_pulse,count_pulse: pulse_group_charts[i].sum_pulse})
                     games_datePrice.push(pulse_group_charts[i]._id.date_pulse)
                     sum_games_nowyear += pulse_group_charts[i].sum_pulse,
                     count_games_price += pulse_group_charts[i].sum
@@ -415,15 +424,27 @@ export const main_static = async (req, res) => {
                 }
                 else if (pulse_group_charts[i]._id.category_pulse === 'card_price')
                 {
-                    cardPrice.push({date_pulse: pulse_group_charts[i]._id.date_pulse,count_pulse: pulse_group_charts[i].sum})
-                    card_datePrice.push(pulse_group_charts[i]._id.date_pulse)
-                    sum_card_nowyear += pulse_group_charts[i].sum_pulse,
-                    count_card_price += pulse_group_charts[i].sum
+                    if(pulse_group_charts[i]._id.collection_card_pulse === 'Teenage_Mutant_Ninja')
+                    {
+                        cardPriceTeenageMutantNinja.push({date_pulse: pulse_group_charts[i]._id.date_pulse,count_pulse: pulse_group_charts[i].sum})
+                        card_datePriceTeenageMutantNinja.push(pulse_group_charts[i]._id.date_pulse)
+                        sum_card_nowyearTeenage_Mutant_Ninja += pulse_group_charts[i].sum_pulse,
+                        count_card_priceTeenage_Mutant_Ninja += pulse_group_charts[i].sum
+                    }
+                    else if (pulse_group_charts[i]._id.collection_card_pulse === 'Spider_Man')
+                    {
+                        cardPriceSpiderMan.push({date_pulse: pulse_group_charts[i]._id.date_pulse,count_pulse: pulse_group_charts[i].sum})
+                        card_datePriceSpiderMan.push(pulse_group_charts[i]._id.date_pulse)
+                        sum_card_nowyearSpider_Man += pulse_group_charts[i].sum_pulse,
+                        count_card_priceSpider_Man += pulse_group_charts[i].sum
+                    }
                 }
                 else continue
             }
 
-            let summ_payments = summPayments - summ_early_payment
+            let summ_payments = summPayments - summ_early_payment 
+            let sum_card_nowyear = sum_card_nowyearSpider_Man + sum_card_nowyearTeenage_Mutant_Ninja
+            let count_card_price = count_card_priceSpider_Man + count_card_priceTeenage_Mutant_Ninja
 
             if (summ_salary_year === 0 && summ_bonus_year > 0)
                 summ_salary_year += summ_bonus_year
@@ -433,14 +454,23 @@ export const main_static = async (req, res) => {
             let diff_games = diff.filter(date => ! games_date.includes(date))
             diff_games.map((obj) => games.push({date_pulse: obj,count_pulse: 0}))
 
+            let diff_gamesPriceCount = diff.filter(date => ! games_datePrice.includes(date))
+            diff_gamesPriceCount.map((obj) => gamesPriceCount.push({date_pulse: obj,count_pulse: 0}))
+
             let diff_gamesPrice = diff.filter(date => ! games_datePrice.includes(date))
             diff_gamesPrice.map((obj) => gamesPrice.push({date_pulse: obj,count_pulse: 0}))
 
-            let diff_cardPrice = diff.filter(date => ! card_datePrice.includes(date))
-            diff_cardPrice.map((obj) => cardPrice.push({date_pulse: obj,count_pulse: 0}))
+            let diff_cardPriceSpider_Man = diff.filter(date => ! card_datePriceSpiderMan.includes(date))
+            diff_cardPriceSpider_Man.map((obj) => cardPriceSpiderMan.push({date_pulse: obj,count_pulse: 0}))
+
+            let diff_cardPriceTeenage_Mutant_Ninja = diff.filter(date => ! card_datePriceTeenageMutantNinja.includes(date))
+            diff_cardPriceTeenage_Mutant_Ninja.map((obj) => cardPriceTeenageMutantNinja.push({date_pulse: obj,count_pulse: 0}))
 
             let diff_books = diff.filter(date => ! books_date.includes(date))
             diff_books.map((obj) => books.push({date_pulse: obj,count_pulse: 0}))
+
+            let diff_booksPriceCount = diff.filter(date => ! books_datePrice.includes(date))
+            diff_booksPriceCount.map((obj) => booksPriceCount.push({date_pulse: obj,count_pulse: 0}))
 
             let diff_booksPrice = diff.filter(date => ! books_datePrice.includes(date))
             diff_booksPrice.map((obj) => booksPrice.push({date_pulse: obj,count_pulse: 0}))
@@ -455,10 +485,13 @@ export const main_static = async (req, res) => {
             diff_salary.map((obj) => salary.push({date_pulse: obj,count_pulse: 0}))
 
             let sortedGames = games.sort((r1, r2) => (r1.date_pulse > r2.date_pulse) ? 1 : (r1.date_pulse < r2.date_pulse) ? -1 : 0)
+            let sortedGamesPriceCount = gamesPriceCount.sort((r1, r2) => (r1.date_pulse > r2.date_pulse) ? 1 : (r1.date_pulse < r2.date_pulse) ? -1 : 0)
             let sortedGamesPrice = gamesPrice.sort((r1, r2) => (r1.date_pulse > r2.date_pulse) ? 1 : (r1.date_pulse < r2.date_pulse) ? -1 : 0)
-            let sortedCardPrice = cardPrice.sort((r1, r2) => (r1.date_pulse > r2.date_pulse) ? 1 : (r1.date_pulse < r2.date_pulse) ? -1 : 0)
+            let sortedCardPriceTeenage_Mutant_Ninja = cardPriceTeenageMutantNinja.sort((r1, r2) => (r1.date_pulse > r2.date_pulse) ? 1 : (r1.date_pulse < r2.date_pulse) ? -1 : 0)
+            let sortedCardPriceSpider_Man = cardPriceSpiderMan.sort((r1, r2) => (r1.date_pulse > r2.date_pulse) ? 1 : (r1.date_pulse < r2.date_pulse) ? -1 : 0)
             let sortedBooks = books.sort((r1, r2) => (r1.date_pulse > r2.date_pulse) ? 1 : (r1.date_pulse < r2.date_pulse) ? -1 : 0)
-            let sortedBooksPrice = booksPrice.sort((r1, r2) => (r1.date_pulse > r2.date_pulse) ? 1 : (r1.date_pulse < r2.date_pulse) ? -1 : 0)
+            let sortedbooksPriceCount = booksPriceCount.sort((r1, r2) => (r1.date_pulse > r2.date_pulse) ? 1 : (r1.date_pulse < r2.date_pulse) ? -1 : 0)
+            let sortedbooksPrice = booksPrice.sort((r1, r2) => (r1.date_pulse > r2.date_pulse) ? 1 : (r1.date_pulse < r2.date_pulse) ? -1 : 0)
             let sortedMiniatures = miniature.sort((r1, r2) => (r1.date_pulse > r2.date_pulse) ? 1 : (r1.date_pulse < r2.date_pulse) ? -1 : 0)
             let sortedPayments = payments.sort((r1, r2) => (r1.date_pulse > r2.date_pulse) ? 1 : (r1.date_pulse < r2.date_pulse) ? -1 : 0)
             let sortedSalary = salary.sort((r1, r2) => (r1.date_pulse > r2.date_pulse) ? 1 : (r1.date_pulse < r2.date_pulse) ? -1 : 0)
@@ -466,7 +499,7 @@ export const main_static = async (req, res) => {
             dataPieCount.push({type: 'Потрачено на игры', value: sum_games_nowyear},
             {type: 'Потрачено на хобби', value: sum_miniatures_nowyear+sum_color_nowyear},
             {type: 'Потрачено на книги', value: sum_books_nowyear},
-            {type: 'Потрачено на коллекцию', value: sum_card_nowyear})
+            {type: 'Потрачено на коллекцию', value: sum_card_nowyearSpider_Man+sum_card_nowyearTeenage_Mutant_Ninja})
 
             dataPiePrice.push({type: 'Пройдено игр', value: summGames},
             {type: 'Покрашено миниатюр', value: summMiniatures},
@@ -474,9 +507,12 @@ export const main_static = async (req, res) => {
 
         res.status(200).json({
             sortedGames,
+            sortedGamesPriceCount,
             sortedGamesPrice,
-            sortedBooksPrice,
-            sortedCardPrice,
+            sortedbooksPrice,
+            sortedbooksPriceCount,
+            sortedCardPriceTeenage_Mutant_Ninja,
+            sortedCardPriceSpider_Man,
             sortedBooks,
             sortedMiniatures,
             sortedPayments,
@@ -490,6 +526,8 @@ export const main_static = async (req, res) => {
             sum_color_nowyear,
             sum_books_nowyear,
             sum_card_nowyear,
+            sum_card_nowyearSpider_Man,
+            sum_card_nowyearTeenage_Mutant_Ninja,
             time_games_nowyear,
             summ_early_payment,
             summ_payments,
@@ -499,6 +537,8 @@ export const main_static = async (req, res) => {
             count_books_price,
             count_games_price,
             count_card_price,
+            count_card_priceSpider_Man,
+            count_card_priceTeenage_Mutant_Ninja,
             count_miniatures_price,
             dataPieCount,
             dataPiePrice,
@@ -669,9 +709,10 @@ export const repair_static = async (req,res ) => {
         
         const repair = await RepairModel.find({"category_repair" : "Сбережение"})
 
-        rate = repair[0].sum_repair - sumCategory
+        rate = repair[0].sum_repair
 
-        percent = 1 -((sumCategory  / repair[0].sum_repair))
+        percent =  ( rate /1000000)
+
         data.map(arr => sumData+=arr.sales)
 
         res.status(200).json({

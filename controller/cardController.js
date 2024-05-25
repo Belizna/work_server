@@ -16,9 +16,59 @@ export const get_card = async (req,res) => {
     }
 }
 
+export const get_card_update_pulse = async (req,res) => {
+    try {     
+
+        const card = await CardModel.find({status_card: 'Есть'})
+
+        for(var i = 0; i<card.length; i++)
+        {
+            if (card[i].collection_card == 'Герои и Злодеи' || 
+            card[i].collection_card == 'Герои и Злодеи. 2-я часть.' || 
+            card[i].collection_card == 'Герои и Злодеи. 3-я часть.' ||
+            card[i].collection_card == 'Герои и Злодеи. 4-я часть.' ){
+            await PulseModel.updateMany({id_object: card[i]._id}, 
+                {
+                    collection_card_pulse : 'Spider_Man'
+                })
+        }
+        else if (card[i].collection_card == 'Воины тени' || 
+                 card[i].collection_card == 'Боевая четверка' || 
+                 card[i].collection_card == 'Братья по оружию'){
+                await PulseModel.updateMany({id_object: card[i]._id}, 
+                    {
+                        collection_card_pulse : 'Teenage_Mutant_Ninja'
+                    })
+        }
+        }
+        res.status(200).json({
+            card
+        })
+    }
+    catch(err) {
+        res.status(500).json({
+            err
+        }) 
+    }
+}
+
 export const edit_card = async (req,res) => {
     try{
         const card = await CardModel.findById(req.params.id)
+
+        var collection_card_pulse = ''
+        
+        if (card.collection_card == 'Герои и Злодеи' || 
+            card.collection_card == 'Герои и Злодеи. 2-я часть.' || 
+            card.collection_card == 'Герои и Злодеи. 3-я часть.' ||
+            card.collection_card == 'Герои и Злодеи. 4-я часть.' ){
+            collection_card_pulse = 'Spider_Man'
+        }
+        else if (card.collection_card == 'Воины тени' || 
+                 card.collection_card == 'Боевая четверка' || 
+                 card.collection_card == 'Братья по оружию'){
+            collection_card_pulse = 'Teenage_Mutant_Ninja'
+        }
 
         if (req.body.status_card === 'Есть' && card.status_card ==='Нет') {
             const pulseDoc = new PulseModel({
@@ -26,6 +76,7 @@ export const edit_card = async (req,res) => {
                 name_pulse: req.body.name_card,
                 sum_pulse: req.body.summ_card,
                 category_pulse: 'card_price',
+                collection_card_pulse: collection_card_pulse,
                 id_object: req.params.id
             })
             

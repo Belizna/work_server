@@ -81,8 +81,6 @@ export const bonus_edit = async(req,res) => {
                 name_pulse: `Подработка за ${req.body.date_bonus}`,
                 sum_pulse: (zp/norma_time[0].time_norma * 2 * req.body.time_bonus).toFixed(2),
             })
-        
-            console.log(bonus_edit)
 
         res.status(200).json({
             bonus_edit,
