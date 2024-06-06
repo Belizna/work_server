@@ -122,28 +122,43 @@ export const book_static = async (req, res) => {
 export const credit_static = async (req, res) => {
 
     try {
+
+        var early_sum = 0
+        var data1 = []
+        var data2 = []
+        var data3 = []
+        var count_month_remainder = 0
+        var count_month_paid = 0
+        var remainder = 0
+        var paid_fix = 0
+
         const earlyPay = await EarlyPaymentsModel.find()
         const credit = await CreditModel.find()
-        var early_sum = 0
+        const payment = await PaymentsModel.find()
 
-        const payments = await PaymentsModel.aggregate([{ $match: { status_payment: 'Оплачено' } },
-        { $group: { _id: null, count_month_paid: { "$sum": 1 }, paid_fix: { $sum: "$summ_payment" } } }])
+        payment.map((obj) => {
+            if (obj.status_payment === 'Не оплачено') {
+                count_month_remainder++
+                remainder += obj.summ_payment
+            } else {
+                count_month_paid++
+                paid_fix += obj.summ_payment
+            }
+        })
 
-        const not_payments = await PaymentsModel.aggregate([{ $match: { status_payment: 'Не оплачено' } },
-        { $group: { _id: null, count_month_remainder: { "$sum": 1 }, remainder: { $sum: "$summ_payment" } } }])
+        earlyPay.map((obj) => early_sum += obj.summ_earlyPayment)
 
-        for (var i = 0; i < earlyPay.length; i++) {
-            early_sum += earlyPay[i].summ_earlyPayment
-        }
+        const procentStatic = (((paid_fix + early_sum) * 100) / (paid_fix + early_sum + remainder)).toFixed(4)
 
-        const procentStatic = (((payments[0].paid_fix + early_sum) * 100) /
-            (payments[0].paid_fix + early_sum + not_payments[0].remainder)).toFixed(4)
-        const count_month_remainder = not_payments[0].count_month_remainder
-        const count_month_paid = payments[0].count_month_paid
-        const saving = Number((credit[0].duty - (not_payments[0].remainder + payments[0].paid_fix + early_sum)).toFixed(2))
+        const saving = Number((credit[0].duty - (remainder + paid_fix + early_sum)).toFixed(2))
+
         const overpayment = Number((credit[0].duty - (credit[0].summ_credit + saving)).toFixed(2))
-        const paid = Number((payments[0].paid_fix + early_sum).toFixed(2))
-        const remainder = not_payments[0].remainder
+
+        const paid = Number((paid_fix + early_sum).toFixed(2))
+
+        data1.push({ name: 'Переплата', value: overpayment }, { name: 'Экономия', value: saving })
+        data2.push({ name: 'Переплата', value: paid }, { name: 'Экономия', value: remainder })
+        data3.push({ name: 'Выплачено', value: count_month_paid }, { name: 'Осталось', value: count_month_remainder })
 
         res.status(200).send({
             paid,
@@ -154,6 +169,9 @@ export const credit_static = async (req, res) => {
             saving,
             overpayment,
             early_sum,
+            data1,
+            data2,
+            data3,
             earlyPay
         })
     }
@@ -619,29 +637,29 @@ export const games_static = async (req, res) => {
                 }
             })
 
-            listData4.push(
-                {key: 'Steam', name: 'Не пройдено', value: cardSteamNot},
-                {key: 'Steam', name: 'Пройдено', value: cardSteamYes},
-                {key: 'Ubisoft Connect', name: 'Не пройдено', value: cardUbisoftNot},
-                {key: 'Ubisoft Connect', name: 'Пройдено', value: cardUbisoftYes},
-                {key: 'PlayStation', name: 'Не пройдено', value: cardPlayStationNot},
-                {key: 'PlayStation', name: 'Пройдено', value: cardPlayStationYes},
-                {key: 'Общее количество', name: 'Не пройдено', value: cardSteamNot+cardUbisoftNot+cardPlayStationNot},
-                {key: 'Общее количество', name: 'Пройдено', value: cardSteamYes+cardUbisoftYes+cardPlayStationYes},
-            )
+        listData4.push(
+            { key: 'Steam', name: 'Не пройдено', value: cardSteamNot },
+            { key: 'Steam', name: 'Пройдено', value: cardSteamYes },
+            { key: 'Ubisoft Connect', name: 'Не пройдено', value: cardUbisoftNot },
+            { key: 'Ubisoft Connect', name: 'Пройдено', value: cardUbisoftYes },
+            { key: 'PlayStation', name: 'Не пройдено', value: cardPlayStationNot },
+            { key: 'PlayStation', name: 'Пройдено', value: cardPlayStationYes },
+            { key: 'Общее количество', name: 'Не пройдено', value: cardSteamNot + cardUbisoftNot + cardPlayStationNot },
+            { key: 'Общее количество', name: 'Пройдено', value: cardSteamYes + cardUbisoftYes + cardPlayStationYes },
+        )
 
-            listData1.push(
-                [{key: 'Steam', name: 'Не пройдено', value: cardSteamNot},
-                {key: 'Steam', name: 'Пройдено', value: cardSteamYes}],
-                [{key: 'Ubisoft Connect', name: 'Не пройдено', value: cardUbisoftNot},
-                {key: 'Ubisoft Connect', name: 'Пройдено', value: cardUbisoftYes}],
-                [{key: 'PlayStation', name: 'Не пройдено', value: cardPlayStationNot},
-                {key: 'PlayStation', name: 'Пройдено', value: cardPlayStationYes}],
-                [{key: 'Общее количество', name: 'Не пройдено', value: cardSteamNot+cardUbisoftNot+cardPlayStationNot},
-                {key: 'Общее количество', name: 'Пройдено', value: cardSteamYes+cardUbisoftYes+cardPlayStationYes}],
-            )
+        listData1.push(
+            [{ key: 'Steam', name: 'Не пройдено', value: cardSteamNot },
+            { key: 'Steam', name: 'Пройдено', value: cardSteamYes }],
+            [{ key: 'Ubisoft Connect', name: 'Не пройдено', value: cardUbisoftNot },
+            { key: 'Ubisoft Connect', name: 'Пройдено', value: cardUbisoftYes }],
+            [{ key: 'PlayStation', name: 'Не пройдено', value: cardPlayStationNot },
+            { key: 'PlayStation', name: 'Пройдено', value: cardPlayStationYes }],
+            [{ key: 'Общее количество', name: 'Не пройдено', value: cardSteamNot + cardUbisoftNot + cardPlayStationNot },
+            { key: 'Общее количество', name: 'Пройдено', value: cardSteamYes + cardUbisoftYes + cardPlayStationYes }],
+        )
 
-        const procentStaticGames = Number(((cardSteamYes+cardUbisoftYes+cardPlayStationYes) * 100 / (games_list.length)).toFixed(2))
+        const procentStaticGames = Number(((cardSteamYes + cardUbisoftYes + cardPlayStationYes) * 100 / (games_list.length)).toFixed(2))
 
         res.status(200).send({
             listData1,
