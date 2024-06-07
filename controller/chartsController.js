@@ -789,8 +789,11 @@ export const card_static = async (req, res) => {
 
     try {
         var countNotYes = 0
+        var countReplace = 0
         var children = []
+        var childrenReplace = []
         var cardPrice = []
+        var cardPriceReplace = []
         var cardObYes = 0
         var cardObNot = 0
         var cardRYes = 0
@@ -813,6 +816,12 @@ export const card_static = async (req, res) => {
                 countNotYes += 1
                 cardList += `${obj.number_card} ${obj.name_card} ${obj.level_card} \n`
                 cardNumber += `${obj.number_card}, `
+            })
+
+        card.filter(obj => obj.status_card === 'Замена')
+            .map(obj => {
+                childrenReplace.push({ title: obj.number_card + ' ' + obj.name_card + ' ' + obj.level_card })
+                countReplace += 1
             })
 
         card.filter(obj => obj.level_card === 'O').
@@ -867,9 +876,13 @@ export const card_static = async (req, res) => {
 
         cardPrice.push({ title: req.params.collection_card, children: children })
 
+        cardPriceReplace.push({ title: req.params.collection_card, children: childrenReplace })
+
         res.status(200).json({
             procentCard,
             cardPrice,
+            cardPriceReplace,
+            countReplace,
             countNotYes,
             countYes,
             countAllCard,

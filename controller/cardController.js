@@ -16,42 +16,6 @@ export const get_card = async (req,res) => {
     }
 }
 
-export const get_card_update_pulse = async (req,res) => {
-    try {     
-
-        const card = await CardModel.find({status_card: 'Есть'})
-
-        for(var i = 0; i<card.length; i++)
-        {
-            if (card[i].collection_card == 'Герои и Злодеи' || 
-            card[i].collection_card == 'Герои и Злодеи. 2-я часть.' || 
-            card[i].collection_card == 'Герои и Злодеи. 3-я часть.' ||
-            card[i].collection_card == 'Герои и Злодеи. 4-я часть.' ){
-            await PulseModel.updateMany({id_object: card[i]._id}, 
-                {
-                    collection_card_pulse : 'Spider_Man'
-                })
-        }
-        else if (card[i].collection_card == 'Воины тени' || 
-                 card[i].collection_card == 'Боевая четверка' || 
-                 card[i].collection_card == 'Братья по оружию'){
-                await PulseModel.updateMany({id_object: card[i]._id}, 
-                    {
-                        collection_card_pulse : 'Teenage_Mutant_Ninja'
-                    })
-        }
-        }
-        res.status(200).json({
-            card
-        })
-    }
-    catch(err) {
-        res.status(500).json({
-            err
-        }) 
-    }
-}
-
 export const edit_card = async (req,res) => {
     try{
         const card = await CardModel.findById(req.params.id)
@@ -70,7 +34,7 @@ export const edit_card = async (req,res) => {
             collection_card_pulse = 'Teenage_Mutant_Ninja'
         }
 
-        if (req.body.status_card === 'Есть' && card.status_card ==='Нет') {
+        if (req.body.status_card === 'Есть' && card.status_card ==='Нет' || card.status_card ==='Замена' ) {
             const pulseDoc = new PulseModel({
                 date_pulse: Date.now(),
                 name_pulse: req.body.name_card,
@@ -82,7 +46,7 @@ export const edit_card = async (req,res) => {
             
             await pulseDoc.save()
         }
-        else if (req.body.status_card === 'Нет' && card.status_card ==='Есть')
+        else if (req.body.status_card === 'Нет' && card.status_card ==='Есть' || card.status_card ==='Замена')
         {
             await PulseModel.deleteMany({id_object:req.params.id})
         }

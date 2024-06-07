@@ -25,7 +25,7 @@ import { bonus_get , bonus_add, bonus_delete, bonus_edit } from './controller/we
 import { salary_add, salary_delete, salary_edit, salary_get } from './controller/SalaryController.js'
 import { miniatures_get,miniatures_add, miniatures_edit, miniatures_delete} from './controller/miniaturesController.js'
 import { colors_add, colors_get, colors_edit, colors_delete } from './controller/colorController.js'
-import { get_card, add_card, edit_card, delete_card, get_card_update_pulse } from './controller/cardController.js'
+import { get_card, add_card, edit_card, delete_card} from './controller/cardController.js'
 import { repair_add, repair_get, repair_edit, repair_delete, repair_sum } from './controller/repaircontroller.js'
 
 import CheckAuth from './utils/CheckAuth.js'
@@ -141,8 +141,6 @@ app.get('/collection/card/:collection_card', get_card)
 app.post('/collection/card/add/:collection_card', add_card) 
 app.patch('/collection/card/edit/:id', edit_card)
 app.delete('/collection/card/delete/:id', delete_card)
-app.get('/collection/card/', get_card_update_pulse)
-
 
 app.get('/books/other_books', other_books_get)
 app.post('/books/other_books/add', other_books_add) 
