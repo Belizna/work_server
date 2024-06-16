@@ -68,9 +68,10 @@ export const book_static = async (req, res) => {
                 { name: "Осталось", value: reatNotRomans })
 
             booksDataDemoLine.push(
-                { key: 'Романов', name: 'Всего', value: readRomans + reatNotRomans },
                 { key: 'Романов', name: 'Прочитано', value: readRomans },
-                { key: 'Романов', name: 'Осталось', value: reatNotRomans })
+                { key: 'Романов', name: 'Осталось', value: reatNotRomans },
+                { key: 'Романов', name: 'Всего', value: readRomans + reatNotRomans },
+            )
         }
         else booksDataRomans = null
 
@@ -80,9 +81,9 @@ export const book_static = async (req, res) => {
                 { name: "Осталось", value: readNotBigStory })
 
             booksDataDemoLine.push(
-                { key: 'Повестей', name: 'Всего', value: readBigStory + readNotBigStory },
                 { key: 'Повестей', name: 'Прочитано', value: readBigStory },
-                { key: 'Повестей', name: 'Осталось', value: readNotBigStory })
+                { key: 'Повестей', name: 'Осталось', value: readNotBigStory },
+                { key: 'Повестей', name: 'Всего', value: readBigStory + readNotBigStory })
         }
         else booksDataBigStory = null
 
@@ -92,16 +93,18 @@ export const book_static = async (req, res) => {
                 { name: "Осталось", value: readNotStory })
 
             booksDataDemoLine.push(
-                { key: 'Рассказов', name: 'Всего', value: readStory + readNotStory },
                 { key: 'Рассказов', name: 'Прочитано', value: readStory },
-                { key: 'Рассказов', name: 'Осталось', value: readNotStory })
+                { key: 'Рассказов', name: 'Осталось', value: readNotStory },
+                { key: 'Рассказов', name: 'Всего', value: readStory + readNotStory },
+            )
         }
         else booksDataStory = null
 
         booksDataDemoLine.push(
-            { key: 'Общее количество', name: 'Всего', value: writeBooks.length },
             { key: 'Общее количество', name: 'Прочитано', value: readStory + readBigStory + readRomans },
-            { key: 'Общее количество', name: 'Осталось', value: readNotStory + readNotBigStory + reatNotRomans })
+            { key: 'Общее количество', name: 'Осталось', value: readNotStory + readNotBigStory + reatNotRomans },
+            { key: 'Общее количество', name: 'Всего', value: writeBooks.length },
+        )
 
         res.status(200).json({
             booksPriceSum,
@@ -156,7 +159,7 @@ export const credit_static = async (req, res) => {
 
         const paid = Number((paid_fix + early_sum).toFixed(2))
 
-        data1.push({ name: 'Переплата', value: overpayment }, { name: 'Экономия', value: saving })
+        data1.push({ name: 'Экономия', value: saving }, { name: 'Переплата', value: overpayment })
         data2.push({ name: 'Переплата', value: paid }, { name: 'Экономия', value: remainder })
         data3.push({ name: 'Выплачено', value: count_month_paid }, { name: 'Осталось', value: count_month_remainder })
 
@@ -638,25 +641,25 @@ export const games_static = async (req, res) => {
             })
 
         listData4.push(
-            { key: 'Steam', name: 'Не пройдено', value: cardSteamNot },
             { key: 'Steam', name: 'Пройдено', value: cardSteamYes },
-            { key: 'Ubisoft Connect', name: 'Не пройдено', value: cardUbisoftNot },
+            { key: 'Steam', name: 'Не пройдено', value: cardSteamNot },
             { key: 'Ubisoft Connect', name: 'Пройдено', value: cardUbisoftYes },
-            { key: 'PlayStation', name: 'Не пройдено', value: cardPlayStationNot },
+            { key: 'Ubisoft Connect', name: 'Не пройдено', value: cardUbisoftNot },
             { key: 'PlayStation', name: 'Пройдено', value: cardPlayStationYes },
-            { key: 'Общее количество', name: 'Не пройдено', value: cardSteamNot + cardUbisoftNot + cardPlayStationNot },
+            { key: 'PlayStation', name: 'Не пройдено', value: cardPlayStationNot },
             { key: 'Общее количество', name: 'Пройдено', value: cardSteamYes + cardUbisoftYes + cardPlayStationYes },
+            { key: 'Общее количество', name: 'Не пройдено', value: cardSteamNot + cardUbisoftNot + cardPlayStationNot },
         )
 
         listData1.push(
-            [{ key: 'Steam', name: 'Не пройдено', value: cardSteamNot },
-            { key: 'Steam', name: 'Пройдено', value: cardSteamYes }],
-            [{ key: 'Ubisoft Connect', name: 'Не пройдено', value: cardUbisoftNot },
-            { key: 'Ubisoft Connect', name: 'Пройдено', value: cardUbisoftYes }],
-            [{ key: 'PlayStation', name: 'Не пройдено', value: cardPlayStationNot },
-            { key: 'PlayStation', name: 'Пройдено', value: cardPlayStationYes }],
-            [{ key: 'Общее количество', name: 'Не пройдено', value: cardSteamNot + cardUbisoftNot + cardPlayStationNot },
-            { key: 'Общее количество', name: 'Пройдено', value: cardSteamYes + cardUbisoftYes + cardPlayStationYes }],
+            [{ key: 'Steam', name: 'Пройдено', value: cardSteamYes },
+            { key: 'Steam', name: 'Не пройдено', value: cardSteamNot }],
+            [{ key: 'Ubisoft Connect', name: 'Пройдено', value: cardUbisoftYes },
+            { key: 'Ubisoft Connect', name: 'Не пройдено', value: cardUbisoftNot }],
+            [{ key: 'PlayStation', name: 'Пройдено', value: cardPlayStationYes },
+            { key: 'PlayStation', name: 'Не пройдено', value: cardPlayStationNot }],
+            [{ key: 'Общее количество', name: 'Пройдено', value: cardSteamYes + cardUbisoftYes + cardPlayStationYes },
+            { key: 'Общее количество', name: 'Не пройдено', value: cardSteamNot + cardUbisoftNot + cardPlayStationNot }],
         )
 
         const procentStaticGames = Number(((cardSteamYes + cardUbisoftYes + cardPlayStationYes) * 100 / (games_list.length)).toFixed(2))
