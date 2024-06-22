@@ -33,6 +33,11 @@ export const edit_card = async (req,res) => {
                  card.collection_card == 'Братья по оружию'){
             collection_card_pulse = 'Teenage_Mutant_Ninja'
         }
+        else if (card.collection_card == 'Отчаянные бойцы' || 
+                 card.collection_card == 'Отчаянные бойцы - Новая Вестроя'){
+            collection_card_pulse = 'Bakugan'
+        }
+        else collection_card_pulse = card.collection_card
 
         if (req.body.status_card === 'Есть' && card.status_card ==='Нет' || card.status_card ==='Замена' ) {
             const pulseDoc = new PulseModel({
@@ -115,6 +120,7 @@ export const add_card = async (req,res) => {
                 date_pulse: Date.now(),
                 name_pulse: req.body.name_card,
                 category_pulse: 'card_price',
+                collection_card_pulse : req.params.collection_card,
                 sum_pulse: req.body.summ_card,
                 id_object: String(card._doc._id)
             })
