@@ -34,7 +34,7 @@ export const edit_card = async (req,res) => {
             collection_card_pulse = 'Teenage_Mutant_Ninja'
         }
         else if (card.collection_card == 'Отчаянные бойцы' || 
-                 card.collection_card == 'Отчаянные бойцы - Новая Вестроя'){
+                 card.collection_card == 'Новая Вестроя'){
             collection_card_pulse = 'Bakugan'
         }
         else collection_card_pulse = card.collection_card
