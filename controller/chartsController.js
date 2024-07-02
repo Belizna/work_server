@@ -252,6 +252,11 @@ export const main_static = async (req, res) => {
         let cardsPriceBakugan = []
         let cards_datePriceBakugan = []
 
+        let cardPriceNaruto = []
+        let card_datePriceNaruto = []
+        let cardsPriceNaruto = []
+        let cards_datePriceNaruto = []
+
         let cardPriceTransformers = []
         let card_datePriceTransformers = []
         let cardsPriceTransformers = []
@@ -428,12 +433,14 @@ export const main_static = async (req, res) => {
         let sum_card_nowyearTransformers = 0
         let sum_card_nowyearSpider_Man = 0
         let sum_card_nowyearBeyblade = 0
+        let sum_card_nowyearNaruto = 0
 
         let count_card_priceTeenage_Mutant_Ninja = 0
         let count_card_priceSpider_Man = 0
         let count_card_priceBakugan = 0
         let count_card_priceTransformers = 0
         let count_card_priceBeyblade = 0
+        let count_card_priceNaruto = 0
 
         for (let i = 0; i < pulse_group_charts.length; i++) {
             if (pulse_group_charts[i]._id.category_pulse === 'games') {
@@ -536,15 +543,23 @@ export const main_static = async (req, res) => {
                     cardsPriceBeyblade.push({ date_pulse: pulse_group_charts[i]._id.date_pulse, count_pulse: pulse_group_charts[i].sum_pulse })
                     cards_datePriceBeyblade.push(pulse_group_charts[i]._id.date_pulse)
                 }
+                else if (pulse_group_charts[i]._id.collection_card_pulse === 'Naruto') {
+                    cardPriceNaruto.push({ date_pulse: pulse_group_charts[i]._id.date_pulse, count_pulse: pulse_group_charts[i].sum })
+                    card_datePriceNaruto.push(pulse_group_charts[i]._id.date_pulse)
+                    sum_card_nowyearNaruto += pulse_group_charts[i].sum_pulse,
+                        count_card_priceNaruto += pulse_group_charts[i].sum
+                    cardsPriceNaruto.push({ date_pulse: pulse_group_charts[i]._id.date_pulse, count_pulse: pulse_group_charts[i].sum_pulse })
+                    cards_datePriceNaruto.push(pulse_group_charts[i]._id.date_pulse)
+                }
             }
             else continue
         }
 
         let summ_payments = summPayments - summ_early_payment
-        let sum_card_nowyear = sum_card_nowyearSpider_Man + sum_card_nowyearTeenage_Mutant_Ninja + sum_card_nowyearBakugan + sum_card_nowyearTransformers + sum_card_nowyearBeyblade
-        let count_card_price = count_card_priceSpider_Man + count_card_priceTeenage_Mutant_Ninja + count_card_priceBakugan + count_card_priceTransformers + count_card_priceBeyblade
-        let count_other_card_price = count_card_priceBakugan + count_card_priceTransformers + count_card_priceBeyblade
-        let sum_other_card_nowyear = sum_card_nowyearBakugan + sum_card_nowyearTransformers + sum_card_nowyearBeyblade
+        let sum_card_nowyear = sum_card_nowyearSpider_Man + sum_card_nowyearTeenage_Mutant_Ninja + sum_card_nowyearBakugan + sum_card_nowyearTransformers + sum_card_nowyearBeyblade + sum_card_nowyearNaruto
+        let count_card_price = count_card_priceSpider_Man + count_card_priceTeenage_Mutant_Ninja + count_card_priceBakugan + count_card_priceTransformers + count_card_priceBeyblade + count_card_priceNaruto
+        let count_other_card_price = count_card_priceBakugan + count_card_priceTransformers + count_card_priceBeyblade + count_card_priceNaruto
+        let sum_other_card_nowyear = sum_card_nowyearBakugan + sum_card_nowyearTransformers + sum_card_nowyearBeyblade + sum_card_nowyearNaruto
 
         if (summ_salary_year === 0 && summ_bonus_year > 0)
             summ_salary_year += summ_bonus_year
@@ -566,6 +581,9 @@ export const main_static = async (req, res) => {
         let diff_cardsPriceBakugan = diff.filter(date => !cards_datePriceBakugan.includes(date))
         diff_cardsPriceBakugan.map((obj) => cardsPriceBakugan.push({ date_pulse: obj, count_pulse: 0 }))
 
+        let diff_cardsPriceNaruto = diff.filter(date => !cards_datePriceNaruto.includes(date))
+        diff_cardsPriceNaruto.map((obj) => cardsPriceNaruto.push({ date_pulse: obj, count_pulse: 0 }))
+
         let diff_cardsPriceTransformers = diff.filter(date => !cards_datePriceTransformers.includes(date))
         diff_cardsPriceTransformers.map((obj) => cardsPriceTransformers.push({ date_pulse: obj, count_pulse: 0 }))
 
@@ -586,6 +604,9 @@ export const main_static = async (req, res) => {
 
         let diff_cardPriceBakugan = diff.filter(date => !card_datePriceBakugan.includes(date))
         diff_cardPriceBakugan.map((obj) => cardPriceBakugan.push({ date_pulse: obj, count_pulse: 0 }))
+
+        let diff_cardPriceNaruto = diff.filter(date => !card_datePriceNaruto.includes(date))
+        diff_cardPriceNaruto.map((obj) => cardPriceNaruto.push({ date_pulse: obj, count_pulse: 0 }))
 
         let diff_cardPriceTransformers = diff.filter(date => !card_datePriceTransformers.includes(date))
         diff_cardPriceTransformers.map((obj) => cardPriceTransformers.push({ date_pulse: obj, count_pulse: 0 }))
@@ -623,8 +644,11 @@ export const main_static = async (req, res) => {
         let sortedCardsPriceTeenageMutantNinja = cardsPriceTeenageMutantNinja.sort((r1, r2) => (r1.date_pulse > r2.date_pulse) ? 1 : (r1.date_pulse < r2.date_pulse) ? -1 : 0)
         let sortedCardPriceTeenage_Mutant_Ninja = cardPriceTeenageMutantNinja.sort((r1, r2) => (r1.date_pulse > r2.date_pulse) ? 1 : (r1.date_pulse < r2.date_pulse) ? -1 : 0)
 
-        let sortedCardsPriceBakugana = cardsPriceBakugan.sort((r1, r2) => (r1.date_pulse > r2.date_pulse) ? 1 : (r1.date_pulse < r2.date_pulse) ? -1 : 0)
+        let sortedCardsPriceBakugan = cardsPriceBakugan.sort((r1, r2) => (r1.date_pulse > r2.date_pulse) ? 1 : (r1.date_pulse < r2.date_pulse) ? -1 : 0)
         let sortedCardPriceBakugan = cardPriceBakugan.sort((r1, r2) => (r1.date_pulse > r2.date_pulse) ? 1 : (r1.date_pulse < r2.date_pulse) ? -1 : 0)
+
+        let sortedCardsPriceNaruto = cardsPriceNaruto.sort((r1, r2) => (r1.date_pulse > r2.date_pulse) ? 1 : (r1.date_pulse < r2.date_pulse) ? -1 : 0)
+        let sortedCardPriceNaruto = cardPriceNaruto.sort((r1, r2) => (r1.date_pulse > r2.date_pulse) ? 1 : (r1.date_pulse < r2.date_pulse) ? -1 : 0)
 
         let sortedCardsTransformers = cardsPriceTransformers.sort((r1, r2) => (r1.date_pulse > r2.date_pulse) ? 1 : (r1.date_pulse < r2.date_pulse) ? -1 : 0)
         let sortedCardPriceTransformers = cardPriceTransformers.sort((r1, r2) => (r1.date_pulse > r2.date_pulse) ? 1 : (r1.date_pulse < r2.date_pulse) ? -1 : 0)
@@ -651,14 +675,15 @@ export const main_static = async (req, res) => {
             cardsAssemble.push({
                 date_pulse: sortedCardPriceSpider_Man[i].date_pulse,
                 buy: sortedCardPriceTeenage_Mutant_Ninja[i].count_pulse + sortedCardPriceSpider_Man[i].count_pulse + sortedCardPriceBakugan[i].count_pulse + sortedCardPriceTransformers[i].count_pulse
-                    + sortedCardPriceBeyblade[i].count_pulse,
-                price: sortedCardsPriceSpiderMan[i].count_pulse + sortedCardsPriceTeenageMutantNinja[i].count_pulse + sortedCardsPriceBakugana[i].count_pulse + 
-                sortedCardsTransformers[i].count_pulse + sortedCardsPriceBeyblade[i].count_pulse
+                    + sortedCardPriceBeyblade[i].count_pulse + sortedCardPriceNaruto[i].count_pulse,
+                price: sortedCardsPriceSpiderMan[i].count_pulse + sortedCardsPriceTeenageMutantNinja[i].count_pulse + sortedCardsPriceBakugan[i].count_pulse + 
+                sortedCardsTransformers[i].count_pulse + sortedCardsPriceBeyblade[i].count_pulse + sortedCardsPriceNaruto[i].count_pulse
             })
-
+            
+            
             cardsOtherCollection.push({
                 date_pulse: sortedCardsTransformers[i].date_pulse,
-                count_pulse: sortedCardPriceTransformers[i].count_pulse + sortedCardPriceBeyblade[i].count_pulse + sortedCardPriceBakugan[i].count_pulse
+                count_pulse: sortedCardPriceTransformers[i].count_pulse + sortedCardPriceBeyblade[i].count_pulse + sortedCardPriceBakugan[i].count_pulse + sortedCardPriceNaruto[i].count_pulse
             })
         }
 
