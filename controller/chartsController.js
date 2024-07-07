@@ -676,11 +676,11 @@ export const main_static = async (req, res) => {
                 date_pulse: sortedCardPriceSpider_Man[i].date_pulse,
                 buy: sortedCardPriceTeenage_Mutant_Ninja[i].count_pulse + sortedCardPriceSpider_Man[i].count_pulse + sortedCardPriceBakugan[i].count_pulse + sortedCardPriceTransformers[i].count_pulse
                     + sortedCardPriceBeyblade[i].count_pulse + sortedCardPriceNaruto[i].count_pulse,
-                price: sortedCardsPriceSpiderMan[i].count_pulse + sortedCardsPriceTeenageMutantNinja[i].count_pulse + sortedCardsPriceBakugan[i].count_pulse + 
-                sortedCardsTransformers[i].count_pulse + sortedCardsPriceBeyblade[i].count_pulse + sortedCardsPriceNaruto[i].count_pulse
+                price: sortedCardsPriceSpiderMan[i].count_pulse + sortedCardsPriceTeenageMutantNinja[i].count_pulse + sortedCardsPriceBakugan[i].count_pulse +
+                    sortedCardsTransformers[i].count_pulse + sortedCardsPriceBeyblade[i].count_pulse + sortedCardsPriceNaruto[i].count_pulse
             })
-            
-            
+
+
             cardsOtherCollection.push({
                 date_pulse: sortedCardsTransformers[i].date_pulse,
                 count_pulse: sortedCardPriceTransformers[i].count_pulse + sortedCardPriceBeyblade[i].count_pulse + sortedCardPriceBakugan[i].count_pulse + sortedCardPriceNaruto[i].count_pulse
@@ -973,21 +973,42 @@ export const card_static = async (req, res) => {
         var childrenReplace = []
         var cardPrice = []
         var cardPriceReplace = []
-        var cardObYes = 0
-        var cardObNot = 0
-        var cardRYes = 0
-        var cardRNot = 0
-        var cardSRYes = 0
-        var cardSRNot = 0
-        var cardURYes = 0
-        var cardURNot = 0
+        var staticCards = []
+        var notCard = 0
+        var yesCard = 0
         var cardColumn = []
         var cardPie = []
         var cardList = ''
         var cardNumber = ''
         var cardSummCollection = 0
-
         const card = await CardModel.find({ collection_card: req.params.collection_card }).sort({ "number_card": 1 })
+
+        const card_list = await CardModel.aggregate([
+            { $match: { collection_card: req.params.collection_card } },
+            {
+                $group: {
+                    _id: "$level_card",
+                    children: { $push: { title: "$status_card" } },
+                    count: { $sum: 1 },
+                    sum: { $sum: "$summ_card" }
+                }
+            }
+        ])
+
+        card_list.map((obj) => {
+            obj.children.map(child => child.title === 'Нет' ? notCard++ : yesCard++),
+                staticCards.push({
+                    key: obj._id,
+                    yesCards: yesCard,
+                    notCards: notCard,
+                    countCards: obj.count,
+                    sumCards: obj.sum,
+                    procentYesCards: (yesCard * 100 / obj.count).toFixed(2)
+                }),
+                cardSummCollection += obj.sum,
+                notCard = 0,
+                yesCard = 0
+        })
 
         card.filter(obj => obj.status_card === 'Нет')
             .map(obj => {
@@ -1003,51 +1024,10 @@ export const card_static = async (req, res) => {
                 countReplace += 1
             })
 
-        card.filter(obj => obj.level_card === 'O').
-            map(obj => {
-                obj.status_card === 'Нет' ? cardObNot += 1 : cardObYes += 1, cardSummCollection += obj.summ_card
-            })
-
-        card.filter(obj => obj.level_card === 'Р').
-            map(obj => {
-                obj.status_card === 'Нет' ? cardRNot += 1 : cardRYes += 1, cardSummCollection += obj.summ_card
-            })
-
-        card.filter(obj => obj.level_card === 'СР').
-            map(obj => {
-                obj.status_card === 'Нет' ? cardSRNot += 1 : cardSRYes += 1, cardSummCollection += obj.summ_card
-            })
-
-        card.filter(obj => obj.level_card === 'УР').
-            map(obj => {
-                obj.status_card === 'Нет' ? cardURNot += 1 : cardURYes += 1, cardSummCollection += obj.summ_card
-            })
-
-        cardColumn.push(
-            { key: 'O', name: 'Всего', value: cardObNot + cardObYes },
-            { key: 'O', name: 'Есть', value: cardObYes },
-            { key: 'O', name: 'Нет', value: cardObNot },
-            { key: 'Р', name: 'Всего', value: cardRNot + cardRYes },
-            { key: 'Р', name: 'Есть', value: cardRYes },
-            { key: 'Р', name: 'Нет', value: cardRNot },
-            { key: 'СР', name: 'Всего', value: cardSRNot + cardSRYes },
-            { key: 'СР', name: 'Есть', value: cardSRYes },
-            { key: 'СР', name: 'Нет', value: cardSRNot },
-            { key: 'УР', name: 'Всего', value: cardURNot + cardURYes },
-            { key: 'УР', name: 'Есть', value: cardURYes },
-            { key: 'УР', name: 'Нет', value: cardURNot },
-        )
-
-        cardPie.push(
-            [{ key: 'O', name: 'Есть', value: cardObYes },
-            { key: 'O', name: 'Нет', value: cardObNot }],
-            [{ key: 'Р', name: 'Есть', value: cardRYes },
-            { key: 'Р', name: 'Нет', value: cardRNot }],
-            [{ key: 'СР', name: 'Есть', value: cardSRYes },
-            { key: 'СР', name: 'Нет', value: cardSRNot }],
-            [{ key: 'УР', name: 'Есть', value: cardURYes },
-            { key: 'УР', name: 'Нет', value: cardURNot }],
-        )
+        staticCards.map((obj) => cardColumn.push({ key: obj.key, name: 'Всего', value: obj.countCards },
+            { key: obj.key, name: 'Есть', value: obj.yesCards },
+            { key: obj.key, name: 'Нет', value: obj.notCards },
+        ))
 
         const procentCard = (100 - countNotYes * 100 / card.length).toFixed(2)
         const countYes = card.length - countNotYes
@@ -1059,6 +1039,7 @@ export const card_static = async (req, res) => {
 
         res.status(200).json({
             procentCard,
+            staticCards,
             cardPrice,
             cardPriceReplace,
             countReplace,
