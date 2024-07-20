@@ -141,31 +141,66 @@ export const get_card_listgroup = async (req, res) => {
     try {
 
         var cardListGroup = []
+        var cardListGroupNaruto = []
 
         const filters = [
-            { cards: 'Боевая четверка', key: '123'},
-            { cards: 'Воины тени', key: '274'},
-            { cards: 'Братья по оружию', key: '838'},
-            { cards: 'Герои и Злодеи', key: '38'},
-            { cards: 'Герои и Злодеи. 2-я часть.', key: '106'},
-            { cards: 'Герои и Злодеи. 3-я часть.', key: '166'},
-            { cards: 'Герои и Злодеи. 4-я часть.', key: '166'},
-            { cards: 'Отчаянные бойцы', key: '264'},
-            { cards: 'Новая Вестроя', key: '594'},
-            { cards: 'Beyblade Metal Fusion', key: '934'},
-            { cards: 'Transformers Prime', key: '991'},
+            { cards: 'Боевая четверка', key: '123' },
+            { cards: 'Воины тени', key: '274' },
+            { cards: 'Братья по оружию', key: '838' },
+            { cards: 'Герои и Злодеи', key: '38' },
+            { cards: 'Герои и Злодеи. 2-я часть.', key: '106' },
+            { cards: 'Герои и Злодеи. 3-я часть.', key: '166' },
+            { cards: 'Герои и Злодеи. 4-я часть.', key: '166' },
+            { cards: 'Отчаянные бойцы', key: '264' },
+            { cards: 'Новая Вестроя', key: '594' },
+            { cards: 'Beyblade Metal Fusion', key: '934' },
+            { cards: 'Transformers Prime', key: '991' },
         ]
 
         const cards_list = await CardModel.aggregate([
-            { $match: {collection_card: { $not: { $regex: 'Naruto' } } } },
+            { $match: { collection_card: { $not: { $regex: 'Naruto' } } } },
             {
                 $group: {
                     _id: "$collection_card",
-                    children: { $push: { status: "$status_card",  title: "$number_card" } },
+                    children: { $push: { status: "$status_card", title: "$number_card" } },
                     count: { $sum: 1 }
                 }
             }
         ])
+
+        const cards_listNaruto = await CardModel.aggregate([
+            { $match: { collection_card: { $regex: 'Naruto' } } },
+            {
+                $group: {
+                    _id: "$level_card",
+                    children: {
+                        $push: {
+                            status: "$status_card", title: "$number_card",
+                            hashImage_card: "$hashImage_card"
+                        }
+                    },
+                    count: { $sum: 1 }
+                }
+            }
+            , { $sort: { _id: 1 } }
+        ])
+
+        var itemNaruto = []
+        var sumCount = 0
+
+        for (var i = 0; i < cards_listNaruto.length; i++) {
+
+            cards_listNaruto[i].children.sort((a, b) => a.title - b.title)
+
+            cards_listNaruto[i].children.map(obj => obj.status === 'Нет' ?
+                itemNaruto.push({ title: cards_listNaruto[i]._id + '-' + obj.title, hash: obj.hashImage_card }) : obj)
+            sumCount += cards_listNaruto[i].count
+        }
+
+        const procentNaruto = (100 - (itemNaruto.length * 100 / sumCount)).toFixed(2)
+
+        cardListGroupNaruto.push({ nameCollection: 'NARUTO KAYOU CARD', countCards: 
+        sumCount, procent: procentNaruto, countNotCard: itemNaruto.length, items: itemNaruto })
 
         for (var i = 0; i < cards_list.length; i++) {
             var items = []
@@ -176,7 +211,7 @@ export const get_card_listgroup = async (req, res) => {
             filters.map((obj) => {
                 if (obj.cards === cards_list[i]._id) {
                     countCards = obj.count,
-                    keyCards = obj.key
+                        keyCards = obj.key
                 } else
                     obj
             }
@@ -186,13 +221,17 @@ export const get_card_listgroup = async (req, res) => {
 
             procent = (100 - (items.length * 100 / cards_list[i].count)).toFixed(2)
             var countNotCard = items.length
-            cardListGroup.push({nameCollection: cards_list[i]._id, countCards: countCards, keyCards: keyCards,
-                procent: procent, countNotCard: countNotCard, items: items.sort((a,b) => a-b)})
+            cardListGroup.push({
+                nameCollection: cards_list[i]._id, countCards: countCards, keyCards: keyCards,
+                procent: procent, countNotCard: countNotCard, items: items.sort((a, b) => a - b)
+            })
         }
 
-            cardListGroup.sort((a,b) => b.procent-a.procent)
+        cardListGroup.sort((a, b) => b.procent - a.procent)
+
         res.status(200).json({
-            cardListGroup
+            cardListGroup,
+            cardListGroupNaruto
         })
     }
     catch (err) {

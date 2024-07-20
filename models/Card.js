@@ -25,6 +25,10 @@ const CardSchema = new mongoose.Schema({
         type: Number,
         required: false,
     },
+    hashImage_card: {
+        type: String,
+        required: false,
+    },
 })
 
 export default mongoose.model('Card', CardSchema);
