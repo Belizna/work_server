@@ -37,6 +37,11 @@ export const edit_card = async (req, res) => {
             card.collection_card == 'Новая Вестроя') {
             collection_card_pulse = 'Bakugan'
         }
+
+        else if (card.collection_card == 'Супергонки. 1 серия.' ||
+            card.collection_card == 'Супергонки. 2 серия.') {
+            collection_card_pulse = 'Superracing'
+        }
         else collection_card_pulse = card.collection_card
 
         if (req.body.status_card === 'Есть' && card.status_card === 'Нет' || card.status_card === 'Замена') {
@@ -103,6 +108,30 @@ export const delete_card = async (req, res) => {
 export const add_card = async (req, res) => {
     try {
 
+        var collection_card_pulse = ''
+
+        if (req.params.collection_card == 'Герои и Злодеи' ||
+            req.params.collection_card == 'Герои и Злодеи. 2-я часть.' ||
+            req.params.collection_card == 'Герои и Злодеи. 3-я часть.' ||
+            req.params.collection_card == 'Герои и Злодеи. 4-я часть.') {
+            collection_card_pulse = 'Spider_Man'
+        }
+        else if (req.params.collection_card == 'Воины тени' ||
+            req.params.collection_card == 'Боевая четверка' ||
+            req.params.collection_card == 'Братья по оружию') {
+            collection_card_pulse = 'Teenage_Mutant_Ninja'
+        }
+        else if (req.params.collection_card == 'Отчаянные бойцы' ||
+            req.params.collection_card == 'Новая Вестроя') {
+            collection_card_pulse = 'Bakugan'
+        }
+
+        else if (req.params.collection_card == 'Супергонки. 1 серия.' ||
+            req.params.collection_card == 'Супергонки. 2 серия.') {
+            collection_card_pulse = 'Superracing'
+        }
+        else collection_card_pulse = req.params.collection_card
+
         const cardDoc = new CardModel({
             number_card: req.body.number_card,
             name_card: req.body.name_card,
@@ -115,11 +144,12 @@ export const add_card = async (req, res) => {
         const card = await cardDoc.save()
 
         if (req.body.status_card === 'Есть') {
+
             const pulseDoc = new PulseModel({
                 date_pulse: Date.now(),
                 name_pulse: req.body.name_card,
                 category_pulse: 'card_price',
-                collection_card_pulse: req.params.collection_card,
+                collection_card_pulse: collection_card_pulse,
                 sum_pulse: req.body.summ_card,
                 id_object: String(card._doc._id)
             })
@@ -155,6 +185,8 @@ export const get_card_listgroup = async (req, res) => {
             { cards: 'Новая Вестроя', key: '594' },
             { cards: 'Beyblade Metal Fusion', key: '934' },
             { cards: 'Transformers Prime', key: '991' },
+            { cards: 'Супергонки. 1 серия.', key: '446' },
+            { cards: 'Супергонки. 2 серия.', key: '983' },
         ]
 
         const cards_list = await CardModel.aggregate([
@@ -199,8 +231,10 @@ export const get_card_listgroup = async (req, res) => {
 
         const procentNaruto = (100 - (itemNaruto.length * 100 / sumCount)).toFixed(2)
 
-        cardListGroupNaruto.push({ nameCollection: 'NARUTO KAYOU CARD', countCards: 
-        sumCount, procent: procentNaruto, countNotCard: itemNaruto.length, items: itemNaruto })
+        cardListGroupNaruto.push({
+            nameCollection: 'NARUTO KAYOU CARD', countCards:
+                sumCount, procent: procentNaruto, countNotCard: itemNaruto.length, items: itemNaruto
+        })
 
         for (var i = 0; i < cards_list.length; i++) {
             var items = []
