@@ -702,14 +702,14 @@ export const main_static = async (req, res) => {
                 buy: sortedCardPriceTeenage_Mutant_Ninja[i].count_pulse + sortedCardPriceSpider_Man[i].count_pulse + sortedCardPriceBakugan[i].count_pulse + sortedCardPriceTransformers[i].count_pulse
                     + sortedCardPriceBeyblade[i].count_pulse + sortedCardPriceNaruto[i].count_pulse + sortedCardPriceSuperRacing[i].count_pulse,
                 price: sortedCardsPriceSpiderMan[i].count_pulse + sortedCardsPriceTeenageMutantNinja[i].count_pulse + sortedCardsPriceBakugan[i].count_pulse +
-                    sortedCardsTransformers[i].count_pulse + sortedCardsPriceBeyblade[i].count_pulse + sortedCardsPriceNaruto[i].count_pulse  + sortedCardsPriceSuperRacing[i].count_pulse
+                    sortedCardsTransformers[i].count_pulse + sortedCardsPriceBeyblade[i].count_pulse + sortedCardsPriceNaruto[i].count_pulse + sortedCardsPriceSuperRacing[i].count_pulse
             })
 
 
             cardsOtherCollection.push({
                 date_pulse: sortedCardsTransformers[i].date_pulse,
-                count_pulse: sortedCardPriceTransformers[i].count_pulse + sortedCardPriceBeyblade[i].count_pulse + 
-                sortedCardPriceBakugan[i].count_pulse + sortedCardPriceNaruto[i].count_pulse + sortedCardPriceSuperRacing[i].count_pulse
+                count_pulse: sortedCardPriceTransformers[i].count_pulse + sortedCardPriceBeyblade[i].count_pulse +
+                    sortedCardPriceBakugan[i].count_pulse + sortedCardPriceNaruto[i].count_pulse + sortedCardPriceSuperRacing[i].count_pulse
             })
         }
 
@@ -1014,7 +1014,7 @@ export const card_static = async (req, res) => {
             {
                 $group: {
                     _id: "$level_card",
-                    children: { $push: { title: "$status_card" } },
+                    children: { $push: { title: "$status_card", number: "$number_card" } },
                     count: { $sum: 1 },
                     sum: { $sum: "$summ_card" }
                 }
@@ -1022,14 +1022,21 @@ export const card_static = async (req, res) => {
         ])
 
         card_list.map((obj) => {
-            obj.children.map(child => child.title === 'Нет' ? notCard++ : yesCard++),
+            var numberCard = ''
+            obj.children.map(child => {
+                if (child.title === 'Нет') {
+                    notCard++
+                    numberCard += `${obj._id}-${child.number}, `
+                } else yesCard++
+            }),
                 staticCards.push({
                     key: obj._id,
                     yesCards: yesCard,
                     notCards: notCard,
                     countCards: obj.count,
                     sumCards: obj.sum,
-                    procentYesCards: (yesCard * 100 / obj.count).toFixed(2)
+                    procentYesCards: (yesCard * 100 / obj.count).toFixed(2),
+                    numberCard: numberCard,
                 }),
                 cardSummCollection += obj.sum,
                 notCard = 0,
