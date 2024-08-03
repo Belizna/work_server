@@ -1023,6 +1023,7 @@ export const card_static = async (req, res) => {
 
         card_list.map((obj) => {
             var numberCard = ''
+            obj.children.sort((a, b) => a.number - b.number)
             obj.children.map(child => {
                 if (child.title === 'Нет') {
                     notCard++
