@@ -17,7 +17,7 @@ import { register, login, me } from './controller/authController.js'
 import { delete_payment, get_payments, update_payment } from './controller/paymentsController.js'
 import { get_early_payment, add_early_payment, edit_early_payment, delete_early_payment } from './controller/earlyPaymentsController.js'
 import { other_books_add, other_books_get, other_books_edit, other_books_delete } from './controller/OrherBooksController.js'
-import { get_heresy_books, edit_heresy_books, delete_heresy_books, add_heresy_books } from './controller/heresy_horusConstroller.js'
+import { get_heresy_books, edit_heresy_books, delete_heresy_books, add_heresy_books, get_books_listgroup } from './controller/heresy_horusConstroller.js'
 import { delete_games, edit_games, add_games, get_games } from './controller/gamesController.js'
 import { book_static, repair_static, credit_static, games_static, salary_chart, hobby_static, main_static, card_static } from './controller/chartsController.js'
 import { get_write_books, edit_write_books, add_write_books, delete_write_books } from './controller/writeBooksController.js'
@@ -143,6 +143,7 @@ app.get('/books/heresy_horus/:book_name', get_heresy_books)
 app.post('/books/heresy_horus/add/:book_name', bookCreateValidator, add_heresy_books)
 app.patch('/books/heresy_horus/edit/:id', bookCreateValidator, edit_heresy_books)
 app.delete('/books/heresy_horus/delete/:id', delete_heresy_books)
+app.get('/books/charts_group_list/', get_books_listgroup)
 
 app.get('/collection/card/:collection_card', get_card)
 app.get('/collection/cards/', get_card_listgroup)

@@ -364,7 +364,7 @@ export const main_static = async (req, res) => {
             {
                 $group: {
                     _id: "$compilation",
-                    children: { $push: { title: "$book_name" } },
+                    children: { $push: { title: "$book_name", format: "$format" } },
                     count: { $sum: 1 }
                 }
             }
@@ -372,7 +372,9 @@ export const main_static = async (req, res) => {
 
         books_write_list.map(
             (obj) => {
-                books_write.push({ title: obj._id, children: obj.children }),
+                var child = []
+                obj.children.map(o => child.push({ title: o.title + ' (' + o.format + ')' }))
+                books_write.push({ title: obj._id, children: child }),
                     books_write_count += obj.count
             })
 
