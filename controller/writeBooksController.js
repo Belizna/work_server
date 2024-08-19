@@ -40,7 +40,7 @@ export const edit_write_books = async (req, res) => {
         {
             const pulseDoc = new PulseModel({
                 date_pulse: Date.now(),
-                name_pulse: req.body.book_name,
+                name_pulse: `${req.body.book_name} (${req.body.format})`,
                 category_pulse: 'books',
                 id_object : req.params.id
             })

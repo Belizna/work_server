@@ -149,7 +149,7 @@ export const get_books_listgroup = async (req, res) => {
             { compilation: 'Комиссар Каин', key: 'https://content.img-gorod.ru/pim/products/images/62/4a/018ee5fa-ffbd-774f-8a69-a163d3f1624a.jpg?width=0&height=1200&fit=bounds' },
             { compilation: 'Арбитр', key: 'https://img3.labirint.ru/rc/16a454ec1cf4fe4c26aac6ba17fa6f9f/363x561q80/books68/677329/cover.jpg?1564167126' },
             { compilation: 'Кузницы Марса', key: 'https://content.img-gorod.ru/pim/products/images/b9/ba/018ee8d0-21c2-7f8c-ac57-06544e4cb9ba.jpg?width=336&height=480&fit=bounds' },
-            { compilation: 'Северина Рейн', key: 'https://woody-comics.ru/images/thumbnails/1704/1256/detailed/74/7e690b60c6d7f18163c6f8d397e59a86.jpg' },
+            { compilation: 'Северина Рейн', key: 'https://woody-comics.ru/images/detailed/74/7e690b60c6d7f18163c6f8d397e59a86.jpg' },
             { compilation: 'Испивающие Души', key: 'https://img4.labirint.ru/rc/a4db0294125b06c70c9cfe8eab99f714/363x561q80/books74/731838/cover.jpg?1580124305' },
             { compilation: 'Люций', key: 'https://static.insales-cdn.com/images/products/1/1306/437413146/315183.jpg' },
             { compilation: 'Тёмная Ересь', key: 'https://img3.labirint.ru/rc/e60e6bdf540e0a943f6728092b25b307/363x561q80/books83/823639/cover.jpg?1633710314' },
@@ -175,6 +175,7 @@ export const get_books_listgroup = async (req, res) => {
             { compilation: 'Ассасинорум', key: 'https://img4.labirint.ru/rc/5cbaf81e02283d5027e9754879aa31c3/363x561q80/books97/966694/cover.jpg?1702909541' },
             { compilation: 'Отдельные романы', key: 'https://warhammergames.ru/_ld/18/79813885.jpg' },
             { compilation: 'Warhammer Crime', key: 'https://knigofan.ru/upload/iblock/4f9/0a65d9zc29emy35opu9q2y1f5ew295an.jpg' },
+            { compilation: 'Тёмный клубок', key: 'https://ir.ozone.ru/s3/multimedia-1-r/c1000/7066894527.jpg' },
         ]
 
         const books_list = await BookModel.aggregate([
