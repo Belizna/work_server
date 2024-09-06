@@ -1065,6 +1065,8 @@ export const card_static = async (req, res) => {
             { key: obj.key, name: 'Нет', value: obj.notCards },
         ))
 
+        staticCards.sort((a, b) => b.procentYesCards - a.procentYesCards)
+
         const procentCard = (100 - countNotYes * 100 / card.length).toFixed(2)
         const countYes = card.length - countNotYes
         const countAllCard = card.length
