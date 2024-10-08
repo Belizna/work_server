@@ -28,6 +28,7 @@ import { colors_add, colors_get, colors_edit, colors_delete } from './controller
 import { get_card, add_card, edit_card, delete_card, get_card_listgroup } from './controller/cardController.js'
 import { repair_add, repair_get, repair_edit, repair_delete, repair_sum } from './controller/repaircontroller.js'
 import { comics_add, comics_delete, comics_get, comics_edit } from './controller/comicsController.js'
+import { loan_get, loan_add, loan_edit, loan_delete } from './controller/LoanController.js'
 
 import CheckAuth from './utils/CheckAuth.js'
 
@@ -123,6 +124,11 @@ app.get('/weekend/salary', salary_get)
 app.post('/weekend/salary/add', salary_add)
 app.patch('/weekend/salary/edit/:id', salary_edit)
 app.delete('/weekend/salary/delete/:id', salary_delete)
+
+app.get('/credit/loan', loan_get)
+app.post('/credit/loan/add', loan_add)
+app.patch('/credit/loan/edit/:id', loan_edit)
+app.delete('/credit/loan/delete/:id', loan_delete)
 
 app.get('/credit/early_payment/', get_early_payment)
 app.post('/credit/early_payment/', earlyPaymentsEditValidator, add_early_payment)

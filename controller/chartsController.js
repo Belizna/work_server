@@ -136,7 +136,7 @@ export const credit_static = async (req, res) => {
         var paid_fix = 0
 
         const earlyPay = await EarlyPaymentsModel.find()
-        const credit = await CreditModel.find()
+        const credit = await CreditModel.find({credit_name: 'Ипотека'})
         const payment = await PaymentsModel.find()
 
         payment.map((obj) => {
@@ -160,7 +160,7 @@ export const credit_static = async (req, res) => {
         const paid = Number((paid_fix + early_sum).toFixed(2))
 
         data1.push({ name: 'Экономия', value: saving }, { name: 'Переплата', value: overpayment })
-        data2.push({ name: 'Переплата', value: paid }, { name: 'Экономия', value: remainder })
+        data2.push({ name: 'Выплачено', value: paid }, { name: 'Осталось', value: remainder })
         data3.push({ name: 'Выплачено', value: count_month_paid }, { name: 'Осталось', value: count_month_remainder })
 
         res.status(200).send({
