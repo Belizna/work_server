@@ -2,7 +2,7 @@ import mongoose from "mongoose";
 
 const HistoyLoanSchema = new mongoose.Schema({
     date_loan :{
-        type: String,
+        type: Date,
         required: true,
     },
     summ_loan: {
