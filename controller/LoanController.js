@@ -30,7 +30,7 @@ catch(err){
 export const loan_get = async(req,res) => {
     try{
 
-        const history_loan = await HistoryLoan.find().sort({'_id': -1})
+        const history_loan = await HistoryLoan.find().sort({'_id': 1})
 
         const loan = await LoanModel.find().sort({'_id': -1})
 
@@ -74,6 +74,7 @@ export const loan_edit = async(req,res) => {
             }
             await history_loanDoc.save()
 
+        console.log(history_loanDoc)
         res.status(200).json({loan})
     }
     catch(err){
