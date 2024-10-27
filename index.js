@@ -29,6 +29,7 @@ import { get_card, add_card, edit_card, delete_card, get_card_listgroup } from '
 import { repair_add, repair_get, repair_edit, repair_delete, repair_sum } from './controller/repaircontroller.js'
 import { comics_add, comics_delete, comics_get, comics_edit } from './controller/comicsController.js'
 import { loan_get, loan_add, loan_edit, loan_delete } from './controller/LoanController.js'
+import { menu_get } from './controller/menuController.js'
 
 import CheckAuth from './utils/CheckAuth.js'
 
@@ -93,6 +94,8 @@ app.post('/credit/create/', creditCreateValidator, async (req, res) => {
     }
 
 })
+
+app.get('/menu', menu_get)
 
 app.get('/comics/:collection_comics', comics_get)
 app.post('/comics/add', comics_add)
