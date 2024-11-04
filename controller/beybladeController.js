@@ -20,7 +20,7 @@ export const edit_beyblade = async (req, res) => {
     try {
         const beyblade = await BeybladeModel.findById(req.params.id)
 
-        if (req.body.status_beyblade === 'Есть' && beyblade.status_beyblade === 'Нет') {
+        if (req.body.status_beyblade === 'Куплено' && beyblade.status_beyblade === 'Нет') {
             const pulseDoc = new PulseModel({
                 date_pulse: Date.now(),
                 name_pulse: req.body.name_beyblade,
@@ -31,7 +31,7 @@ export const edit_beyblade = async (req, res) => {
 
             await pulseDoc.save()
         }
-        else if (req.body.status_beyblade === 'Нет' && beyblade.status_beyblade === 'Есть') {
+        else if (req.body.status_beyblade === 'Нет' && beyblade.status_beyblade === 'Куплено') {
             await PulseModel.deleteMany({ id_object: req.params.id })
         }
         else {
@@ -82,8 +82,6 @@ export const delete_beyblade = async (req, res) => {
 export const add_beyblade = async (req, res) => {
     try {
 
-        console.log(req.body)
-
         const beybladeDoc = new BeybladeModel({
             name_beyblade: req.body.name_beyblade,
             summ_beyblade: req.body.summ_beyblade,
@@ -93,7 +91,7 @@ export const add_beyblade = async (req, res) => {
 
         const beyblade = await beybladeDoc.save()
 
-        if (req.body.status_beyblade === 'Есть') {
+        if (req.body.status_beyblade === 'Куплено') {
 
             const pulseDoc = new PulseModel({
                 date_pulse: Date.now(),
