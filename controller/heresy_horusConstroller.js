@@ -199,9 +199,9 @@ export const get_books_listgroup = async (req, res) => {
                     }
 
                 }
-                flagP > 0 ? group.push({ staticWrite: `Повесть (${arr.count}/${arr.count - countNotPresenceBigStory}): `, listWrite: BigStory }) :
-                    flagR > 0 ? group.push({ staticWrite: `Рассказ (${arr.count}/${arr.count - countNotPresenceStory}): `, listWrite: Story }) :
-                        flagRom > 0 ? group.push({ staticWrite: `Роман (${arr.count}/${arr.count - countNotPresenceRomans}): `, listWrite: Romans }) :
+                flagP > 0 ? group.push({ staticWrite: `Повесть (${arr.count - countNotPresenceBigStory}/${arr.count}): `, listWrite: BigStory }) :
+                    flagR > 0 ? group.push({ staticWrite: `Рассказ (${arr.count - countNotPresenceStory}/${arr.count}): `, listWrite: Story }) :
+                        flagRom > 0 ? group.push({ staticWrite: `Роман (${arr.count - countNotPresenceRomans}/${arr.count}): `, listWrite: Romans }) :
                             group
             })
             booksWriteListGroup.push({
@@ -254,7 +254,7 @@ export const get_books_listgroup = async (req, res) => {
             })
         }
 
-        booksListGroup.sort((a, b) => b.procent - a.procent)
+        booksListGroup.sort((a, b) => a.procent - b.procent)
         /** конец кода по первой странице **/
 
         res.status(200).json({

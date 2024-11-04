@@ -30,6 +30,7 @@ import { repair_add, repair_get, repair_edit, repair_delete, repair_sum } from '
 import { comics_add, comics_delete, comics_get, comics_edit } from './controller/comicsController.js'
 import { loan_get, loan_add, loan_edit, loan_delete } from './controller/LoanController.js'
 import { menu_get } from './controller/menuController.js'
+import { get_beyblade, edit_beyblade, delete_beyblade, add_beyblade } from './controller/beybladeController.js'
 
 import CheckAuth from './utils/CheckAuth.js'
 
@@ -159,6 +160,11 @@ app.get('/collection/cards/', get_card_listgroup)
 app.post('/collection/card/add/:collection_card', add_card)
 app.patch('/collection/card/edit/:id', edit_card)
 app.delete('/collection/card/delete/:id', delete_card)
+
+app.get('/collection/beyblade/', get_beyblade)
+app.post('/collection/beyblade/add/', add_beyblade)
+app.patch('/collection/beyblade/edit/:id', edit_beyblade)
+app.delete('/collection/beyblade/delete/:id', delete_beyblade)
 
 app.get('/books/other_books', other_books_get)
 app.post('/books/other_books/add', other_books_add)
