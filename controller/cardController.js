@@ -1,5 +1,6 @@
 import CardModel from "../models/Card.js"
 import PulseModel from '../models/Pulse.js'
+import BeybladeModel from "../models/Beyblade.js"
 
 export const get_card = async (req, res) => {
     try {
@@ -169,7 +170,73 @@ export const add_card = async (req, res) => {
 
 export const get_card_listgroup = async (req, res) => {
     try {
+        /**Таб со страницей бейблейдов */
 
+        const filtersBey = [
+            {
+                series: "Metal Fusion",
+                key: "https://cdn.kanobu.ru/games/af1b2bad-30eb-4166-a35a-e0e16f0e5a62.JPG",
+                sortId: 1
+            },
+            {
+                series: "Metal Masters",
+                key: "https://static.wikia.nocookie.net/dubbing9585/images/4/4a/MetalMasters2.png",
+                sortId: 2
+            },
+            {
+                series: "Metal Fury",
+                key: "https://static.wikia.nocookie.net/dubbing9585/images/5/53/Beyblade_Metal_Fury.jpg",
+                sortId: 3
+            },
+            {
+                series: "Shogun Steel",
+                key: "https://assets.mycast.io/posters/beyblade-shogun-steel-american-ver-fan-casting-poster-127879-medium.jpg",
+                sortId: 4
+            }
+        ]
+
+        var beybladeListGroup = []
+
+        const beyblade_list = await BeybladeModel.aggregate([
+            {
+                $group: {
+                    _id: "$series",
+                    children: { $push: { status: "$status_beyblade", title: "$name_beyblade", hashImage_beyblade: "$hashImage_beyblade" } },
+                    count: { $sum: 1 }
+                }
+            }
+        ])
+
+        for (var i = 0; i < beyblade_list.length; i++) {
+            var items = []
+            var keyBeyblade = ''
+            var procent = 0
+            var sortId = 0
+
+            filtersBey.map((obj) => {
+                if (obj.series === beyblade_list[i]._id) {
+                    keyBeyblade = obj.key,
+                        sortId = obj.sortId
+                } else
+                    obj
+            })
+
+            beyblade_list[i].children.map(obj => obj.status === 'Нет' ?
+                items.push({ title: obj.title, hash: obj.hashImage_beyblade }) : obj)
+
+            procent = (100 - (items.length * 100 / beyblade_list[i].count)).toFixed(2)
+
+            var countNotBeyblade = items.length
+
+            beybladeListGroup.push({
+                nameCompilation: beyblade_list[i]._id, keyBeyblade: keyBeyblade,
+                procent: procent, countNotBeyblade: countNotBeyblade, items: items, sortId: sortId
+            })
+        }
+
+        beybladeListGroup.sort((a, b) => a.sortId - b.sortId)
+
+        /**Таб со страницей карточе */
         var cardListGroup = []
         var cardListGroupNaruto = []
 
@@ -265,7 +332,8 @@ export const get_card_listgroup = async (req, res) => {
 
         res.status(200).json({
             cardListGroup,
-            cardListGroupNaruto
+            cardListGroupNaruto,
+            beybladeListGroup
         })
     }
     catch (err) {

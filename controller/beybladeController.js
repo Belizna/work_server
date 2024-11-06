@@ -3,8 +3,8 @@ import PulseModel from '../models/Pulse.js'
 
 export const get_beyblade = async (req, res) => {
     try {
-        const beyblade = await BeybladeModel.find()
-
+        const beyblade = await BeybladeModel.find({ series : req.params.beyblade_series })
+        
         res.status(200).json({
             beyblade
         })

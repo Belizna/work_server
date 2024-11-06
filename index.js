@@ -161,7 +161,7 @@ app.post('/collection/card/add/:collection_card', add_card)
 app.patch('/collection/card/edit/:id', edit_card)
 app.delete('/collection/card/delete/:id', delete_card)
 
-app.get('/collection/beyblade/', get_beyblade)
+app.get('/collection/beyblade/:beyblade_series', get_beyblade)
 app.post('/collection/beyblade/add/', add_beyblade)
 app.patch('/collection/beyblade/edit/:id', edit_beyblade)
 app.delete('/collection/beyblade/delete/:id', delete_beyblade)
