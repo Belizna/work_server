@@ -13,6 +13,7 @@ import ColorModel from "../models/Color.js"
 import MiniatureModel from "../models/Miniature.js"
 import RepairModel from "../models/Repair.js";
 import CardModel from "../models/Card.js"
+import BeybladeModel from '../models/Beyblade.js'
 
 export const book_static = async (req, res) => {
 
@@ -136,7 +137,7 @@ export const credit_static = async (req, res) => {
         var paid_fix = 0
 
         const earlyPay = await EarlyPaymentsModel.find()
-        const credit = await CreditModel.find({credit_name: 'Ипотека'})
+        const credit = await CreditModel.find({ credit_name: 'Ипотека' })
         const payment = await PaymentsModel.find()
 
         payment.map((obj) => {
@@ -1089,6 +1090,86 @@ export const card_static = async (req, res) => {
             cardList,
             cardNumber,
             cardSummCollection
+        })
+    }
+    catch (err) {
+        res.status(500).json({ ...err })
+    }
+}
+
+export const beyblade_static = async (req, res) => {
+
+    try {
+        var staticBeyblades = []
+        var notBeyblade = 0
+        var yesBeyblade = 0
+        var notProcent = 0
+        var yesProcent = 0
+        var children = []
+        var beybladeColumn = []
+        var beybladeSummCollection = 0
+        var beybladePrice = []
+        const beyblade_list = await BeybladeModel.aggregate([
+            {
+                $group: {
+                    _id: "$series",
+                    children: { $push: { title: "$status_beyblade", name: "$name_beyblade" } },
+                    count: { $sum: 1 },
+                    sum: { $sum: "$summ_beyblade" }
+                }
+            }
+        ])
+
+        beyblade_list.map((obj) => {
+            var name_beyblade = ''
+            obj.children.map(child => {
+                if (child.title === 'Нет') {
+                    notBeyblade++
+                    name_beyblade += `${child.name}, `
+                    children.push({ title: child.name })
+                } else yesBeyblade++
+            }),
+                staticBeyblades.push({
+                    key: obj._id,
+                    yesBeyblades: yesBeyblade,
+                    notBeyblades: notBeyblade,
+                    countBeyblades: obj.count,
+                    sumBeyblades: obj.sum,
+                    procentYesBeyblades: (yesBeyblade * 100 / obj.count).toFixed(2),
+                    name_beyblade: name_beyblade,
+                }),
+
+                beybladePrice.push({
+                    title: `Недостающие волчки ${obj._id}`,
+                    countNotYes: notBeyblade,
+                    beybladePrices: [{ title: obj._id, children: children }]
+                })
+
+            notProcent += notBeyblade,
+                yesProcent += yesBeyblade,
+                beybladeSummCollection += obj.sum,
+                notBeyblade = 0,
+                yesBeyblade = 0
+            children = []
+
+        })
+
+        staticBeyblades.map((obj) => beybladeColumn.push({ key: obj.key, name: 'Всего', value: obj.countBeyblades },
+            { key: obj.key, name: 'Есть', value: obj.yesBeyblade },
+            { key: obj.key, name: 'Нет', value: obj.notBeyblades },
+        ))
+
+        staticBeyblades.sort((a, b) => b.procentYesBeyblades - a.procentYesBeyblades)
+
+        var procentAllBeyblades = ((yesProcent * 100) / (yesProcent + notProcent)).toFixed(2)
+
+        res.status(200).json({
+            beybladePrice,
+            procentAllBeyblades,
+            yesProcent,
+            notProcent,
+            staticBeyblades,
+            beybladeSummCollection
         })
     }
     catch (err) {
