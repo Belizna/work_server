@@ -226,7 +226,8 @@ export const get_books_listgroup = async (req, res) => {
                 $group: {
                     _id: "$compilation",
                     children: { $push: { status: "$presence", title: "$book_name" } },
-                    count: { $sum: 1 }
+                    count: { $sum: 1 },
+                    summ: { $sum: "$summ_book" },
                 }
             }
         ])
@@ -250,7 +251,8 @@ export const get_books_listgroup = async (req, res) => {
             var countNotBooks = items.length
             booksListGroup.push({
                 nameCompilation: books_list[i]._id, keyBooks: keyBooks,
-                procent: procent, countNotBooks: countNotBooks, items: items
+                procent: procent, countNotBooks: countNotBooks, items: items,
+                summBooks: books_list[i].summ
             })
         }
 

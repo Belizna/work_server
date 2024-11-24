@@ -202,11 +202,11 @@ export const get_card_listgroup = async (req, res) => {
                 $group: {
                     _id: "$series",
                     children: { $push: { status: "$status_beyblade", title: "$name_beyblade", hashImage_beyblade: "$hashImage_beyblade" } },
-                    count: { $sum: 1 }
+                    count: { $sum: 1 },
+                    summ: { $sum: "$summ_beyblade" }
                 }
             }
         ])
-
         for (var i = 0; i < beyblade_list.length; i++) {
             var items = []
             var keyBeyblade = ''
@@ -230,7 +230,8 @@ export const get_card_listgroup = async (req, res) => {
 
             beybladeListGroup.push({
                 nameCompilation: beyblade_list[i]._id, keyBeyblade: keyBeyblade,
-                procent: procent, countNotBeyblade: countNotBeyblade, items: items, sortId: sortId
+                procent: procent, countNotBeyblade: countNotBeyblade, items: items, sortId: sortId,
+                summBeyblade: beyblade_list[i].summ
             })
         }
 
@@ -262,7 +263,8 @@ export const get_card_listgroup = async (req, res) => {
                 $group: {
                     _id: "$collection_card",
                     children: { $push: { status: "$status_card", title: "$number_card" } },
-                    count: { $sum: 1 }
+                    count: { $sum: 1 },
+                    summ: { $sum: "$summ_card" },
                 }
             }
         ])
@@ -278,7 +280,8 @@ export const get_card_listgroup = async (req, res) => {
                             hashImage_card: "$hashImage_card"
                         }
                     },
-                    count: { $sum: 1 }
+                    count: { $sum: 1 },
+                    summ: { $sum: "$summ_card" },
                 }
             }
             , { $sort: { _id: 1 } }
@@ -286,6 +289,7 @@ export const get_card_listgroup = async (req, res) => {
 
         var itemNaruto = []
         var sumCount = 0
+        var sumCardsNaruto = 0
 
         for (var i = 0; i < cards_listNaruto.length; i++) {
 
@@ -293,14 +297,16 @@ export const get_card_listgroup = async (req, res) => {
 
             cards_listNaruto[i].children.map(obj => obj.status === 'Нет' ?
                 itemNaruto.push({ title: cards_listNaruto[i]._id + '-' + obj.title, hash: obj.hashImage_card }) : obj)
-            sumCount += cards_listNaruto[i].count
+            sumCount += cards_listNaruto[i].count,
+                sumCardsNaruto += cards_listNaruto[i].summ
         }
 
         const procentNaruto = (100 - (itemNaruto.length * 100 / sumCount)).toFixed(2)
 
         cardListGroupNaruto.push({
             nameCollection: 'NARUTO KAYOU CARD', countCards:
-                sumCount, procent: procentNaruto, countNotCard: itemNaruto.length, items: itemNaruto
+                sumCount, procent: procentNaruto, countNotCard: itemNaruto.length, items: itemNaruto,
+            sumCards: sumCardsNaruto,
         })
 
         for (var i = 0; i < cards_list.length; i++) {
@@ -308,15 +314,18 @@ export const get_card_listgroup = async (req, res) => {
             var countCards = ''
             var keyCards = ''
             var procent = 0
+            var sumCards = 0
 
             filters.map((obj) => {
                 if (obj.cards === cards_list[i]._id) {
                     countCards = obj.count,
                         keyCards = obj.key
+                    sumCards = cards_list[i].summ
                 } else
                     obj
             }
             )
+
 
             cards_list[i].children.map(obj => obj.status === 'Нет' ? items.push(obj.title) : obj)
 
@@ -324,7 +333,8 @@ export const get_card_listgroup = async (req, res) => {
             var countNotCard = items.length
             cardListGroup.push({
                 nameCollection: cards_list[i]._id, countCards: countCards, keyCards: keyCards,
-                procent: procent, countNotCard: countNotCard, items: items.sort((a, b) => a - b)
+                procent: procent, countNotCard: countNotCard, items: items.sort((a, b) => a - b),
+                sumCards: sumCards
             })
         }
 
