@@ -228,6 +228,184 @@ export const hobby_static = async (req, res) => {
     }
 }
 
+export const compare_statistic = async (req, res) => {
+
+    try {        
+
+        var statisticYearNumber_1 = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
+        var statisticYearNumber_2 = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
+        var statisticName = ['Пройдено игр','Приобретено игр',
+                             'Потрачено на игры','Потрачено времени на игры',
+                             'Заработок','Подработки',
+                             'Выплачено ипотеки','Внесено досрочных платежей',
+                             'Прочитано книг','Приобретено книг',
+                             'Потрачено на книги','Приобретено волчков',
+                             'Потрачено на волчки','Приобретено карточек',
+                             'Потрачено на карточки','Покрашено миниатюр','Потрачено на хобби']
+
+        var statisticYearNumber1 =[]
+        var statisticYearNumber2 =[]
+
+        const pulse_group_charts = await PulseModel.aggregate([
+            {
+                $match: {
+                    date_pulse: {
+                        $gte: new Date(`${req.body.year_1}-01-01T00:00:00.000Z`),
+                        $lte: new Date(`${req.body.year_1}-12-31T23:59:59.000Z`)
+                    }
+                }
+            },
+            {
+                $group: {
+                    _id: {
+                        category_pulse: "$category_pulse", 
+                    },
+                    sum: { $sum: 1 },
+                    sum_pulse: { $sum: "$sum_pulse" },
+                    count_pulse: { $sum: "$sum_pulse_credit" },
+                    count_pulse_salary: { $sum: "$sum_pulse_salary" },
+                    time_pulse: { $sum: "$time_pulse" }
+                },
+            }, { $sort: { _id: 1 } }
+        ])
+
+        const pulse_group_charts2 = await PulseModel.aggregate([
+            {
+                $match: {
+                    date_pulse: {
+                        $gte: new Date(`${req.body.year_2}-01-01T00:00:00.000Z`),
+                        $lte: new Date(`${req.body.year_2}-12-31T23:59:59.000Z`)
+                    }
+                }
+            },
+            {
+                $group: {
+                    _id: {
+                        category_pulse: "$category_pulse", 
+                    },
+                    sum: { $sum: 1 },
+                    sum_pulse: { $sum: "$sum_pulse" },
+                    count_pulse: { $sum: "$sum_pulse_credit" },
+                    count_pulse_salary: { $sum: "$sum_pulse_salary" },
+                    time_pulse: { $sum: "$time_pulse" }
+                },
+            }, { $sort: { _id: 1 } }
+        ])
+
+        for(var i = 0; i < pulse_group_charts.length; i++){
+            if (pulse_group_charts[i]._id.category_pulse === 'games'){
+                statisticYearNumber_1[0] = pulse_group_charts[i].sum
+                statisticYearNumber_1[3] = pulse_group_charts[i].time_pulse
+            }
+            else if (pulse_group_charts[i]._id.category_pulse === 'games_price'){
+                statisticYearNumber_1[1] = pulse_group_charts[i].sum
+                statisticYearNumber_1[2] = pulse_group_charts[i].sum_pulse
+            }
+            else if (pulse_group_charts[i]._id.category_pulse === 'salary'){
+                statisticYearNumber_1[4] = pulse_group_charts[i].count_pulse_salary
+            }
+            else if (pulse_group_charts[i]._id.category_pulse === 'bonus'){
+                statisticYearNumber_1[5] = pulse_group_charts[i].sum_pulse
+            }
+            else if (pulse_group_charts[i]._id.category_pulse === 'payments'){
+                statisticYearNumber_1[6] = pulse_group_charts[i].count_pulse
+            }
+            else if (pulse_group_charts[i]._id.category_pulse === 'payments_early'){
+                statisticYearNumber_1[7] = pulse_group_charts[i].count_pulse
+            }
+            else if (pulse_group_charts[i]._id.category_pulse === 'books'){
+                statisticYearNumber_1[8] = pulse_group_charts[i].sum
+            }
+            else if (pulse_group_charts[i]._id.category_pulse === 'books_price'){
+                statisticYearNumber_1[9] = pulse_group_charts[i].sum
+                statisticYearNumber_1[10] = pulse_group_charts[i].sum_pulse
+            }
+            else if (pulse_group_charts[i]._id.category_pulse === 'beyblade_price'){
+                statisticYearNumber_1[11] = pulse_group_charts[i].sum
+                statisticYearNumber_1[12] = pulse_group_charts[i].sum_pulse
+            }
+            else if (pulse_group_charts[i]._id.category_pulse === 'card_price'){
+                statisticYearNumber_1[13] = pulse_group_charts[i].sum
+                statisticYearNumber_1[14] = pulse_group_charts[i].sum_pulse
+            }
+            else if (pulse_group_charts[i]._id.category_pulse === 'miniature'){
+                statisticYearNumber_1[15] = pulse_group_charts[i].sum
+                statisticYearNumber_1[16] += pulse_group_charts[i].sum_pulse
+            }
+            else if (pulse_group_charts[i]._id.category_pulse === 'color_price'){
+                statisticYearNumber_1[16] += pulse_group_charts[i].sum_pulse
+            }
+        }
+
+        for(var i = 0; i < pulse_group_charts2.length; i++){
+            if (pulse_group_charts2[i]._id.category_pulse === 'games'){
+                statisticYearNumber_2[0] = pulse_group_charts2[i].sum
+                statisticYearNumber_2[3] = pulse_group_charts2[i].time_pulse
+            }
+            else if (pulse_group_charts2[i]._id.category_pulse === 'games_price'){
+                statisticYearNumber_2[1] = pulse_group_charts2[i].sum
+                statisticYearNumber_2[2] = pulse_group_charts2[i].sum_pulse
+            }
+            else if (pulse_group_charts2[i]._id.category_pulse === 'salary'){
+                statisticYearNumber_2[4] = pulse_group_charts2[i].count_pulse_salary
+            }
+            else if (pulse_group_charts2[i]._id.category_pulse === 'bonus'){
+                statisticYearNumber_2[5] = pulse_group_charts2[i].sum_pulse
+            }
+            else if (pulse_group_charts2[i]._id.category_pulse === 'payments'){
+                statisticYearNumber_2[6] = pulse_group_charts2[i].count_pulse
+            }
+            else if (pulse_group_charts2[i]._id.category_pulse === 'payments_early'){
+                statisticYearNumber_2[7] = pulse_group_charts2[i].count_pulse
+            }
+            else if (pulse_group_charts2[i]._id.category_pulse === 'books'){
+                statisticYearNumber_2[8] = pulse_group_charts2[i].sum
+            }
+            else if (pulse_group_charts2[i]._id.category_pulse === 'books_price'){
+                statisticYearNumber_2[9] = pulse_group_charts2[i].sum
+                statisticYearNumber_2[10] = pulse_group_charts2[i].sum_pulse
+            }
+            else if (pulse_group_charts2[i]._id.category_pulse === 'beyblade_price'){
+                statisticYearNumber_2[11] = pulse_group_charts2[i].sum
+                statisticYearNumber_2[12] = pulse_group_charts2[i].sum_pulse
+            }
+            else if (pulse_group_charts2[i]._id.category_pulse === 'card_price'){
+                statisticYearNumber_2[13] = pulse_group_charts2[i].sum
+                statisticYearNumber_2[14] = pulse_group_charts2[i].sum_pulse
+            }
+            else if (pulse_group_charts2[i]._id.category_pulse === 'miniature'){
+                statisticYearNumber_2[15] = pulse_group_charts2[i].sum
+                statisticYearNumber_2[16] += pulse_group_charts2[i].sum_pulse
+            }
+            else if (pulse_group_charts2[i]._id.category_pulse === 'color_price'){
+                statisticYearNumber_2[16] += pulse_group_charts2[i].sum_pulse
+            }
+        }
+    
+        for(var i = 0; i < statisticYearNumber_2.length; i++) {
+            if(statisticYearNumber_1[i] > statisticYearNumber_2[i]) {
+                statisticYearNumber1.push({name: statisticName[i], value: statisticYearNumber_1[i], prefix: '>'})
+                statisticYearNumber2.push({name: statisticName[i], value: statisticYearNumber_2[i], prefix: '<'})
+            } else if (statisticYearNumber_1[i] === statisticYearNumber_2[i]) {
+                statisticYearNumber2.push({name: statisticName[i], value: statisticYearNumber_2[i], prefix: '='})
+                statisticYearNumber1.push({name: statisticName[i], value: statisticYearNumber_1[i], prefix: '='})
+            }
+            else {
+                statisticYearNumber1.push({name: statisticName[i], value: statisticYearNumber_1[i], prefix: '<'})
+                statisticYearNumber2.push({name: statisticName[i], value: statisticYearNumber_2[i], prefix: '>'})
+            }
+        }
+
+        res.status(200).json({
+            statisticYearNumber1,
+            statisticYearNumber2
+        })
+
+    } catch (err) {
+        res.status(500).json({ ...err })
+    }
+}
+
 export const main_static = async (req, res) => {
     try {
 
@@ -588,10 +766,13 @@ export const main_static = async (req, res) => {
         }
 
         let summ_payments = summPayments - summ_early_payment
+
         let sum_card_nowyear = sum_card_nowyearSpider_Man + sum_card_nowyearTeenage_Mutant_Ninja + sum_card_nowyearBakugan +
             sum_card_nowyearTransformers + sum_card_nowyearBeyblade + sum_card_nowyearNaruto + sum_card_nowyearSuperRacing
+
         let count_card_price = count_card_priceSpider_Man + count_card_priceTeenage_Mutant_Ninja + count_card_priceBakugan +
             count_card_priceTransformers + count_card_priceBeyblade + count_card_priceNaruto + count_card_priceSuperRacing
+
         let count_other_card_price = count_card_priceBakugan + count_card_priceTransformers + count_card_priceBeyblade + count_card_priceNaruto + count_card_priceSuperRacing
         let sum_other_card_nowyear = sum_card_nowyearBakugan + sum_card_nowyearTransformers + sum_card_nowyearBeyblade + sum_card_nowyearNaruto + sum_card_nowyearSuperRacing
 
