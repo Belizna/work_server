@@ -70,11 +70,15 @@ export const edit_games = async(req,res) => {
 export const add_games = async(req,res) => {
     try {
 
+        var daysUTC_3 = new Date(req.body.date_game)
+        daysUTC_3.setDate(daysUTC_3.getDate() + 1)
+        daysUTC_3 = daysUTC_3.toISOString().slice(0, 10).split("-").reverse().join("-")
+
         const libraryGamesdoc = new GamesModel({
             game_name : req.body.game_name,
             summ_game: req.body.summ_game,
             compilation:req.body.compilation,
-            date_game :((req.body.date_game).substr(0, 10)).split("-").reverse().join("-"),
+            date_game : daysUTC_3,
             presence: req.body.presence,
             time_game: req.body.time_game
         })

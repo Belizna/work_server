@@ -4,8 +4,12 @@ import PulseModel from '../models/Pulse.js'
 export const salary_add = async(req,res) => {
     try{
 
+        var daysUTC_3 = new Date(req.body.date_salary)
+        daysUTC_3.setDate(daysUTC_3.getDate() + 1)
+        daysUTC_3 = daysUTC_3.toISOString().slice(0, 10).split("-").reverse().join("-")
+
         const salaryDoc = new SalaryModel({
-            date_salary: ((req.body.date_salary).substr(0, 10)).split("-").reverse().join("-"),
+            date_salary: daysUTC_3,
             summ_salary: req.body.summ_salary,
             company: req.body.company,
         })

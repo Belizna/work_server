@@ -21,7 +21,7 @@ import { get_heresy_books, edit_heresy_books, delete_heresy_books, add_heresy_bo
 import { delete_games, edit_games, add_games, get_games } from './controller/gamesController.js'
 import { book_static, repair_static, credit_static, games_static, salary_chart, hobby_static, main_static, card_static, beyblade_static, compare_statistic } from './controller/chartsController.js'
 import { get_write_books, edit_write_books, add_write_books, delete_write_books } from './controller/writeBooksController.js'
-import { bonus_get, bonus_add, bonus_delete, bonus_edit } from './controller/weekendController.js'
+import { bonus_get, bonus_add, bonus_delete, bonus_edit, bonus_days_get, bonus_days_add, bonus_days_delete, bonus_days_edit } from './controller/weekendController.js'
 import { salary_add, salary_delete, salary_edit, salary_get } from './controller/SalaryController.js'
 import { miniatures_get, miniatures_add, miniatures_edit, miniatures_delete } from './controller/miniaturesController.js'
 import { colors_add, colors_get, colors_edit, colors_delete } from './controller/colorController.js'
@@ -47,54 +47,6 @@ app.use(cors())
 app.get('/', (req, res) => {
     console.log('Server run')
 });
-
-app.post('/credit/create/', creditCreateValidator, async (req, res) => {
-
-    try {
-        const errors = validationResult(req);
-        if (!errors.isEmpty()) {
-            return res.status(400).json(errors.array())
-        }
-
-        const creditDoc = new CreditModel({
-            credit_name: req.body.credit_name,
-            summ_credit: req.body.summ_credit,
-            date_credit: req.body.date_credit,
-            percent: req.body.percent,
-            term: req.body.term,
-            duty: req.body.duty
-        })
-
-        const credit = await creditDoc.save();
-
-        const payment = (req.body.summ_credit * (req.body.percent / (100 * 12) / (1 - Math.pow((1 + (req.body.percent / (100 * 12))), -req.body.term)))).toFixed(2)
-
-        var arr = [];
-
-        for (var i = 1; i < req.body.term + 1; i++) {
-            arr.push({
-                date_payment: moment(req.body.date_credit, 'DD-MM-YYYY').add(i, 'M').format('DD-MM-YYYY'),
-                summ_payment: payment,
-                status_payment: 'Не оплачено',
-                Pcredit_name: req.body.credit_name
-            })
-        }
-
-        //PaymentsModel.insertMany(arr)
-        //.then(() => console.log('Payments created'))
-        //.catch(err => console.log('Error' + err))
-
-        res.json({
-            ...credit._doc
-        })
-    }
-    catch (err) {
-        res.status(500).json({
-            err
-        })
-    }
-
-})
 
 app.get('/menu', menu_get)
 
@@ -123,6 +75,11 @@ app.get('/weekend/bonus/', bonus_get)
 app.post('/weekend/bonus/add', bonus_add)
 app.patch('/weekend/bonus/edit/:id', bonus_edit)
 app.delete('/weekend/bonus/delete/:id', bonus_delete)
+
+app.get('/weekend/bonus_days/', bonus_days_get)
+app.post('/weekend/bonus_days/add', bonus_days_add)
+app.patch('/weekend/bonus_days/edit/:id', bonus_days_edit)
+app.delete('/weekend/bonus_days/delete/:id', bonus_days_delete)
 
 app.get('/weekend/salary', salary_get)
 app.post('/weekend/salary/add', salary_add)

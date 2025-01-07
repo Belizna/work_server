@@ -31,8 +31,12 @@ export const add_early_payment = async(req, res) => {
             return res.status(400).json(errors.array())
         }
 
+        var daysUTC_3 = new Date(req.body.date_earlyPayment)
+        daysUTC_3.setDate(daysUTC_3.getDate() + 1)
+        daysUTC_3 = daysUTC_3.toISOString().slice(0, 10).split("-").reverse().join("-")
+
         const EarlyPaymentsDoc = new EarlyPaymentsModel({
-            date_earlyPayment : ((req.body.date_earlyPayment).substr(0, 10)).split("-").reverse().join("-"),
+            date_earlyPayment : daysUTC_3,
             summ_earlyPayment: req.body.summ_earlyPayment
         })
 

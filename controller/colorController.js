@@ -14,9 +14,14 @@ export const colors_get = async(req,res) => {
 
 export const colors_add = async(req,res) => {
     try{
+
+        var daysUTC_3 = new Date(req.body.date_color)
+        daysUTC_3.setDate(daysUTC_3.getDate() + 1)
+        daysUTC_3 = daysUTC_3.toISOString().slice(0, 10).split("-").reverse().join("-")
+
         const colorDoc = new ColorModel({
             name_color: req.body.name_color,
-            date_color: ((req.body.date_color).substr(0, 10)).split("-").reverse().join("-"),
+            date_color: daysUTC_3,
             collection_color: req.body.collection_color,
             summ_color: req.body.summ_color,
         })

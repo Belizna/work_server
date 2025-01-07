@@ -14,9 +14,14 @@ export const miniatures_get = async(req,res) => {
 
 export const miniatures_add = async(req,res) => {
     try{
+
+        var daysUTC_3 = new Date(req.body.date_buy_miniature)
+        daysUTC_3.setDate(daysUTC_3.getDate() + 1)
+        daysUTC_3 = daysUTC_3.toISOString().slice(0, 10).split("-").reverse().join("-")
+
         const miniatureDoc = new MiniatureModel({
             miniature_name: req.body.miniature_name,
-            date_buy_miniature: ((req.body.date_buy_miniature).substr(0, 10)).split("-").reverse().join("-"),
+            date_buy_miniature: daysUTC_3,
             //date_buy_miniature: req.body.date_buy_miniature
             price_miniature: req.body.price_miniature,
             collection_miniature: req.body.collection_miniature,
