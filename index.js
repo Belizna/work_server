@@ -31,7 +31,7 @@ import { comics_add, comics_delete, comics_get, comics_edit } from './controller
 import { loan_get, loan_add, loan_edit, loan_delete } from './controller/LoanController.js'
 import { menu_get } from './controller/menuController.js'
 import { get_beyblade, edit_beyblade, delete_beyblade, add_beyblade } from './controller/beybladeController.js'
-
+import { person_get} from './controller/personController.js'
 import CheckAuth from './utils/CheckAuth.js'
 
 dotenv.config()
@@ -49,6 +49,8 @@ app.get('/', (req, res) => {
 });
 
 app.get('/menu', menu_get)
+
+app.get('/person', person_get)
 
 app.get('/comics/:collection_comics', comics_get)
 app.post('/comics/add', comics_add)
