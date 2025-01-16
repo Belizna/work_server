@@ -252,7 +252,8 @@ export const get_books_listgroup = async (req, res) => {
             booksListGroup.push({
                 nameCompilation: books_list[i]._id, keyBooks: keyBooks,
                 procent: procent, countNotBooks: countNotBooks, items: items,
-                summBooks: books_list[i].summ
+                summBooks: books_list[i].summ,
+                countBooks: books_list[i].count
             })
         }
 

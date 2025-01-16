@@ -306,7 +306,7 @@ export const get_card_listgroup = async (req, res) => {
         cardListGroupNaruto.push({
             nameCollection: 'NARUTO KAYOU CARD', countCards:
                 sumCount, procent: procentNaruto, countNotCard: itemNaruto.length, items: itemNaruto,
-            sumCards: sumCardsNaruto,
+            sumCards: sumCardsNaruto
         })
 
         for (var i = 0; i < cards_list.length; i++) {
@@ -318,7 +318,7 @@ export const get_card_listgroup = async (req, res) => {
 
             filters.map((obj) => {
                 if (obj.cards === cards_list[i]._id) {
-                    countCards = obj.count,
+                    countCards = cards_list[i].count,
                         keyCards = obj.key
                     sumCards = cards_list[i].summ
                 } else
