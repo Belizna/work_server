@@ -21,6 +21,11 @@ const WriteBooksSchema = new mongoose.Schema({
     {
         type: String,
         required: true
+    },
+    author:
+    {
+        type: String,
+        required: false
     }
 })
 

@@ -57,7 +57,8 @@ export const edit_write_books = async (req, res) => {
             book_name: req.body.book_name,
             format: req.body.format,
             collection_book: req.body.collection_book,
-            presence: req.body.presence
+            presence: req.body.presence,
+            author: req.body.author
         })
 
         res.status(200).json({
@@ -80,6 +81,7 @@ export const add_write_books = async (req, res) => {
             collection_book: req.body.collection_book,
             presence: req.body.presence,
             compilation: req.params.book_name,
+            author: req.body.author
         })
 
         const writeBooks = await write_books_doc.save()
