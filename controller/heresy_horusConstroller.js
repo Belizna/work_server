@@ -2,6 +2,7 @@ import BookModel from "../models/Book.js"
 import PulseModel from "../models/Pulse.js"
 import BookFilter from "../models/BookFilter.js"
 import WriteBooks from "../models/WriteBooks.js"
+import AuthorFilter from "../models/AuthorFilter.js"
 
 export const get_heresy_books = async (req, res) => {
     try {
@@ -134,6 +135,107 @@ export const get_books_listgroup = async (req, res) => {
 
         const filters = await BookFilter.find()
 
+        const author = await AuthorFilter.find()
+
+        /** третья страница**/
+
+        var booksAuthorWriteListGroup = []
+
+        const groupStaticAuthorWriteBooks = await WriteBooks.aggregate([
+            {
+                $group: {
+                    _id: { author: "$author", compilation: "$compilation", format: "$format" },
+                    children: {
+                        $push: {
+                            title: "$book_name"
+                        }
+                    },
+                    count: { $sum: 1 }
+                }
+            }, { $sort: { _id: 1 } }
+        ])
+
+        for (var i = 0; i < author.length; i++) {
+
+            var groupAuthor = []
+            var groupBooks = []
+            var summRomans = 0
+            var summStory = 0
+            var summBigStory = 0
+
+            groupStaticAuthorWriteBooks.map(arr => {
+                if (arr._id.author === author[i].author) {
+
+                    groupAuthor.push({ compilation: arr._id.compilation, format: arr._id.format, children: arr.children, count: arr.count })
+                }
+            })
+
+            for (var j = 0; j < filters.length; j++) {
+                var Romans = []
+                var Story = []
+                var BigStory = []
+                var group = []
+
+                groupAuthor.map(arr => {
+
+                    if (arr.compilation === filters[j].compilation) {
+                        var flagR = 0
+                        var flagRom = 0
+                        var flagP = 0
+
+                        if (arr.format === 'рассказ') {
+                            flagR++
+                            summStory+=arr.count
+                            arr.children.map(ar => {
+                                Story.push(` ${ar.title}`)
+                            })
+                        }
+                        else if (arr.format === 'роман') {
+                            flagRom++
+                            summRomans+=arr.count
+                            arr.children.map(ar => {
+                                Romans.push(` ${ar.title}`)
+                            })
+                        }
+                        else {
+                            flagP++
+                            summBigStory+=arr.count
+                            arr.children.map(ar => {
+                                BigStory.push(` ${ar.title}`)
+                            })
+                        }
+
+                    }
+                    flagP > 0 ? group.push({ staticWrite: `Повестей (${arr.count}): `, listWrite: BigStory }) :
+                        flagR > 0 ? group.push({ staticWrite: `Рассказов (${arr.count}): `, listWrite: Story }) :
+                            flagRom > 0 ? group.push({ staticWrite: `Романов (${arr.count}): `, listWrite: Romans }) :
+                                group
+
+                })
+                if (group.length > 0) {
+                    groupBooks.push({
+                        nameCompilation: filters[j].compilation,
+                        keyBooks: filters[j].key,
+                        group: group,
+                    })
+                }
+
+            }
+            booksAuthorWriteListGroup.push({
+                author: author[i].author,
+                summCycle: groupBooks.length,
+                summStory: summStory,
+                summRomans: summRomans,
+                summBigStory: summBigStory,
+                keyImage: author[i].key,
+                books: groupBooks
+            })
+        }
+
+        booksAuthorWriteListGroup.sort((a, b) => b.summCycle - a.summCycle)
+
+        /** конец третьей страницы **/
+
         /** вторая страница **/
 
         var booksWriteListGroup = []
@@ -261,6 +363,7 @@ export const get_books_listgroup = async (req, res) => {
         /** конец кода по первой странице **/
 
         res.status(200).json({
+            booksAuthorWriteListGroup,
             booksWriteListGroup,
             booksListGroup,
         })
