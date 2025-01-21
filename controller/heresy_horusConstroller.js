@@ -232,7 +232,7 @@ export const get_books_listgroup = async (req, res) => {
             })
         }
 
-        booksAuthorWriteListGroup.sort((a, b) => b.summCycle - a.summCycle)
+        booksAuthorWriteListGroup.sort((a, b) => b.summRomans - a.summRomans)
 
         /** конец третьей страницы **/
 

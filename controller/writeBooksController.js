@@ -7,7 +7,7 @@ export const get_write_books = async (req, res) => {
 
         var filteredAuthorList = []
         var filteredAddAuthorList = []
-        const author = await AuthorFilter.find()
+        const author = await AuthorFilter.find().sort({ 'author': 1 })
 
         var filteredList = []
         const write_books = await WriteBooksModel.find({
