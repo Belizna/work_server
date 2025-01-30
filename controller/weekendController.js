@@ -17,11 +17,12 @@ export const bonus_get = async (req, res) => {
 export const bonus_add = async (req, res) => {
     try {
         const zp = 304500
-        const norma_time = await NormaModel.find({ month_norma: (((req.body.date_bonus).substr(0, 10)).split("-").reverse().join("-")).substr(3, 7) })
 
         var daysUTC_3 = new Date(req.body.date_bonus)
         daysUTC_3.setDate(daysUTC_3.getDate() + 1)
         daysUTC_3 = daysUTC_3.toISOString().slice(0, 10).split("-").reverse().join("-")
+
+        const norma_time = await NormaModel.find({ month_norma: daysUTC_3.substr(3, 7) })
 
         const bonusDoc = new BonusModel({
             date_bonus: daysUTC_3,
