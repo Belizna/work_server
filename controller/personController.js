@@ -39,6 +39,8 @@ export const person_get = async (req, res) => {
             personSelectorClass.push({ value: person[i].id, label: person[i].id })
         }
 
+        personSelectorOptions.sort((a, b) => (a.label > b.label) - (a.label < b.label))
+
         res.status(200).json({
             personTree,
             personSelectorOptions,
