@@ -136,9 +136,27 @@ export const credit_static = async (req, res) => {
         var remainder = 0
         var paid_fix = 0
 
+        var groupYearEarlyPay = []
+        var earlyPayGroup = [];
+
         const earlyPay = await EarlyPaymentsModel.find()
         const credit = await CreditModel.find({ credit_name: 'Ипотека' })
         const payment = await PaymentsModel.find()
+
+        earlyPay.map(obj => {
+            groupYearEarlyPay.push({ date: obj.date_earlyPayment.slice(6), sum: obj.summ_earlyPayment })
+        })
+
+        groupYearEarlyPay.reduce((res, value) => {
+            if (!res[(value.date)]) {
+                res[value.date] = { _id: value.date, sum: 0 };
+                earlyPayGroup.push(res[value.date])
+            }
+            res[value.date].sum += value.sum;
+            return res;
+        }, {});
+
+        earlyPayGroup.sort((a, b) => a._id - b._id)
 
         payment.map((obj) => {
             if (obj.status_payment === 'Не оплачено') {
@@ -165,6 +183,7 @@ export const credit_static = async (req, res) => {
         data3.push({ name: 'Выплачено', value: count_month_paid }, { name: 'Осталось', value: count_month_remainder })
 
         res.status(200).send({
+            earlyPayGroup,
             paid,
             remainder,
             procentStatic,
@@ -176,7 +195,6 @@ export const credit_static = async (req, res) => {
             data1,
             data2,
             data3,
-            earlyPay
         })
     }
     catch (err) {
@@ -230,21 +248,21 @@ export const hobby_static = async (req, res) => {
 
 export const compare_statistic = async (req, res) => {
 
-    try {        
+    try {
 
-        var statisticYearNumber_1 = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
-        var statisticYearNumber_2 = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
-        var statisticName = ['Пройдено игр','Приобретено игр',
-                             'Потрачено на игры','Потрачено времени на игры',
-                             'Заработок','Подработки',
-                             'Выплачено ипотеки','Внесено досрочных платежей',
-                             'Прочитано книг','Приобретено книг',
-                             'Потрачено на книги','Приобретено волчков',
-                             'Потрачено на волчки','Приобретено карточек',
-                             'Потрачено на карточки','Покрашено миниатюр','Потрачено на хобби']
+        var statisticYearNumber_1 = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        var statisticYearNumber_2 = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        var statisticName = ['Пройдено игр', 'Приобретено игр',
+            'Потрачено на игры', 'Потрачено времени на игры',
+            'Заработок', 'Подработки',
+            'Выплачено ипотеки', 'Внесено досрочных платежей',
+            'Прочитано книг', 'Приобретено книг',
+            'Потрачено на книги', 'Приобретено волчков',
+            'Потрачено на волчки', 'Приобретено карточек',
+            'Потрачено на карточки', 'Покрашено миниатюр', 'Потрачено на хобби']
 
-        var statisticYearNumber1 =[]
-        var statisticYearNumber2 =[]
+        var statisticYearNumber1 = []
+        var statisticYearNumber2 = []
 
         const pulse_group_charts = await PulseModel.aggregate([
             {
@@ -258,7 +276,7 @@ export const compare_statistic = async (req, res) => {
             {
                 $group: {
                     _id: {
-                        category_pulse: "$category_pulse", 
+                        category_pulse: "$category_pulse",
                     },
                     sum: { $sum: 1 },
                     sum_pulse: { $sum: "$sum_pulse" },
@@ -281,7 +299,7 @@ export const compare_statistic = async (req, res) => {
             {
                 $group: {
                     _id: {
-                        category_pulse: "$category_pulse", 
+                        category_pulse: "$category_pulse",
                     },
                     sum: { $sum: 1 },
                     sum_pulse: { $sum: "$sum_pulse" },
@@ -292,107 +310,107 @@ export const compare_statistic = async (req, res) => {
             }, { $sort: { _id: 1 } }
         ])
 
-        for(var i = 0; i < pulse_group_charts.length; i++){
-            if (pulse_group_charts[i]._id.category_pulse === 'games'){
+        for (var i = 0; i < pulse_group_charts.length; i++) {
+            if (pulse_group_charts[i]._id.category_pulse === 'games') {
                 statisticYearNumber_1[0] = pulse_group_charts[i].sum
                 statisticYearNumber_1[3] = pulse_group_charts[i].time_pulse
             }
-            else if (pulse_group_charts[i]._id.category_pulse === 'games_price'){
+            else if (pulse_group_charts[i]._id.category_pulse === 'games_price') {
                 statisticYearNumber_1[1] = pulse_group_charts[i].sum
                 statisticYearNumber_1[2] = pulse_group_charts[i].sum_pulse
             }
-            else if (pulse_group_charts[i]._id.category_pulse === 'salary'){
+            else if (pulse_group_charts[i]._id.category_pulse === 'salary') {
                 statisticYearNumber_1[4] = pulse_group_charts[i].count_pulse_salary
             }
-            else if (pulse_group_charts[i]._id.category_pulse === 'bonus'){
+            else if (pulse_group_charts[i]._id.category_pulse === 'bonus') {
                 statisticYearNumber_1[5] = pulse_group_charts[i].sum_pulse
             }
-            else if (pulse_group_charts[i]._id.category_pulse === 'payments'){
+            else if (pulse_group_charts[i]._id.category_pulse === 'payments') {
                 statisticYearNumber_1[6] = pulse_group_charts[i].count_pulse
             }
-            else if (pulse_group_charts[i]._id.category_pulse === 'payments_early'){
+            else if (pulse_group_charts[i]._id.category_pulse === 'payments_early') {
                 statisticYearNumber_1[7] = pulse_group_charts[i].count_pulse
             }
-            else if (pulse_group_charts[i]._id.category_pulse === 'books'){
+            else if (pulse_group_charts[i]._id.category_pulse === 'books') {
                 statisticYearNumber_1[8] = pulse_group_charts[i].sum
             }
-            else if (pulse_group_charts[i]._id.category_pulse === 'books_price'){
+            else if (pulse_group_charts[i]._id.category_pulse === 'books_price') {
                 statisticYearNumber_1[9] = pulse_group_charts[i].sum
                 statisticYearNumber_1[10] = pulse_group_charts[i].sum_pulse
             }
-            else if (pulse_group_charts[i]._id.category_pulse === 'beyblade_price'){
+            else if (pulse_group_charts[i]._id.category_pulse === 'beyblade_price') {
                 statisticYearNumber_1[11] = pulse_group_charts[i].sum
                 statisticYearNumber_1[12] = pulse_group_charts[i].sum_pulse
             }
-            else if (pulse_group_charts[i]._id.category_pulse === 'card_price'){
+            else if (pulse_group_charts[i]._id.category_pulse === 'card_price') {
                 statisticYearNumber_1[13] = pulse_group_charts[i].sum
                 statisticYearNumber_1[14] = pulse_group_charts[i].sum_pulse
             }
-            else if (pulse_group_charts[i]._id.category_pulse === 'miniature'){
+            else if (pulse_group_charts[i]._id.category_pulse === 'miniature') {
                 statisticYearNumber_1[15] = pulse_group_charts[i].sum
                 statisticYearNumber_1[16] += pulse_group_charts[i].sum_pulse
             }
-            else if (pulse_group_charts[i]._id.category_pulse === 'color_price'){
+            else if (pulse_group_charts[i]._id.category_pulse === 'color_price') {
                 statisticYearNumber_1[16] += pulse_group_charts[i].sum_pulse
             }
         }
 
-        for(var i = 0; i < pulse_group_charts2.length; i++){
-            if (pulse_group_charts2[i]._id.category_pulse === 'games'){
+        for (var i = 0; i < pulse_group_charts2.length; i++) {
+            if (pulse_group_charts2[i]._id.category_pulse === 'games') {
                 statisticYearNumber_2[0] = pulse_group_charts2[i].sum
                 statisticYearNumber_2[3] = pulse_group_charts2[i].time_pulse
             }
-            else if (pulse_group_charts2[i]._id.category_pulse === 'games_price'){
+            else if (pulse_group_charts2[i]._id.category_pulse === 'games_price') {
                 statisticYearNumber_2[1] = pulse_group_charts2[i].sum
                 statisticYearNumber_2[2] = pulse_group_charts2[i].sum_pulse
             }
-            else if (pulse_group_charts2[i]._id.category_pulse === 'salary'){
+            else if (pulse_group_charts2[i]._id.category_pulse === 'salary') {
                 statisticYearNumber_2[4] = pulse_group_charts2[i].count_pulse_salary
             }
-            else if (pulse_group_charts2[i]._id.category_pulse === 'bonus'){
+            else if (pulse_group_charts2[i]._id.category_pulse === 'bonus') {
                 statisticYearNumber_2[5] = pulse_group_charts2[i].sum_pulse
             }
-            else if (pulse_group_charts2[i]._id.category_pulse === 'payments'){
+            else if (pulse_group_charts2[i]._id.category_pulse === 'payments') {
                 statisticYearNumber_2[6] = pulse_group_charts2[i].count_pulse
             }
-            else if (pulse_group_charts2[i]._id.category_pulse === 'payments_early'){
+            else if (pulse_group_charts2[i]._id.category_pulse === 'payments_early') {
                 statisticYearNumber_2[7] = pulse_group_charts2[i].count_pulse
             }
-            else if (pulse_group_charts2[i]._id.category_pulse === 'books'){
+            else if (pulse_group_charts2[i]._id.category_pulse === 'books') {
                 statisticYearNumber_2[8] = pulse_group_charts2[i].sum
             }
-            else if (pulse_group_charts2[i]._id.category_pulse === 'books_price'){
+            else if (pulse_group_charts2[i]._id.category_pulse === 'books_price') {
                 statisticYearNumber_2[9] = pulse_group_charts2[i].sum
                 statisticYearNumber_2[10] = pulse_group_charts2[i].sum_pulse
             }
-            else if (pulse_group_charts2[i]._id.category_pulse === 'beyblade_price'){
+            else if (pulse_group_charts2[i]._id.category_pulse === 'beyblade_price') {
                 statisticYearNumber_2[11] = pulse_group_charts2[i].sum
                 statisticYearNumber_2[12] = pulse_group_charts2[i].sum_pulse
             }
-            else if (pulse_group_charts2[i]._id.category_pulse === 'card_price'){
+            else if (pulse_group_charts2[i]._id.category_pulse === 'card_price') {
                 statisticYearNumber_2[13] = pulse_group_charts2[i].sum
                 statisticYearNumber_2[14] = pulse_group_charts2[i].sum_pulse
             }
-            else if (pulse_group_charts2[i]._id.category_pulse === 'miniature'){
+            else if (pulse_group_charts2[i]._id.category_pulse === 'miniature') {
                 statisticYearNumber_2[15] = pulse_group_charts2[i].sum
                 statisticYearNumber_2[16] += pulse_group_charts2[i].sum_pulse
             }
-            else if (pulse_group_charts2[i]._id.category_pulse === 'color_price'){
+            else if (pulse_group_charts2[i]._id.category_pulse === 'color_price') {
                 statisticYearNumber_2[16] += pulse_group_charts2[i].sum_pulse
             }
         }
-    
-        for(var i = 0; i < statisticYearNumber_2.length; i++) {
-            if(statisticYearNumber_1[i] > statisticYearNumber_2[i]) {
-                statisticYearNumber1.push({name: statisticName[i], value: statisticYearNumber_1[i], prefix: '>'})
-                statisticYearNumber2.push({name: statisticName[i], value: statisticYearNumber_2[i], prefix: '<'})
+
+        for (var i = 0; i < statisticYearNumber_2.length; i++) {
+            if (statisticYearNumber_1[i] > statisticYearNumber_2[i]) {
+                statisticYearNumber1.push({ name: statisticName[i], value: statisticYearNumber_1[i], prefix: '>' })
+                statisticYearNumber2.push({ name: statisticName[i], value: statisticYearNumber_2[i], prefix: '<' })
             } else if (statisticYearNumber_1[i] === statisticYearNumber_2[i]) {
-                statisticYearNumber2.push({name: statisticName[i], value: statisticYearNumber_2[i], prefix: '='})
-                statisticYearNumber1.push({name: statisticName[i], value: statisticYearNumber_1[i], prefix: '='})
+                statisticYearNumber2.push({ name: statisticName[i], value: statisticYearNumber_2[i], prefix: '=' })
+                statisticYearNumber1.push({ name: statisticName[i], value: statisticYearNumber_1[i], prefix: '=' })
             }
             else {
-                statisticYearNumber1.push({name: statisticName[i], value: statisticYearNumber_1[i], prefix: '<'})
-                statisticYearNumber2.push({name: statisticName[i], value: statisticYearNumber_2[i], prefix: '>'})
+                statisticYearNumber1.push({ name: statisticName[i], value: statisticYearNumber_1[i], prefix: '<' })
+                statisticYearNumber2.push({ name: statisticName[i], value: statisticYearNumber_2[i], prefix: '>' })
             }
         }
 
