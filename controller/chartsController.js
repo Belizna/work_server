@@ -424,6 +424,128 @@ export const compare_statistic = async (req, res) => {
     }
 }
 
+export const compare_statistic_column = async (req, res) => {
+
+    try {
+
+        const statistic_collection = req.params.statistic_collection
+        const year1 = req.body.year_1
+        const year2 = req.body.year_2
+
+        async function get_static(statistic_collection, year) {
+
+            var groupAggregate = []
+            var groupDateAggregate = []
+            var returnGroupAgg = []
+            var statistic_collection_db = statistic_collection
+
+            const diff = [
+                `${year}-01`, `${year}-02`,
+                `${year}-03`, `${year}-04`,
+                `${year}-05`, `${year}-06`,
+                `${year}-07`, `${year}-08`,
+                `${year}-09`, `${year}-10`,
+                `${year}-11`, `${year}-12`
+            ]
+
+            var statisticName = ['Январь', 'Февраль',
+                'Март', 'Апрель',
+                'Май', 'Июнь',
+                'Июль', 'Август',
+                'Сентябрь', 'Октябрь',
+                'Ноябрь', 'Декабрь']
+
+
+            if (statistic_collection === 'games_price2' ||
+                statistic_collection === 'books_price2' ||
+                statistic_collection === 'beyblade_price2' ||
+                statistic_collection === 'card_price2') {
+                statistic_collection_db = statistic_collection_db.slice(0, -1)
+            }
+
+            const pulse_group_charts = await PulseModel.aggregate([
+                {
+                    $match: {
+                        date_pulse: {
+                            $gte: new Date(`${year}-01-01T00:00:00.000Z`),
+                            $lte: new Date(`${year}-12-31T23:59:59.000Z`)
+                        },
+                        category_pulse: statistic_collection_db
+                    }
+                },
+                {
+                    $group: {
+                        _id: {
+                            date_pulse: { $substr: ["$date_pulse", 0, 7] },
+                        },
+                        sum: { $sum: 1 },
+                        sum_pulse: { $sum: "$sum_pulse" },
+                        count_pulse: { $sum: "$sum_pulse_credit" },
+                        count_pulse_salary: { $sum: "$sum_pulse_salary" },
+                        time_pulse: { $sum: "$time_pulse" }
+                    },
+                }, { $sort: { _id: 1 } }
+            ])
+
+            if (statistic_collection === 'games_price2' ||
+                statistic_collection === 'books_price2' ||
+                statistic_collection === 'beyblade_price2' ||
+                statistic_collection === 'card_price2') {
+                pulse_group_charts.map(arr => {
+                    groupAggregate.push({ date_pulse: arr._id.date_pulse, count_pulse: arr.sum_pulse })
+                    groupDateAggregate.push(arr._id.date_pulse)
+                })
+            }
+            else if (statistic_collection === 'salary') {
+                pulse_group_charts.map(arr => {
+                    groupAggregate.push({ date_pulse: arr._id.date_pulse, count_pulse: arr.count_pulse_salary })
+                    groupDateAggregate.push(arr._id.date_pulse)
+                })
+            }
+            else if (statistic_collection === 'payments') {
+                pulse_group_charts.map(arr => {
+                    groupAggregate.push({ date_pulse: arr._id.date_pulse, count_pulse: arr.count_pulse })
+                    groupDateAggregate.push(arr._id.date_pulse)
+                })
+            }
+            else {
+                pulse_group_charts.map(arr => {
+                    groupAggregate.push({ date_pulse: arr._id.date_pulse, count_pulse: arr.sum })
+                    groupDateAggregate.push(arr._id.date_pulse)
+                })
+            }
+
+            var diff_group = diff.filter(date => !groupDateAggregate.includes(date))
+            diff_group.map((obj) => groupAggregate.push({ date_pulse: obj, count_pulse: 0 }))
+
+            groupAggregate.sort((r1, r2) => (r1.date_pulse > r2.date_pulse) ? 1 : (r1.date_pulse < r2.date_pulse) ? -1 : 0)
+
+            for (var i = 0; i < groupAggregate.length; i++) {
+                returnGroupAgg.push({
+                    date: groupAggregate[i].date_pulse,
+                    value: groupAggregate[i].count_pulse,
+                    key: statisticName[i],
+                    name: year
+                })
+            }
+
+            return returnGroupAgg
+        }
+
+        var yearOneCompare1 = await get_static(statistic_collection, year1)
+        var yearOneCompare2 = await get_static(statistic_collection, year2)
+
+        const groupCompare = [...yearOneCompare1, ...yearOneCompare2]
+
+        res.status(200).json({
+            groupCompare,
+        })
+
+    } catch (err) {
+        res.status(500).json({ ...err })
+    }
+}
+
 export const main_static = async (req, res) => {
     try {
 
