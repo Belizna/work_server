@@ -1,17 +1,12 @@
 import express from 'express'
 import mongoose from 'mongoose'
-import { validationResult } from 'express-validator'
-import moment from 'moment/moment.js'
 import cors from 'cors'
 import dotenv from 'dotenv'
 
-import { creditCreateValidator } from './validations/credit.js'
 import { registerValidator } from './validations/auth.js'
 import { paymentCreateValidator } from './validations/payments.js'
 import { earlyPaymentsEditValidator } from './validations/earlypayments.js'
 import { bookCreateValidator } from './validations/book.js'
-
-import CreditModel from './models/Credit.js'
 
 import { register, login, me } from './controller/authController.js'
 import { delete_payment, get_payments, update_payment } from './controller/paymentsController.js'
@@ -31,7 +26,8 @@ import { comics_add, comics_delete, comics_get, comics_edit } from './controller
 import { loan_get, loan_add, loan_edit, loan_delete } from './controller/LoanController.js'
 import { menu_get } from './controller/menuController.js'
 import { get_beyblade, edit_beyblade, delete_beyblade, add_beyblade } from './controller/beybladeController.js'
-import { person_get, person_add_class, person_add_person,person_add_books} from './controller/personController.js'
+import { person_get, person_add_class, person_add_person, person_add_books } from './controller/personController.js'
+import { add_maps, get_maps } from './controller/mapsController.js'
 import CheckAuth from './utils/CheckAuth.js'
 
 dotenv.config()
@@ -54,6 +50,9 @@ app.get('/person', person_get)
 app.post('/person/add/class', person_add_class)
 app.post('/person/add/person', person_add_person)
 app.post('/person/add/books', person_add_books)
+
+app.get('/maps', get_maps)
+app.post('/maps/add/placemark', add_maps)
 
 app.get('/comics/:collection_comics', comics_get)
 app.post('/comics/add', comics_add)
