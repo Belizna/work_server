@@ -14,6 +14,7 @@ import MiniatureModel from "../models/Miniature.js"
 import RepairModel from "../models/Repair.js";
 import CardModel from "../models/Card.js"
 import BeybladeModel from '../models/Beyblade.js'
+import CreditStaticHistory from '../models/CreditStaticHistory.js'
 
 export const book_static = async (req, res) => {
 
@@ -139,6 +140,8 @@ export const credit_static = async (req, res) => {
         var groupYearEarlyPay = []
         var earlyPayGroup = [];
 
+        const creditHistory = await CreditStaticHistory.find()
+
         const earlyPay = await EarlyPaymentsModel.find()
         const credit = await CreditModel.find({ credit_name: 'Ипотека' })
         const payment = await PaymentsModel.find()
@@ -195,6 +198,7 @@ export const credit_static = async (req, res) => {
             data1,
             data2,
             data3,
+            creditHistory
         })
     }
     catch (err) {

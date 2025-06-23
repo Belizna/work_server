@@ -4,7 +4,6 @@ import PulseModel from '../models/Pulse.js'
 export const add_maps = async (req, res) => {
     try {
 
-        console.log(req.body)
         var daysUTC_3 = new Date(req.body.date_maps)
         daysUTC_3.setDate(daysUTC_3.getDate() + 1)
         daysUTC_3 = daysUTC_3.toISOString().slice(0, 10).split("-").reverse().join("-")

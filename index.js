@@ -28,6 +28,7 @@ import { menu_get } from './controller/menuController.js'
 import { get_beyblade, edit_beyblade, delete_beyblade, add_beyblade } from './controller/beybladeController.js'
 import { person_get, person_add_class, person_add_person, person_add_books } from './controller/personController.js'
 import { add_maps, get_maps } from './controller/mapsController.js'
+import { credit_add_history,credit_get_history } from './controller/creditStaticHistoryController.js'
 import CheckAuth from './utils/CheckAuth.js'
 
 dotenv.config()
@@ -94,6 +95,9 @@ app.get('/credit/loan', loan_get)
 app.post('/credit/loan/add', loan_add)
 app.patch('/credit/loan/edit/:id', loan_edit)
 app.delete('/credit/loan/delete/:id', loan_delete)
+
+app.post('/credit/history/add', credit_add_history)
+app.get('/credit/history/', credit_get_history)
 
 app.get('/credit/early_payment/', get_early_payment)
 app.post('/credit/early_payment/', earlyPaymentsEditValidator, add_early_payment)
