@@ -137,10 +137,53 @@ export const credit_static = async (req, res) => {
         var remainder = 0
         var paid_fix = 0
 
+        var procentDate = []
+        var procentSumm = []
+        var procentEconom = []
+
         var groupYearEarlyPay = []
         var earlyPayGroup = [];
 
         const creditHistory = await CreditStaticHistory.find()
+
+        const procent_dateO = creditHistory[0].procent_date.filter(arr => arr.category === 'Осталось')
+
+        for (var i = 0; i < procent_dateO.length; i++) {
+
+            if (i + 1 === procent_dateO.length) break;
+
+            procentDate.push({
+                dateOld: procent_dateO[i].date,
+                dateNew: procent_dateO[i + 1].date,
+                diffValue: procent_dateO[i].value - procent_dateO[i + 1].value
+            })
+        }
+
+        const procent_summO = creditHistory[0].procent_summ.filter(arr => arr.category === 'Осталось')
+
+        for (var i = 0; i < procent_summO.length; i++) {
+
+            if (i + 1 === procent_summO.length) break;
+
+            procentSumm.push({
+                dateOld: procent_summO[i].date,
+                dateNew: procent_summO[i + 1].date,
+                diffValue: procent_summO[i].value - procent_summO[i + 1].value
+            })
+        }
+
+        const procentEconomO = creditHistory[0].procent_econom.filter(arr => arr.category === 'Переплата')
+
+        for (var i = 0; i < procentEconomO.length; i++) {
+
+            if (i + 1 === procentEconomO.length) break;
+
+            procentEconom.push({
+                dateOld: procentEconomO[i].date,
+                dateNew: procentEconomO[i + 1].date,
+                diffValue: procentEconomO[i].value - procentEconomO[i + 1].value
+            })
+        }
 
         const earlyPay = await EarlyPaymentsModel.find()
         const credit = await CreditModel.find({ credit_name: 'Ипотека' })
@@ -186,6 +229,9 @@ export const credit_static = async (req, res) => {
         data3.push({ name: 'Выплачено', value: count_month_paid }, { name: 'Осталось', value: count_month_remainder })
 
         res.status(200).send({
+            procentDate,
+            procentSumm,
+            procentEconom,
             earlyPayGroup,
             paid,
             remainder,
