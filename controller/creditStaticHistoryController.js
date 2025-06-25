@@ -19,7 +19,7 @@ export const credit_add_history = async (req, res) => {
 
         for (var i = 1; i >= 0; i--) {
             var modelStatic = {
-                date: new Date().toLocaleDateString(),
+                date: new Date().toLocaleDateString('en-GB'),
                 value: arr[0].procent_date[i].value,
                 category: arr[0].procent_date[i].name
             }
@@ -28,7 +28,7 @@ export const credit_add_history = async (req, res) => {
 
         for (var i = 1; i >= 0; i--) {
             var modelStatic = {
-                date: new Date().toLocaleDateString(),
+                date: new Date().toLocaleDateString('en-GB'),
                 value: arr[0].procent_summ[i].value,
                 category: arr[0].procent_summ[i].name
             }
@@ -37,7 +37,7 @@ export const credit_add_history = async (req, res) => {
 
         for (var i = 1; i >= 0; i--) {
             var modelStatic = {
-                date: new Date().toLocaleDateString(),
+                date: new Date().toLocaleDateString('en-GB'),
                 value: arr[0].procent_econom[i].value,
                 category: arr[0].procent_econom[i].name
             }
