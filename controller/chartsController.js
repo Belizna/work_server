@@ -765,17 +765,19 @@ export const main_static = async (req, res) => {
                     }
                 }
             },
-            { $group: { _id: "$category_pulse", children: { $push: { title: "$name_pulse" } } } }
+            { $group: { _id: "$category_pulse", children: { $push: { title: "$name_pulse", date: { $dateToString: { format: "%Y-%m-%d", date: "$date_pulse" } } } } } }
         ])
 
         books_list.map((obj) => {
+            var child = []
+            obj.children.map(o => child.push({ title: o.date + ' — ' + o.title }))
             obj._id === 'miniature' ?
-                miniature_pulse.push({ title: 'Миниатюры', children: obj.children }) :
-                obj._id === 'games' ? games_pulse.push({ title: 'Игры', children: obj.children }) :
-                    obj._id === 'books' ? books_pulse.push({ title: 'Книги', children: obj.children }) :
-                        obj._id === 'books_price' ? books_price_pulse.push({ title: 'Купленные книги', children: obj.children }) :
-                            obj._id === 'games_price' ? games_price_pulse.push({ title: 'Купленные игры', children: obj.children }) :
-                                obj._id === 'miniatures_price' ? miniatures_price_pulse.push({ title: 'Купленные миниатюры', children: obj.children }) :
+                miniature_pulse.push({ title: 'Миниатюры', children: child }) :
+                obj._id === 'games' ? games_pulse.push({ title: 'Игры', children: child }) :
+                    obj._id === 'books' ? books_pulse.push({ title: 'Книги', children: child }) :
+                        obj._id === 'books_price' ? books_price_pulse.push({ title: 'Купленные книги', children: child }) :
+                            obj._id === 'games_price' ? games_price_pulse.push({ title: 'Купленные игры', children: child }) :
+                                obj._id === 'miniatures_price' ? miniatures_price_pulse.push({ title: 'Купленные миниатюры', child }) :
                                     obj
         })
 
