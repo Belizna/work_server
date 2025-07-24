@@ -15,6 +15,7 @@ import RepairModel from "../models/Repair.js";
 import CardModel from "../models/Card.js"
 import BeybladeModel from '../models/Beyblade.js'
 import CreditStaticHistory from '../models/CreditStaticHistory.js'
+import JobsMounthModel from '../models/JobsMounth.js'
 
 export const book_static = async (req, res) => {
 
@@ -302,14 +303,24 @@ export const compare_statistic = async (req, res) => {
 
         var statisticYearNumber_1 = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
         var statisticYearNumber_2 = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
-        var statisticName = ['Пройдено игр', 'Приобретено игр',
-            'Потрачено на игры', 'Потрачено времени на игры',
-            'Заработок', 'Подработки',
-            'Выплачено ипотеки', 'Внесено досрочных платежей',
-            'Прочитано книг', 'Приобретено книг',
-            'Потрачено на книги', 'Приобретено волчков',
-            'Потрачено на волчки', 'Приобретено карточек',
-            'Потрачено на карточки', 'Покрашено миниатюр', 'Потрачено на хобби']
+        var statisticName = [
+            'Пройдено игр',
+            'Приобретено игр',
+            'Потрачено на игры',
+            'Потрачено времени на игры',
+            'Заработок',
+            'Подработки',
+            'Выплачено ипотеки',
+            'Внесено досрочных платежей',
+            'Прочитано книг',
+            'Приобретено книг',
+            'Потрачено на книги',
+            'Приобретено волчков',
+            'Потрачено на волчки',
+            'Приобретено карточек',
+            'Потрачено на карточки',
+            'Покрашено миниатюр',
+            'Потрачено на хобби']
 
         var statisticYearNumber1 = []
         var statisticYearNumber2 = []
@@ -698,6 +709,8 @@ export const main_static = async (req, res) => {
         var hobbyAssemble = []
         var beybladeAssemble = []
         var cardsOtherCollection = []
+
+        const jobsMonth = await JobsMounthModel.find({ modal_view: false }).limit(1)
 
         //лист для покупки книг и количество
         const books_list_price = await BookModel.aggregate([
@@ -1131,6 +1144,7 @@ export const main_static = async (req, res) => {
             { type: 'Прочитано книг', value: summBooks })
 
         res.status(200).json({
+            jobsMonth,
             gamesAssemble,
             booksAssemble,
             hobbyAssemble,

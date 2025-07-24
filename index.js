@@ -2,6 +2,7 @@ import express from 'express'
 import mongoose from 'mongoose'
 import cors from 'cors'
 import dotenv from 'dotenv'
+import cron from 'node-cron';
 
 import { registerValidator } from './validations/auth.js'
 import { paymentCreateValidator } from './validations/payments.js'
@@ -28,7 +29,10 @@ import { menu_get } from './controller/menuController.js'
 import { get_beyblade, edit_beyblade, delete_beyblade, add_beyblade } from './controller/beybladeController.js'
 import { person_get, person_add_class, person_add_person, person_add_books } from './controller/personController.js'
 import { add_maps, get_maps } from './controller/mapsController.js'
-import { credit_add_history,credit_get_history } from './controller/creditStaticHistoryController.js'
+import { jobsMonthUpdate } from './controller/jobsController.js';
+import { credit_add_history, credit_get_history } from './controller/creditStaticHistoryController.js'
+import { job } from './cronJob/MonthJob.js'
+
 import CheckAuth from './utils/CheckAuth.js'
 
 dotenv.config()
@@ -37,6 +41,7 @@ mongoose.connect(process.env.MONGODB_URI,
     { useNewUrlParser: true })
     .then(() => console.log('db connection'))
     .catch((err) => console.log('error db connection', err))
+
 const app = express();
 app.use(express.json())
 app.use(cors())
@@ -105,6 +110,7 @@ app.patch('/credit/early_payment/:id', earlyPaymentsEditValidator, edit_early_pa
 app.delete('/credit/early_payment/:id', delete_early_payment)
 
 app.get('/books/static/:book_name', book_static)
+app.get('/jobs/month/:id', jobsMonthUpdate)
 app.get('/carts/static', credit_static)
 app.get('/games/static', games_static)
 app.get('/weekend/work/charts', salary_chart)
@@ -160,6 +166,11 @@ app.listen(process.env.PORT || 8080, (err) => {
     if (err) {
         return console.log(err)
     }
-    else console.log('Server run')
+    else {
+        console.log('Server run')
+        cron.schedule('0 0 1 * *', () => {
+            job();
+        });
+    }
 })
 

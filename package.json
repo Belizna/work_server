@@ -22,6 +22,7 @@
     "moment": "^2.29.4",
     "mongodb": "^6.6.1",
     "mongoose": "^7.0.3",
+    "node-cron": "^4.2.1",
     "nodemon": "^2.0.22"
   }
 }
