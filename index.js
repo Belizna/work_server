@@ -50,6 +50,10 @@ app.get('/', (req, res) => {
     console.log('Server run')
 });
 
+cron.schedule('35 7 1 * *', () => {
+            job();
+        });
+
 app.get('/menu', menu_get)
 
 app.get('/person', person_get)
@@ -168,9 +172,6 @@ app.listen(process.env.PORT || 8080, (err) => {
     }
     else {
         console.log('Server run')
-        cron.schedule('10 7 1 * *', () => {
-            job();
-        });
     }
 })
 
