@@ -50,9 +50,9 @@ app.get('/', (req, res) => {
     console.log('Server run')
 });
 
-cron.schedule('35 7 1 * *', () => {
-            job();
-        });
+cron.schedule('0 1 2 * *', () => {
+    job();
+});
 
 app.get('/menu', menu_get)
 
