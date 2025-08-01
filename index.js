@@ -168,7 +168,7 @@ app.listen(process.env.PORT || 8080, (err) => {
     }
     else {
         console.log('Server run')
-        cron.schedule('0 0 1 * *', () => {
+        cron.schedule('10 7 1 * *', () => {
             job();
         });
     }
