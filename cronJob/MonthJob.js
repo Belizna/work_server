@@ -4,6 +4,7 @@ import JobsMonthModel from '../models/JobsMounth.js'
 
 export const job = async (req, res) => {
 
+    console.log('Start job')
     var statisticMonth_1 = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
     var statisticMonth_2 = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
 
