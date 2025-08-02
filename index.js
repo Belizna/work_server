@@ -38,7 +38,7 @@ import CheckAuth from './utils/CheckAuth.js'
 dotenv.config()
 
 mongoose.connect(process.env.MONGODB_URI,
-    { useNewUrlParser: true })
+    { useNewUrlParser: true, minPoolSize: 10 })
     .then(() => console.log('db connection'))
     .catch((err) => console.log('error db connection', err))
 
