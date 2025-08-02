@@ -47,10 +47,12 @@ app.use(express.json())
 app.use(cors())
 
 app.get('/', (req, res) => {
-    console.log('Server run')
+    res.status(200).json(
+        'server run'
+    )
 });
 
-cron.schedule('0 1 2 * *', () => {
+cron.schedule(process.env.CRON_JOB, () => {
     job();
 });
 
