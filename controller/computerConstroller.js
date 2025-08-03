@@ -3,9 +3,23 @@ import ComputerModel from "../models/Computer.js"
 export const get_computer = async (req, res) => {
     try {
 
-        const category = ['Процессор', 'Материнская плата', 'Блок питания', 'Корпус', 'Видеокарта',
-            'Охлаждение процессора', 'Оперативная память', 'Накопитель', 'Звуковая карта',
-            'Монитор', 'Клавиатура', 'Мышь', 'Наушники', 'Микрофон', 'Стол', 'Кресло']
+        const category = [
+            { text: 'Процессор', value: 'Процессор' },
+            { text: 'Материнская плата', value: 'Материнская плата' },
+            { text: 'Блок питания', value: 'Блок питания' },
+            { text: 'Корпус', value: 'Корпус' },
+            { text: 'Видеокарта', value: 'Видеокарта' },
+            { text: 'Охлаждение процессора', value: 'Охлаждение процессора' },
+            { text: 'Оперативная память', value: 'Оперативная память' },
+            { text: 'Накопитель', value: 'Накопитель' },
+            { text: 'Звуковая карта', value: 'Звуковая карта' },
+            { text: 'Монитор', value: 'Монитор' },
+            { text: 'Клавиатура', value: 'Клавиатура' },
+            { text: 'Мышь', value: 'Мышь' },
+            { text: 'Наушники', value: 'Наушники' },
+            { text: 'Микрофон', value: 'Микрофон' },
+            { text: 'Стол', value: 'Стол' },
+            { text: 'Кресло', value: 'Кресло' }]
 
 
         const computer = await ComputerModel.find()
@@ -36,7 +50,7 @@ export const edit_computer = async (req, res) => {
                 components_name: req.body.components_name,
                 components_summ: req.body.components_summ,
                 category: req.body.category,
-                date_buy : ((req.body.date_buy).substr(0, 10)).split("-").reverse().join("-")
+                date_buy: ((req.body.date_buy).substr(0, 10)).split("-").reverse().join("-")
             })
         res.status(200).json({
             computer_edit
@@ -72,7 +86,7 @@ export const delete_computer = async (req, res) => {
     }
 }
 
-export const add_computer= async (req, res) => {
+export const add_computer = async (req, res) => {
     try {
 
         var daysUTC_3 = new Date(req.body.date_buy)
@@ -83,7 +97,7 @@ export const add_computer= async (req, res) => {
             components_name: req.body.components_name,
             components_summ: req.body.components_summ,
             category: req.body.category,
-            date_buy: req.params.date_buy
+            date_buy: daysUTC_3
         })
 
         const computer = await computerDoc.save()

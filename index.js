@@ -25,6 +25,7 @@ import { get_card, add_card, edit_card, delete_card, get_card_listgroup } from '
 import { repair_add, repair_get, repair_edit, repair_delete, repair_sum } from './controller/repaircontroller.js'
 import { comics_add, comics_delete, comics_get, comics_edit } from './controller/comicsController.js'
 import { loan_get, loan_add, loan_edit, loan_delete } from './controller/LoanController.js'
+import { add_computer, delete_computer, get_computer, edit_computer } from './controller/computerConstroller.js'
 import { menu_get } from './controller/menuController.js'
 import { get_beyblade, edit_beyblade, delete_beyblade, add_beyblade } from './controller/beybladeController.js'
 import { person_get, person_add_class, person_add_person, person_add_books } from './controller/personController.js'
@@ -163,6 +164,11 @@ app.get('/games/library/:library_name', get_games)
 app.post('/games/library/add', add_games)
 app.patch('/games/library/edit/:id', edit_games)
 app.delete('/games/library/delete/:id', delete_games)
+
+app.get('/computer', get_computer)
+app.post('/computer/add', add_computer)
+app.patch('/computer/edit/:id', edit_computer)
+app.delete('/computer/delete/:id', delete_computer)
 
 app.post('/auth/register/', registerValidator, register);
 app.post('/auth/login/', registerValidator, login)
