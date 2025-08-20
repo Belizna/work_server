@@ -1,6 +1,7 @@
 import express from 'express'
 import mongoose from 'mongoose'
 import dotenv from 'dotenv'
+import cors from 'cors'
 
 import { registerValidator } from './validations/auth.js'
 
@@ -18,6 +19,7 @@ mongoose.connect(process.env.MONGODB_URI,
 
 const app = express();
 app.use(express.json())
+app.use(cors())
 
 app.get('/', (req, res) => {
     res.status(200).json(
