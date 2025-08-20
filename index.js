@@ -7,6 +7,9 @@ import { registerValidator } from './validations/auth.js'
 
 import { register, login, me } from './controller/authController.js'
 import { assignment_add, assignment_get, assignment_edit, assignment_delete } from './controller/assignmentController.js'
+import { daily_add, daily_get, daily_edit, daily_delete } from './controller/dailyController.js'
+import { meeting_add, meeting_get, meeting_edit, meeting_delete } from './controller/meetingController.js'
+import { meetingCalendar_add, meetingCalendar_get, meetingCalendar_edit, meetingCalendar_delete } from './controller/meetingCalendarController.js'
 
 import CheckAuth from './utils/CheckAuth.js'
 
@@ -26,6 +29,21 @@ app.get('/', (req, res) => {
         'server run'
     )
 });
+
+app.post('/daily/add', daily_add);
+app.get('/daily', daily_get)
+app.delete('/daily/delete/:id', daily_delete);
+app.patch('/daily/edit/:id', daily_edit)
+
+app.post('/meeting/add', meeting_add);
+app.get('/meeting', meeting_get)
+app.delete('/meeting/delete/:id', meeting_delete);
+app.patch('/meeting/edit/:id', meeting_edit)
+
+app.post('/meetingCalendar/add', meetingCalendar_add);
+app.get('/meetingCalendar', meetingCalendar_get)
+app.delete('/meetingCalendar/delete/:id', meetingCalendar_delete);
+app.patch('/meetingCalendar/edit/:id', meetingCalendar_edit)
 
 app.post('/assignment/add/:assignment_employee', assignment_add);
 app.get('/assignment/:assignment_employee', assignment_get)
