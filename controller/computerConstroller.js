@@ -3,6 +3,10 @@ import ComputerModel from "../models/Computer.js"
 export const get_computer = async (req, res) => {
     try {
 
+        var statistic = [
+            {}
+        ]
+
         const category = [
             { text: 'Процессор', value: 'Процессор' },
             { text: 'Материнская плата', value: 'Материнская плата' },
@@ -22,13 +26,29 @@ export const get_computer = async (req, res) => {
             { text: 'Стол', value: 'Стол' },
             { text: 'Кресло', value: 'Кресло' }]
 
-
         const computer = await ComputerModel.find()
 
         if (!computer) {
             return res.status(404).send({
                 message: 'Комплектующие не найдены'
             })
+        }
+
+
+        for (var i = 0; i < computer.length; i++) {
+            if (computer[i].category === "Звуковая карта" ||
+                computer[i].category === "Монитор" ||
+                computer[i].category === "Клавиатура" ||
+                computer[i].category === "Мышь" ||
+                computer[i].category === "Наушники" ||
+                computer[i].category === "Микрофон" ||
+                computer[i].category === "Стол" ||
+                computer[i].category === "Кресло") {
+                console.log('net')
+            }
+            else {
+                console.log('da')
+            }
         }
 
         res.status(200).json({
@@ -94,12 +114,16 @@ export const add_computer = async (req, res) => {
         daysUTC_3.setDate(daysUTC_3.getDate() + 1)
         daysUTC_3 = daysUTC_3.toISOString().slice(0, 10).split("-").reverse().join("-")
 
+        console.log(req.body)
         const computerDoc = new ComputerModel({
             components_name: req.body.components_name,
             components_summ: req.body.components_summ,
             category: req.body.category,
-            date_buy: daysUTC_3
+            date_buy: daysUTC_3,
+            categorychapter: req.params.categorychapter
         })
+
+        console.log(computerDoc)
 
         const computer = await computerDoc.save()
 

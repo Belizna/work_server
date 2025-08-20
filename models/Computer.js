@@ -15,6 +15,11 @@ const ComputerSchema = new mongoose.Schema({
         type: String,
         required: true
     },
+    categorychapter:
+    {
+        type: String,
+        required: true
+    },
     date_buy: {
         type: String,
         required: true
