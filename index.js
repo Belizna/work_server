@@ -10,6 +10,7 @@ import { assignment_add, assignment_get, assignment_edit, assignment_delete } fr
 import { daily_add, daily_get, daily_edit, daily_delete } from './controller/dailyController.js'
 import { meeting_add, meeting_get, meeting_edit, meeting_delete } from './controller/meetingController.js'
 import { meetingCalendar_add, meetingCalendar_get, meetingCalendar_edit, meetingCalendar_delete } from './controller/meetingCalendarController.js'
+import { gantt_get, gantt_edit, gantt_add } from './controller/ganttController.js'
 
 import CheckAuth from './utils/CheckAuth.js'
 
@@ -29,6 +30,10 @@ app.get('/', (req, res) => {
         'server run'
     )
 });
+
+app.get('/gantt/:assignment_employee', gantt_get)
+app.patch('/gantt/edit/:id', gantt_edit)
+app.post('/gantt/add/:assignment_employee', gantt_add);
 
 app.post('/daily/add', daily_add);
 app.get('/daily', daily_get)

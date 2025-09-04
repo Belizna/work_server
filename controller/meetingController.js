@@ -56,11 +56,11 @@ export const meeting_delete = async (req, res) => {
 
 export const meeting_edit = async (req, res) => {
     try {
-
         const meeting_edit = await MeetingModel.findByIdAndUpdate(req.params.id, {
             meeting_date: ((req.body.meeting_date).substr(0, 10)).split("-").reverse().join("-"),
             meeting_agenda: req.body.meeting_agenda,
-            meeting_protocol: req.body.meeting_protocol
+            meeting_protocol: req.body.meeting_protocol,
+            meeting_status: req.body.meeting_status,
         })
 
         res.status(200).json({

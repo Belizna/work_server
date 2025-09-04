@@ -3,7 +3,7 @@ import DailyModel from '../models/Daily.js'
 
 export const daily_get = async (req, res) => {
     try {
-        const daily = await DailyModel.find()
+        const daily = await DailyModel.find().sort({daily_date: -1})
 
         res.status(200).json({ daily })
     }
