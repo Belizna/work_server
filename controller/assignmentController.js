@@ -103,7 +103,6 @@ export const assignment_edit = async (req, res) => {
             ]
         }, {
             $set: {
-                name: req.body.assignment_name,
                 status: req.body.assignment_status
             }
         })
