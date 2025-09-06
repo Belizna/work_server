@@ -2,6 +2,53 @@ import AssignmentModel from '../models/Assignment.js'
 import GanttModel from '../models/Gantt.js'
 import moment from 'moment/moment.js'
 
+export const assignment_get_charts = async (req, res) => {
+    try {
+        var chartsTasks = [{
+            type: 'Выполнено',
+            value: 0,
+        }, {
+            type: 'Не Выполнено',
+            value: 0,
+        }]
+
+        var chartsPriority = [{
+            type: 'Низкий',
+            value: 0,
+        }, {
+            type: 'Средний',
+            value: 0,
+        }, {
+            type: 'Высокий',
+            value: 0,
+        }]
+
+        const assignment = await AssignmentModel.
+            find({ assignment_employee: req.params.assignment_employee }).sort({ assignment_date: 1 })
+
+        for (var i = 0; i < assignment.length; i++) {
+            if (assignment[i].assignment_priority === "Средний") {
+                chartsPriority[1].value = chartsPriority[1].value + 1
+            } else if (assignment[i].assignment_priority === "Низкий") {
+                chartsPriority[0].value = chartsPriority[0].value + 1
+            } else {
+                chartsPriority[2].value = chartsPriority[2].value + 1
+            }
+
+            if (assignment[i].assignment_status === "Выполнено") {
+                chartsTasks[0].value = chartsTasks[0].value + 1
+            } else {
+                chartsTasks[1].value = chartsTasks[1].value + 1
+            }
+        }
+
+        res.status(200).json({ chartsTasks, chartsPriority })
+    }
+    catch (err) {
+        res.status(500).json({ ...err })
+    }
+}
+
 export const assignment_get = async (req, res) => {
     try {
         const assignment = await AssignmentModel.

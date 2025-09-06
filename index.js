@@ -6,7 +6,7 @@ import cors from 'cors'
 import { registerValidator } from './validations/auth.js'
 
 import { register, login, me } from './controller/authController.js'
-import { assignment_add, assignment_get, assignment_edit, assignment_delete } from './controller/assignmentController.js'
+import { assignment_add, assignment_get, assignment_edit, assignment_delete, assignment_get_charts } from './controller/assignmentController.js'
 import { daily_add, daily_get, daily_edit, daily_delete } from './controller/dailyController.js'
 import { meeting_add, meeting_get, meeting_edit, meeting_delete } from './controller/meetingController.js'
 import { meetingCalendar_add, meetingCalendar_get, meetingCalendar_edit, meetingCalendar_delete } from './controller/meetingCalendarController.js'
@@ -54,6 +54,7 @@ app.post('/assignment/add/:assignment_employee', assignment_add);
 app.get('/assignment/:assignment_employee', assignment_get)
 app.delete('/assignment/delete/:id', assignment_delete);
 app.patch('/assignment/edit/:id', assignment_edit)
+app.get('/assignment/charts/:assignment_employee', assignment_get_charts)
 
 app.post('/auth/register/', registerValidator, register);
 app.post('/auth/login/', registerValidator, login)
