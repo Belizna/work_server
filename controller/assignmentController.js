@@ -89,7 +89,6 @@ export const assignment_add = async (req, res) => {
             name: req.body.assignment_name,
             start: daysUTC_from,
             end: daysUTC_to,
-            progress: 5,
             status: 'Не Выполнено',
             assignment_employee: req.params.assignment_employee
         })
