@@ -6,8 +6,27 @@ export const gantt_get = async (req, res) => {
         var gantt = []
         var ganttSelector = []
 
+        function sortTasksByHierarchy(tasks) {
+            function collectChildren(parentId) {
+                return tasks
+                    .filter(t => t.project === parentId)
+                    .sort((a, b) => a.start - b.start)
+                    .flatMap(child => [child, ...collectChildren(child.id)]);
+            }
+            const roots = tasks.filter(t => !t.project);
+
+            let result = [];
+            roots.forEach(root => {
+                result.push(root);
+                result = result.concat(collectChildren(root.id));
+            });
+
+            return result;
+        }
+
         const ganttEntity = await GanttModel
             .find({ assignment_employee: req.params.assignment_employee, status: 'Не Выполнено' })
+
 
         ganttEntity.map(data => {
             gantt.push({
@@ -17,6 +36,7 @@ export const gantt_get = async (req, res) => {
                 start: data.start,
                 end: data.end,
                 progress: data.progress,
+                project: data?.project,
                 dependencies: [data?.dependencies] || []
             }),
                 ganttSelector.push({
@@ -24,6 +44,8 @@ export const gantt_get = async (req, res) => {
                     label: data.name,
                 })
         })
+
+        gantt = sortTasksByHierarchy(gantt)
 
 
         res.status(200).json({ gantt, ganttSelector })
@@ -39,7 +61,8 @@ export const gantt_edit = async (req, res) => {
         const gantt_edit = await GanttModel.updateMany({ id: req.params.id }, {
             $set: {
                 progress: req.body.progress,
-                end: req.body.end
+                end: req.body.end,
+                start: req.body.start
             }
         })
 
@@ -70,6 +93,7 @@ export const gantt_add = async (req, res) => {
             progress: 5,
             status: 'Не Выполнено',
             dependencies: req.body.dependencies,
+            project: req.body.dependencies,
             assignment_employee: req.params.assignment_employee
         })
 

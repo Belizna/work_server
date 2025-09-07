@@ -25,6 +25,10 @@ const GanttSchema = new mongoose.Schema({
         type: Number,
         required: true
     },
+    project: {
+        type: String,
+        required: false
+    },
     dependencies: {
         type: String,
         required: false

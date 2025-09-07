@@ -85,7 +85,7 @@ export const assignment_add = async (req, res) => {
 
         const granttDoc = new GanttModel({
             id: assignment._id.toString(),
-            type: 'task',
+            type: 'project',
             name: req.body.assignment_name,
             start: daysUTC_from,
             end: daysUTC_to,
@@ -145,8 +145,17 @@ export const assignment_edit = async (req, res) => {
         await GanttModel.updateMany({
             $or: [
                 { id: req.params.id },
+            ]
+        }, {
+            $set: {
+                status: req.body.assignment_status,
+                end: req.body.assignment_date
+            }
+        })
+
+        await GanttModel.updateMany({
+            $or: [
                 { dependencies: req.params.id },
-                //{ dependencies: req.params.id + 'task' }
             ]
         }, {
             $set: {
