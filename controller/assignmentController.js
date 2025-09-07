@@ -146,7 +146,7 @@ export const assignment_edit = async (req, res) => {
             $or: [
                 { id: req.params.id },
                 { dependencies: req.params.id },
-                { dependencies: req.params.id + 'task' }
+                //{ dependencies: req.params.id + 'task' }
             ]
         }, {
             $set: {

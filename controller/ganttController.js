@@ -36,12 +36,7 @@ export const gantt_get = async (req, res) => {
 export const gantt_edit = async (req, res) => {
     try {
 
-        const gantt_edit = await GanttModel.updateMany({
-            $or: [
-                { id: req.params.id },
-                { name: req.body.name },
-            ]
-        }, {
+        const gantt_edit = await GanttModel.updateMany({ id: req.params.id }, {
             $set: {
                 progress: req.body.progress,
                 end: req.body.end
@@ -67,7 +62,7 @@ export const gantt_add = async (req, res) => {
         //var id = req.body.dependencies+'task'
 
         const granttDoc = new GanttModel({
-            id: req.body.dependencies + 'task',
+            id: crypto.randomUUID(),
             type: 'task',
             name: req.body.name,
             start: daysUTC_from,
