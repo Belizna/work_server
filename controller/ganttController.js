@@ -36,7 +36,12 @@ export const gantt_get = async (req, res) => {
 export const gantt_edit = async (req, res) => {
     try {
 
-        const gantt_edit = await GanttModel.updateMany({ id: req.params.id }, {
+        const gantt_edit = await GanttModel.updateMany({
+            $or: [
+                { id: req.params.id },
+                { name: req.body.name },
+            ]
+        }, {
             $set: {
                 progress: req.body.progress,
                 end: req.body.end
