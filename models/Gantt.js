@@ -23,7 +23,7 @@ const GanttSchema = new mongoose.Schema({
     },
     progress: {
         type: Number,
-        required: true
+        required: false
     },
     project: {
         type: String,

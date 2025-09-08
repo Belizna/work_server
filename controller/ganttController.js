@@ -37,7 +37,12 @@ export const gantt_get = async (req, res) => {
                 end: data.end,
                 progress: data.progress,
                 project: data?.project,
-                dependencies: [data?.dependencies] || []
+                dependencies: [data?.dependencies] || [],
+                styles: {
+                    backgroundColor: "#1ab935ff",  // цвет фона project-бара
+                    progressColor: "#3890e7ff",    // цвет прогресса
+                    textColor: "#000000"         // цвет текста (черный)
+                }
             }),
                 ganttSelector.push({
                     value: data.id,
