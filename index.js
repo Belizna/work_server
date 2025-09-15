@@ -12,7 +12,7 @@ import { meeting_add, meeting_get, meeting_edit, meeting_delete } from './contro
 import { meetingCalendar_add, meetingCalendar_get, meetingCalendar_edit, meetingCalendar_delete } from './controller/meetingCalendarController.js'
 import { gantt_get, gantt_edit, gantt_add } from './controller/ganttController.js'
 import { vocation_get, vocation_edit, vocation_add, vocation_get_gantt } from './controller/vocationController.js'
-
+import { oneToOne_get, oneToOne_edit, oneToOne_add, oneToOne_delete } from './controller/oneToOneController.js'
 import CheckAuth from './utils/CheckAuth.js'
 
 dotenv.config()
@@ -46,6 +46,11 @@ app.post('/daily/add', daily_add);
 app.get('/daily', daily_get)
 app.delete('/daily/delete/:id', daily_delete);
 app.patch('/daily/edit/:id', daily_edit)
+
+app.post('/oneToOne/add/:assignment_employee', oneToOne_add);
+app.get('/oneToOne/:assignment_employee', oneToOne_get)
+app.delete('/oneToOne/delete/:id', oneToOne_delete);
+app.patch('/oneToOne/edit/:id', oneToOne_edit)
 
 app.post('/meeting/add', meeting_add);
 app.get('/meeting', meeting_get)

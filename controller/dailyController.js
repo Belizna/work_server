@@ -1,9 +1,16 @@
 import DailyModel from '../models/Daily.js'
-
+import moment from 'moment'
 
 export const daily_get = async (req, res) => {
     try {
-        const daily = await DailyModel.find().sort({daily_date: -1})
+        const daily = await DailyModel.find().sort({ daily_date: -1 })
+
+        daily.sort((a, b) => {
+            const dateA = moment(a.daily_date, "DD-MM-YYYY").toDate();
+            const dateB = moment(b.daily_date, "DD-MM-YYYY").toDate();
+
+            return dateB - dateA;
+        });
 
         res.status(200).json({ daily })
     }
@@ -14,7 +21,7 @@ export const daily_get = async (req, res) => {
 
 export const daily_add = async (req, res) => {
     try {
-        
+
         var daysUTC_3 = new Date(req.body.daily_date)
         daysUTC_3.setDate(daysUTC_3.getDate() + 1)
         daysUTC_3 = daysUTC_3.toISOString().slice(0, 10).split("-").reverse().join("-")
@@ -38,8 +45,8 @@ export const daily_add = async (req, res) => {
 export const daily_delete = async (req, res) => {
     try {
 
-        const deleteDaily= await DailyModel.findByIdAndDelete(req.params.id)
-        
+        const deleteDaily = await DailyModel.findByIdAndDelete(req.params.id)
+
         if (!deleteDaily) {
             return res.status(404).send({
                 message: 'Такой задачи нет'

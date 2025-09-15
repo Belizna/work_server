@@ -52,7 +52,14 @@ export const assignment_get_charts = async (req, res) => {
 export const assignment_get = async (req, res) => {
     try {
         const assignment = await AssignmentModel.
-            find({ assignment_employee: req.params.assignment_employee }).sort({ assignment_date: 1 })
+            find({ assignment_employee: req.params.assignment_employee })
+
+        assignment.sort((a, b) => {
+            const dateA = moment(a.assignment_date, "DD-MM-YYYY").toDate();
+            const dateB = moment(b.assignment_date, "DD-MM-YYYY").toDate();
+
+            return dateA - dateB;
+        });
 
         res.status(200).json({ assignment })
     }
