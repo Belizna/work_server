@@ -11,7 +11,7 @@ import { daily_add, daily_get, daily_edit, daily_delete } from './controller/dai
 import { meeting_add, meeting_get, meeting_edit, meeting_delete } from './controller/meetingController.js'
 import { meetingCalendar_add, meetingCalendar_get, meetingCalendar_edit, meetingCalendar_delete } from './controller/meetingCalendarController.js'
 import { gantt_get, gantt_edit, gantt_add } from './controller/ganttController.js'
-import { vocation_get, vocation_edit, vocation_add, vocation_get_gantt } from './controller/vocationController.js'
+import { vocation_get, vocation_edit, vocation_delete, vocation_add, vocation_get_gantt } from './controller/vocationController.js'
 import { oneToOne_get, oneToOne_edit, oneToOne_add, oneToOne_delete } from './controller/oneToOneController.js'
 import CheckAuth from './utils/CheckAuth.js'
 
@@ -36,11 +36,11 @@ app.get('/gantt/:assignment_employee', gantt_get)
 app.patch('/gantt/edit/:id', gantt_edit)
 app.post('/gantt/add/:assignment_employee', gantt_add);
 
-app.get('/vocation', vocation_get)
-app.get('/vocation/gantt', vocation_get_gantt)
+app.get('/vocation/:year', vocation_get)
+app.get('/vocation/gantt/:year', vocation_get_gantt)
 app.patch('/vocation/edit/:id', vocation_edit)
 app.post('/vocation/add/', vocation_add);
-app.post('/vocation/delete/:id', gantt_add);
+app.delete('/vocation/delete/:id', vocation_delete);
 
 app.post('/daily/add', daily_add);
 app.get('/daily', daily_get)

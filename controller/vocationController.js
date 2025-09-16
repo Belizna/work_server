@@ -5,7 +5,17 @@ export const vocation_get = async (req, res) => {
     try {
 
         var vocation = []
-        const vocationEntity = await VocationModel.find()
+
+        const vocationEntity = await VocationModel.aggregate([
+            {
+                $match: {
+                    employee_vocation_to: {
+                        $gte: `${req.params.year}-01-01`,
+                        $lte: `${req.params.year}-12-31`
+                    }
+                }
+            }
+        ])
 
         var vocationGroupDays = [
             { assignment_employee: 'Жданов Александр', days_vocation: 0 },
@@ -16,6 +26,7 @@ export const vocation_get = async (req, res) => {
             { assignment_employee: 'Салеев Илья', days_vocation: 0 },
             { assignment_employee: 'Ермолаев Ян', days_vocation: 0 }
         ]
+
         const employeeSelector = [
             { value: "Жданов Александр", label: "Жданов Александр" },
             { value: "Тарасенко Сергей", label: "Тарасенко Сергей" },
@@ -69,7 +80,12 @@ export const vocation_get = async (req, res) => {
             })
         })
 
-        res.status(200).json({ employeeSelector, employeeFilterSelector, vocation , vocationGroupDays})
+        res.status(200).json({
+            employeeSelector,
+            employeeFilterSelector,
+            vocation,
+            vocationGroupDays
+        })
     }
     catch (err) {
         res.status(500).json({ ...err })
@@ -80,8 +96,17 @@ export const vocation_get_gantt = async (req, res) => {
     try {
 
         var vocation = []
-        const vocationEntity = await VocationModel.find()
 
+        const vocationEntity = await VocationModel.aggregate([
+            {
+                $match: {
+                    employee_vocation_to: {
+                        $gte: `${req.params.year}-01-01`,
+                        $lte: `${req.params.year}-12-31`
+                    }
+                }
+            }
+        ])
         vocationEntity.map(arr => {
             vocation.push({
                 _id: arr._id,
@@ -137,3 +162,17 @@ export const vocation_add = async (req, res) => {
         res.status(500).json({ ...err })
     }
 }
+
+export const vocation_delete = async (req, res) => {
+    try {
+
+        const deleteVocation = await
+            VocationModel.findByIdAndDelete(req.params.id)
+
+        res.status(200).json({ deleteVocation })
+    }
+    catch (err) {
+        res.status(500).json({ ...err })
+    }
+}
+
