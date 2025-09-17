@@ -13,6 +13,8 @@ import { meetingCalendar_add, meetingCalendar_get, meetingCalendar_edit, meeting
 import { gantt_get, gantt_edit, gantt_add } from './controller/ganttController.js'
 import { vocation_get, vocation_edit, vocation_delete, vocation_add, vocation_get_gantt } from './controller/vocationController.js'
 import { oneToOne_get, oneToOne_edit, oneToOne_add, oneToOne_delete } from './controller/oneToOneController.js'
+import { release_add, release_edit, release_get, release_delete } from './controller/releaseController.js'
+
 import CheckAuth from './utils/CheckAuth.js'
 
 dotenv.config()
@@ -41,6 +43,11 @@ app.get('/vocation/gantt/:year', vocation_get_gantt)
 app.patch('/vocation/edit/:id', vocation_edit)
 app.post('/vocation/add/', vocation_add);
 app.delete('/vocation/delete/:id', vocation_delete);
+
+app.post('/release/', release_get)
+app.post('/release/add/:assignment_employee', release_add);
+app.delete('/release/delete/:id', release_delete);
+app.patch('/release/edit/:id', release_edit)
 
 app.post('/daily/add', daily_add);
 app.get('/daily', daily_get)
