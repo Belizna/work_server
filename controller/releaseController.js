@@ -5,6 +5,8 @@ export const release_get = async (req, res) => {
     try {
 
         var statiscticRelease = [{ date_release: 0 }, { time_release: 0 }]
+        var releaseMonth = []
+        var releaseGroupMonth = [];
 
         const releaseEntity = await
             ReleaseModel.find({
@@ -21,6 +23,26 @@ export const release_get = async (req, res) => {
             const dateA = moment(a.release_date, "DD-MM-YYYY").toDate();
             const dateB = moment(b.release_date, "DD-MM-YYYY").toDate();
 
+            return dateA - dateB;
+        });
+
+        releaseEntity.map(obj => {
+            releaseMonth.push({ date: obj.release_date.slice(3), sum: obj.release_time })
+        })
+
+        releaseMonth.reduce((res, value) => {
+            if (!res[(value.date)]) {
+                res[value.date] = { type: value.date, value: 0 };
+                releaseGroupMonth.push(res[value.date])
+            }
+            res[value.date].value += value.sum;
+            return res;
+        }, {});
+
+        releaseEntity.sort((a, b) => {
+            const dateA = moment(a.release_date, "DD-MM-YYYY").toDate();
+            const dateB = moment(b.release_date, "DD-MM-YYYY").toDate();
+
             return dateB - dateA;
         });
 
@@ -31,7 +53,8 @@ export const release_get = async (req, res) => {
 
         res.status(200).json({
             releaseEntity,
-            statiscticRelease
+            statiscticRelease,
+            releaseGroupMonth
         })
     }
     catch (err) {
