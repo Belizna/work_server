@@ -14,6 +14,7 @@ import { gantt_get, gantt_edit, gantt_add } from './controller/ganttController.j
 import { vocation_get, vocation_edit, vocation_delete, vocation_add, vocation_get_gantt } from './controller/vocationController.js'
 import { oneToOne_get, oneToOne_edit, oneToOne_add, oneToOne_delete } from './controller/oneToOneController.js'
 import { release_add, release_edit, release_get, release_delete } from './controller/releaseController.js'
+import { teams_get, teams_add, teams_delete, teams_edit } from './controller/teamsController.js'
 
 import CheckAuth from './utils/CheckAuth.js'
 
@@ -33,6 +34,11 @@ app.get('/', (req, res) => {
         'server run'
     )
 });
+
+app.get('/teams', teams_get)
+app.post('/teams/add', teams_add);
+app.delete('/teams/delete/:id', teams_delete);
+app.patch('/teams/edit/:id', teams_edit)
 
 app.get('/gantt/:assignment_employee', gantt_get)
 app.patch('/gantt/edit/:id', gantt_edit)

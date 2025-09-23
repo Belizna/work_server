@@ -95,25 +95,49 @@ export const vocation_get = async (req, res) => {
 export const vocation_get_gantt = async (req, res) => {
     try {
 
+        const year = req.params.year
         var vocation = []
 
         const vocationEntity = await VocationModel.aggregate([
             {
                 $match: {
                     employee_vocation_to: {
-                        $gte: `${req.params.year}-01-01`,
-                        $lte: `${req.params.year}-12-31`
+                        $gte: `${year}-01-01`,
+                        $lte: `${year}-12-31`
                     }
                 }
             }
         ])
+
         vocationEntity.map(arr => {
-            vocation.push({
-                _id: arr._id,
-                empId: arr.assignment_employee,
-                start: arr.employee_vocation_from,
-                end: moment(arr.employee_vocation_to).add(1, "days"),
-            })
+            const monthDiff = (moment(arr.employee_vocation_to).year() -
+                moment(arr.employee_vocation_from).year()) * 12 +
+                (moment(arr.employee_vocation_to).month()
+                    - moment(arr.employee_vocation_from).month());
+
+            if (monthDiff > 0) {
+                vocation.push({
+                    _id: crypto.randomUUID(),
+                    empId: arr.assignment_employee,
+                    start: arr.employee_vocation_from,
+                    end: moment({ year, month: moment(arr.employee_vocation_from).month() })
+                        .endOf("month").format('YYYY-MM-DD')
+                }, {
+                    _id: crypto.randomUUID(),
+                    empId: arr.assignment_employee,
+                    start: moment({ year, month: moment(arr.employee_vocation_to).month() })
+                        .startOf("month").format('YYYY-MM-DD'),
+                    end: arr.employee_vocation_to
+                })
+            }
+            else {
+                vocation.push({
+                    _id: arr._id,
+                    empId: arr.assignment_employee,
+                    start: arr.employee_vocation_from,
+                    end: moment(arr.employee_vocation_to).add(1, "days"),
+                })
+            }
         })
 
         res.status(200).json({ vocation })
