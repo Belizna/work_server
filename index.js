@@ -15,6 +15,7 @@ import { vocation_get, vocation_edit, vocation_delete, vocation_add, vocation_ge
 import { oneToOne_get, oneToOne_edit, oneToOne_add, oneToOne_delete } from './controller/oneToOneController.js'
 import { release_add, release_edit, release_get, release_delete } from './controller/releaseController.js'
 import { teams_get, teams_add, teams_delete, teams_edit } from './controller/teamsController.js'
+import { mainPage_get } from './controller/mainController.js'
 
 import CheckAuth from './utils/CheckAuth.js'
 
@@ -34,6 +35,8 @@ app.get('/', (req, res) => {
         'server run'
     )
 });
+
+app.get('/main', mainPage_get)
 
 app.get('/teams', teams_get)
 app.post('/teams/add', teams_add);
