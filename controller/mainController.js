@@ -9,8 +9,6 @@ export const mainPage_get = async (req, res) => {
     try {
 
         const now = moment();
-        const currentYear = new Date().getFullYear()
-        const threeDaysLater = moment().add(1, "month").toDate();
 
         const monthDiff = (date) => {
             return (moment(date).year() - moment(now).year()) * 12 +
@@ -66,9 +64,19 @@ export const mainPage_get = async (req, res) => {
 
         const vocation = await VocationModel.find({
             $expr: {
-                $lt: [
-                    { $toDate: "$employee_vocation_to" },
-                    threeDaysLater
+                $and: [
+                    {
+                        $gte: [
+                            { $toDate: "$employee_vocation_from" },
+                            now.startOf("month").toDate()
+                        ]
+                    },
+                    {
+                        $lte: [
+                            { $toDate: "$employee_vocation_to" },
+                            now.add(1, "month").endOf("month").toDate()
+                        ]
+                    }
                 ]
             }
         })
@@ -94,7 +102,7 @@ export const mainPage_get = async (req, res) => {
 
         teams.map(arr => {
 
-            var birthday = moment(`${arr.birthday?.substr(0, 6) + currentYear}`, "DD-MM-YYYY")
+            var birthday = moment(`${arr.birthday?.substr(0, 6) + now.year()}`, "DD-MM-YYYY")
             const monthDiffBirth = monthDiff(birthday);
 
             if (monthDiffBirth >= 0 && monthDiffBirth < 3) {
@@ -103,31 +111,31 @@ export const mainPage_get = async (req, res) => {
                     days: moment(birthday).format("DD-MM-YYYY"),
                     title: "🎂 День рождения",
                     fio_user: arr.fio_user,
-                    diff: `Исполняется - ${currentYear - arr.birthday?.substr(6, 4)}`
+                    diff: `Исполняется - ${now.year() - arr.birthday?.substr(6, 4)}`
                 })
 
             }
 
-            var employmentday = moment(`${arr.date_employment?.substr(0, 6) + currentYear}`, "DD-MM-YYYY")
+            var employmentday = moment(`${arr.date_employment?.substr(0, 6) + now.year()}`, "DD-MM-YYYY")
             const monthDiffEmployment = monthDiff(employmentday);
 
             if (monthDiffEmployment >= 0 && monthDiffEmployment < 3) {
 
-                if (currentYear - arr.date_employment?.substr(6, 4) === 1) {
+                if (now.year() - arr.date_employment?.substr(6, 4) === 1) {
                     eventsTeams.push({
                         days: moment(employmentday).format("DD-MM-YYYY"),
                         title: "🎉 Юбилей в команде",
                         fio_user: arr.fio_user,
-                        diff: `Прошел - ${currentYear - arr.date_employment?.substr(6, 4)} год`
+                        diff: `Прошел - ${now.year() - arr.date_employment?.substr(6, 4)} год`
                     })
                 }
-                else if (currentYear - arr.date_employment?.substr(6, 4) > 1 &&
-                    currentYear - arr.date_employment?.substr(6, 4) < 5) {
+                else if (now.year() - arr.date_employment?.substr(6, 4) > 1 &&
+                    now.year() - arr.date_employment?.substr(6, 4) < 5) {
                     eventsTeams.push({
                         days: moment(employmentday).format("DD-MM-YYYY"),
                         title: "🎉 Юбилей в команде",
                         fio_user: arr.fio_user,
-                        diff: `Прошло - ${currentYear - arr.date_employment?.substr(6, 4)} года`
+                        diff: `Прошло - ${now.year() - arr.date_employment?.substr(6, 4)} года`
                     })
                 }
                 else {
@@ -135,7 +143,7 @@ export const mainPage_get = async (req, res) => {
                         days: moment(employmentday).format("DD-MM-YYYY"),
                         title: "🎉 Юбилей в команде",
                         fio_user: arr.fio_user,
-                        diff: `Прошло - ${currentYear - arr.date_employment?.substr(6, 4)} лет`
+                        diff: `Прошло - ${now.year() - arr.date_employment?.substr(6, 4)} лет`
                     })
                 }
             }
