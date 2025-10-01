@@ -103,7 +103,7 @@ export const mainPage_get = async (req, res) => {
         teams.map(arr => {
 
             var birthday = moment(`${arr.birthday?.substr(0, 6) + now.year()}`, "DD-MM-YYYY")
-            const monthDiffBirth = monthDiff(birthday);
+            const monthDiffBirth = monthDiff(birthday) + 1;
 
             if (monthDiffBirth >= 0 && monthDiffBirth < 3) {
 
@@ -117,7 +117,7 @@ export const mainPage_get = async (req, res) => {
             }
 
             var employmentday = moment(`${arr.date_employment?.substr(0, 6) + now.year()}`, "DD-MM-YYYY")
-            const monthDiffEmployment = monthDiff(employmentday);
+            const monthDiffEmployment = monthDiff(employmentday) + 1;
 
             if (monthDiffEmployment >= 0 && monthDiffEmployment < 3) {
 
@@ -165,7 +165,7 @@ export const mainPage_get = async (req, res) => {
 
         relase.map(arr => {
 
-            const monthDiffReleae = monthDiff(moment(arr.release_date, "DD-MM-YYYY"));
+            const monthDiffReleae = monthDiff(moment(arr.release_date, "DD-MM-YYYY")) + 1;
 
             if (monthDiffReleae === 0) {
                 releaseTeams[0].release.push({
